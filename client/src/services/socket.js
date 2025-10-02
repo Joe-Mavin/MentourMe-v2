@@ -21,9 +21,19 @@ class SocketService {
 
     // Get server URL from environment with smart fallbacks
     const getServerUrl = () => {
-      // First, check for explicit socket server URL
+      // First, check for explicit WebSocket URL
+      if (import.meta.env.VITE_WS_URL) {
+        return import.meta.env.VITE_WS_URL;
+      }
+      
+      // Then check for explicit socket server URL
       if (import.meta.env.VITE_SOCKET_URL) {
         return import.meta.env.VITE_SOCKET_URL;
+      }
+      
+      // Then check for API URL and convert to WebSocket
+      if (import.meta.env.VITE_API_URL) {
+        return import.meta.env.VITE_API_URL.replace('/api', '').replace('http', 'ws');
       }
       
       // Then check for general server URL
@@ -36,7 +46,7 @@ class SocketService {
         return 'http://localhost:5000'; // Direct connection in dev
       }
       
-      return 'http://localhost:5000'; // Production fallback
+      return 'https://mentourme-v2.onrender.com'; // Production fallback
     };
     
     const serverUrl = getServerUrl();
