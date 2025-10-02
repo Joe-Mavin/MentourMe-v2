@@ -2,6 +2,8 @@ name = "mentourme-frontend"
 compatibility_date = "2024-01-01"
 pages_build_output_dir = "dist"
 
+# Updated for latest deployment fixes
+
 [[redirects]]
 from = "/api/*"
 to = "https://mentourme-v2.onrender.com/api/:splat"
