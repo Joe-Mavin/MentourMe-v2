@@ -1,0 +1,150 @@
+name: Scheduled Tasks
+
+on:
+  schedule:
+    # Run every hour for session reminders
+    - cron: '0 * * * *'
+    # Run daily at 2 AM UTC for cleanup tasks
+    - cron: '0 2 * * *'
+    # Run weekly on Sundays at 3 AM UTC for maintenance
+    - cron: '0 3 * * 0'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  session-reminders:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 * * * *' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Send Session Reminders
+        run: |
+          if [ -z "${{ secrets.BACKEND_URL }}" ] || [ -z "${{ secrets.ADMIN_API_TOKEN }}" ]; then
+            echo "⚠️ Required secrets not configured"
+            exit 1
+          fi
+          
+          response=$(curl -s -w "%{http_code}" -X POST "${{ secrets.BACKEND_URL }}/api/admin/tasks/session-reminders" \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_API_TOKEN }}" \
+            -H "Content-Type: application/json")
+          
+          http_code="${response: -3}"
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ Session reminders sent successfully"
+          else
+            echo "❌ Failed to send session reminders (HTTP $http_code)"
+            exit 1
+          fi
+
+  daily-cleanup:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 2 * * *' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Clean Expired Notifications
+        run: |
+          if [ -z "${{ secrets.BACKEND_URL }}" ] || [ -z "${{ secrets.ADMIN_API_TOKEN }}" ]; then
+            echo "⚠️ Required secrets not configured"
+            exit 1
+          fi
+          
+          response=$(curl -s -w "%{http_code}" -X POST "${{ secrets.BACKEND_URL }}/api/admin/tasks/cleanup-notifications" \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_API_TOKEN }}" \
+            -H "Content-Type: application/json")
+          
+          http_code="${response: -3}"
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ Notifications cleaned successfully"
+          else
+            echo "❌ Failed to clean notifications (HTTP $http_code)"
+            exit 1
+          fi
+      
+      - name: Clean Old Sessions
+        run: |
+          if [ -z "${{ secrets.BACKEND_URL }}" ] || [ -z "${{ secrets.ADMIN_API_TOKEN }}" ]; then
+            echo "⚠️ Required secrets not configured"
+            exit 1
+          fi
+          
+          response=$(curl -s -w "%{http_code}" -X POST "${{ secrets.BACKEND_URL }}/api/admin/tasks/cleanup-sessions" \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_API_TOKEN }}" \
+            -H "Content-Type: application/json")
+          
+          http_code="${response: -3}"
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ Sessions cleaned successfully"
+          else
+            echo "❌ Failed to clean sessions (HTTP $http_code)"
+            exit 1
+          fi
+
+  weekly-maintenance:
+    runs-on: ubuntu-latest
+    if: github.event.schedule == '0 3 * * 0' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Generate Weekly Reports
+        run: |
+          if [ -z "${{ secrets.BACKEND_URL }}" ] || [ -z "${{ secrets.ADMIN_API_TOKEN }}" ]; then
+            echo "⚠️ Required secrets not configured"
+            exit 1
+          fi
+          
+          response=$(curl -s -w "%{http_code}" -X POST "${{ secrets.BACKEND_URL }}/api/admin/tasks/weekly-reports" \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_API_TOKEN }}" \
+            -H "Content-Type: application/json")
+          
+          http_code="${response: -3}"
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ Weekly reports generated successfully"
+          else
+            echo "❌ Failed to generate weekly reports (HTTP $http_code)"
+            exit 1
+          fi
+      
+      - name: Update Mentor Rankings
+        run: |
+          if [ -z "${{ secrets.BACKEND_URL }}" ] || [ -z "${{ secrets.ADMIN_API_TOKEN }}" ]; then
+            echo "⚠️ Required secrets not configured"
+            exit 1
+          fi
+          
+          response=$(curl -s -w "%{http_code}" -X POST "${{ secrets.BACKEND_URL }}/api/admin/tasks/update-rankings" \
+            -H "Authorization: Bearer ${{ secrets.ADMIN_API_TOKEN }}" \
+            -H "Content-Type: application/json")
+          
+          http_code="${response: -3}"
+          if [ "$http_code" -ge 200 ] && [ "$http_code" -lt 300 ]; then
+            echo "✅ Mentor rankings updated successfully"
+          else
+            echo "❌ Failed to update mentor rankings (HTTP $http_code)"
+            exit 1
+          fi
+
+  health-check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Backend Health
+        run: |
+          if [ -z "${{ secrets.BACKEND_URL }}" ]; then
+            echo "⚠️ BACKEND_URL secret not configured"
+            exit 1
+          fi
+          
+          if curl -f "${{ secrets.BACKEND_URL }}/health"; then
+            echo "✅ Backend health check passed"
+          else
+            echo "❌ Backend health check failed"
+            exit 1
+          fi
+      
+      - name: Check Frontend Health
+        run: |
+          if [ -z "${{ secrets.FRONTEND_URL }}" ]; then
+            echo "⚠️ FRONTEND_URL secret not configured"
+            exit 1
+          fi
+          
+          if curl -f "${{ secrets.FRONTEND_URL }}"; then
+            echo "✅ Frontend health check passed"
+          else
+            echo "❌ Frontend health check failed"
+            exit 1
+          fi

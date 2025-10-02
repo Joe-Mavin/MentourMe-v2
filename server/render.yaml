@@ -1,0 +1,67 @@
+services:
+  - type: web
+    name: mentourme-backend
+    env: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm run start:render
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 5000
+      - key: CLIENT_URL
+        fromService:
+          type: web
+          name: mentourme-frontend
+          property: url
+      # Database configuration (Railway MariaDB)
+      - key: DB_HOST
+        sync: false
+      - key: DB_PORT
+        value: 3306
+      - key: DB_USER
+        sync: false
+      - key: DB_PASSWORD
+        sync: false
+      - key: DB_NAME
+        sync: false
+      - key: DATABASE_URL
+        sync: false
+      # JWT Configuration
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 7d
+      # Mailgun Configuration
+      - key: MAILGUN_API_KEY
+        sync: false
+      - key: MAILGUN_DOMAIN
+        sync: false
+      - key: MAILGUN_FROM_EMAIL
+        sync: false
+      # WebRTC Configuration (Metered)
+      - key: METERED_API_KEY
+        sync: false
+      - key: METERED_SECRET_KEY
+        sync: false
+      # CORS Configuration
+      - key: ALLOWED_ORIGINS
+        value: https://mentourme.pages.dev,https://mentourme-app.pages.dev
+      # Session Configuration
+      - key: SESSION_SECRET
+        generateValue: true
+      # File Upload Configuration
+      - key: MAX_FILE_SIZE
+        value: 10485760
+      - key: UPLOAD_PATH
+        value: /tmp/uploads
+    healthCheckPath: /health
+    autoDeploy: true
+    buildFilter:
+      paths:
+        - server/**
+      ignoredPaths:
+        - client/**
+        - README.md
+        - .gitignore

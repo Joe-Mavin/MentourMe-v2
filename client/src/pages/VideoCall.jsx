@@ -1,0 +1,697 @@
+import React, { useState, useEffect, useRef } from 'react';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
+import socketService from '../services/socket';
+import VideoStream from '../components/video/VideoStream';
+import VideoCallControls from '../components/video/VideoCallControls';
+import LoadingSpinner from '../components/common/LoadingSpinner';
+import toast from 'react-hot-toast';
+import {
+  PhoneXMarkIcon,
+  ExclamationTriangleIcon
+} from '@heroicons/react/24/outline';
+
+const VideoCall = () => {
+  const { callId } = useParams();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { user } = useAuth();
+
+  // Call state
+  const [callState, setCallState] = useState('connecting'); // connecting, connected, ended, failed
+  const [participants, setParticipants] = useState([]);
+  const [localStream, setLocalStream] = useState(null);
+  const [remoteStreams, setRemoteStreams] = useState(new Map());
+  
+  // Call controls state
+  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
+  const [isVideoEnabled, setIsVideoEnabled] = useState(true);
+  const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isSpeakerOn, setIsSpeakerOn] = useState(true);
+  const [showChat, setShowChat] = useState(false);
+  const [callDuration, setCallDuration] = useState(0);
+  const [mainStreamId, setMainStreamId] = useState(null);
+
+  // WebRTC references
+  const peerConnections = useRef(new Map());
+  const localStreamRef = useRef(null);
+  const callStartTime = useRef(null);
+  const durationInterval = useRef(null);
+
+  // Call type and target from URL params
+  const callType = searchParams.get('type') || 'video';
+  const targetId = searchParams.get('target');
+  const isRoomCall = searchParams.get('room') === 'true';
+
+  useEffect(() => {
+    initializeCall();
+    setupSocketListeners();
+
+    return () => {
+      cleanupCall();
+    };
+  }, []);
+
+  // Duration timer
+  useEffect(() => {
+    if (callState === 'connected' && !durationInterval.current) {
+      callStartTime.current = Date.now();
+      durationInterval.current = setInterval(() => {
+        setCallDuration(Math.floor((Date.now() - callStartTime.current) / 1000));
+      }, 1000);
+    }
+
+    return () => {
+      if (durationInterval.current) {
+        clearInterval(durationInterval.current);
+        durationInterval.current = null;
+      }
+    };
+  }, [callState]);
+
+  const initializeCall = async () => {
+    try {
+      // Get user media
+      const constraints = {
+        video: callType === 'video',
+        audio: true
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      setLocalStream(stream);
+      localStreamRef.current = stream;
+
+      if (callId === 'new') {
+        // Initiate new call
+        initiateCall();
+      } else {
+        // Join existing call
+        joinCall();
+      }
+    } catch (error) {
+      console.error('Failed to get user media:', error);
+      console.error('Media error details:', error.name, error.message);
+      
+      // More specific error handling
+      let errorMessage = 'Failed to access camera/microphone';
+      if (error.name === 'NotAllowedError') {
+        errorMessage = 'Camera/microphone access denied. Please allow permissions and refresh.';
+      } else if (error.name === 'NotFoundError') {
+        errorMessage = 'No camera/microphone found. Please connect a device.';
+      } else if (error.name === 'NotReadableError') {
+        errorMessage = 'Camera/microphone is being used by another application.';
+      }
+      
+      setCallState('failed');
+      toast.error(errorMessage);
+    }
+  };
+
+  const initiateCall = () => {
+    try {
+      if (!socketService.getConnectionStatus()) {
+        setCallState('failed');
+        toast.error('Not connected to server. Please check your connection.');
+        return;
+      }
+
+      if (isRoomCall) {
+        socketService.initiateCall(null, callType, targetId);
+      } else {
+        socketService.initiateCall(targetId, callType);
+      }
+      setCallState('connecting');
+    } catch (error) {
+      console.error('Failed to initiate call:', error);
+      setCallState('failed');
+      toast.error('Failed to initiate call');
+    }
+  };
+
+  const joinCall = () => {
+    try {
+      if (!socketService.getConnectionStatus()) {
+        setCallState('failed');
+        toast.error('Not connected to server. Please check your connection.');
+        return;
+      }
+
+      socketService.joinRoom(callId);
+      setCallState('connecting');
+    } catch (error) {
+      console.error('Failed to join call:', error);
+      setCallState('failed');
+      toast.error('Failed to join call');
+    }
+  };
+
+  const setupSocketListeners = () => {
+    socketService.on('call_initiated', handleCallInitiated);
+    socketService.on('call_participant_joined', handleParticipantJoined);
+    socketService.on('call_participant_left', handleParticipantLeft);
+    socketService.on('call_ended', handleCallEnded);
+    socketService.on('webrtc_offer', handleWebRTCOffer);
+    socketService.on('webrtc_answer', handleWebRTCAnswer);
+    socketService.on('webrtc_ice_candidate', handleICECandidate);
+
+    return () => {
+      socketService.off('call_initiated', handleCallInitiated);
+      socketService.off('call_participant_joined', handleParticipantJoined);
+      socketService.off('call_participant_left', handleParticipantLeft);
+      socketService.off('call_ended', handleCallEnded);
+      socketService.off('webrtc_offer', handleWebRTCOffer);
+      socketService.off('webrtc_answer', handleWebRTCAnswer);
+      socketService.off('webrtc_ice_candidate', handleICECandidate);
+    };
+  };
+
+  const handleCallInitiated = (data) => {
+    setCallState('connected');
+    setParticipants(data.participants || []);
+  };
+
+  const handleParticipantJoined = async (data) => {
+    const { participantId, participantInfo } = data;
+    setParticipants(prev => [...prev, participantInfo]);
+    
+    // Create peer connection for new participant
+    await createPeerConnection(participantId);
+  };
+
+  const handleParticipantLeft = (data) => {
+    const { participantId } = data;
+    setParticipants(prev => prev.filter(p => p.id !== participantId));
+    
+    // Clean up peer connection
+    const pc = peerConnections.current.get(participantId);
+    if (pc) {
+      pc.close();
+      peerConnections.current.delete(participantId);
+    }
+    
+    // Remove remote stream
+    setRemoteStreams(prev => {
+      const newStreams = new Map(prev);
+      newStreams.delete(participantId);
+      return newStreams;
+    });
+  };
+
+  const handleCallEnded = () => {
+    setCallState('ended');
+    toast.info('Call ended');
+    setTimeout(() => navigate('/dashboard'), 2000);
+  };
+
+  const createPeerConnection = async (participantId) => {
+    const configuration = {
+      iceServers: [
+        { urls: 'stun:stun.l.google.com:19302' },
+        { urls: 'stun:stun1.l.google.com:19302' }
+      ]
+    };
+
+    const pc = new RTCPeerConnection(configuration);
+    peerConnections.current.set(participantId, pc);
+
+    // Add local stream tracks
+    if (localStreamRef.current) {
+      localStreamRef.current.getTracks().forEach(track => {
+        pc.addTrack(track, localStreamRef.current);
+      });
+    }
+
+    // Handle remote stream
+    pc.ontrack = (event) => {
+      const [remoteStream] = event.streams;
+      setRemoteStreams(prev => new Map(prev.set(participantId, remoteStream)));
+      
+      if (!mainStreamId) {
+        setMainStreamId(participantId);
+      }
+    };
+
+    // Handle ICE candidates
+    pc.onicecandidate = (event) => {
+      if (event.candidate) {
+        socketService.sendICECandidate(participantId, event.candidate);
+      }
+    };
+
+    return pc;
+  };
+
+  const handleWebRTCOffer = async (data) => {
+    const { fromParticipant, offer } = data;
+    const pc = await createPeerConnection(fromParticipant);
+    
+    await pc.setRemoteDescription(offer);
+    const answer = await pc.createAnswer();
+    await pc.setLocalDescription(answer);
+    
+    socketService.sendWebRTCAnswer(fromParticipant, answer);
+  };
+
+  const handleWebRTCAnswer = async (data) => {
+    const { fromParticipant, answer } = data;
+    const pc = peerConnections.current.get(fromParticipant);
+    
+    if (pc) {
+      await pc.setRemoteDescription(answer);
+    }
+  };
+
+  const handleICECandidate = async (data) => {
+    const { fromParticipant, candidate } = data;
+    const pc = peerConnections.current.get(fromParticipant);
+    
+    if (pc) {
+      await pc.addIceCandidate(candidate);
+    }
+  };
+
+  const toggleAudio = () => {
+    if (localStreamRef.current) {
+      const audioTrack = localStreamRef.current.getAudioTracks()[0];
+      if (audioTrack) {
+        audioTrack.enabled = !audioTrack.enabled;
+        setIsAudioEnabled(audioTrack.enabled);
+      }
+    }
+  };
+
+  const toggleVideo = () => {
+    if (localStreamRef.current) {
+      const videoTrack = localStreamRef.current.getVideoTracks()[0];
+      if (videoTrack) {
+        videoTrack.enabled = !videoTrack.enabled;
+        setIsVideoEnabled(videoTrack.enabled);
+      }
+    }
+  };
+
+  const toggleScreenShare = async () => {
+    try {
+      if (!isScreenSharing) {
+        // Start screen sharing
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({
+          video: {
+            mediaSource: 'screen',
+            width: { max: 1920 },
+            height: { max: 1080 },
+            frameRate: { max: 30 }
+          },
+          audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            sampleRate: 44100
+          }
+        });
+        
+        const videoTrack = screenStream.getVideoTracks()[0];
+        const audioTrack = screenStream.getAudioTracks()[0];
+
+        // Store original camera stream
+        const originalVideoTrack = localStreamRef.current?.getVideoTracks()[0];
+        
+        // Replace video track in all peer connections
+        const replacePromises = [];
+        peerConnections.current.forEach(pc => {
+          const videoSender = pc.getSenders().find(s => 
+            s.track && s.track.kind === 'video'
+          );
+          if (videoSender && videoTrack) {
+            replacePromises.push(videoSender.replaceTrack(videoTrack));
+          }
+
+          // Add audio track if available
+          if (audioTrack) {
+            const audioSender = pc.getSenders().find(s => 
+              s.track && s.track.kind === 'audio'
+            );
+            if (!audioSender) {
+              pc.addTrack(audioTrack, screenStream);
+            }
+          }
+        });
+
+        await Promise.all(replacePromises);
+        
+        // Update local stream for UI
+        const newLocalStream = new MediaStream();
+        newLocalStream.addTrack(videoTrack);
+        if (localStreamRef.current?.getAudioTracks()[0]) {
+          newLocalStream.addTrack(localStreamRef.current.getAudioTracks()[0]);
+        }
+        setLocalStream(newLocalStream);
+        
+        setIsScreenSharing(true);
+        toast.success('Screen sharing started');
+        
+        // Notify other participants about screen sharing
+        if (callId && callId !== 'new') {
+          socketService.notifyScreenShareStart(callId, user?.id);
+        }
+        
+        // Listen for screen share end (user clicks "Stop sharing" in browser)
+        videoTrack.onended = async () => {
+          await stopScreenSharing(originalVideoTrack);
+        };
+      } else {
+        // Stop screen sharing
+        await stopScreenSharing();
+      }
+    } catch (error) {
+      console.error('Screen share error:', error);
+      if (error.name === 'NotAllowedError') {
+        toast.error('Screen sharing permission denied');
+      } else if (error.name === 'NotSupportedError') {
+        toast.error('Screen sharing not supported in this browser');
+      } else {
+        toast.error('Failed to share screen');
+      }
+    }
+  };
+
+  const stopScreenSharing = async (originalVideoTrack = null) => {
+    try {
+      // Get the original camera track or create new one
+      let cameraTrack = originalVideoTrack;
+      if (!cameraTrack || cameraTrack.readyState === 'ended') {
+        const cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+          audio: false
+        });
+        cameraTrack = cameraStream.getVideoTracks()[0];
+      }
+
+      // Replace screen share track with camera track in all peer connections
+      const replacePromises = [];
+      peerConnections.current.forEach(pc => {
+        const videoSender = pc.getSenders().find(s => 
+          s.track && s.track.kind === 'video'
+        );
+        if (videoSender && cameraTrack) {
+          replacePromises.push(videoSender.replaceTrack(cameraTrack));
+        }
+      });
+
+      await Promise.all(replacePromises);
+      
+      // Update local stream
+      const newLocalStream = new MediaStream();
+      newLocalStream.addTrack(cameraTrack);
+      if (localStreamRef.current?.getAudioTracks()[0]) {
+        newLocalStream.addTrack(localStreamRef.current.getAudioTracks()[0]);
+      }
+      
+      // Stop current screen sharing tracks
+      if (localStream) {
+        localStream.getVideoTracks().forEach(track => {
+          if (track.label.includes('screen') || track.kind === 'video') {
+            track.stop();
+          }
+        });
+      }
+      
+      setLocalStream(newLocalStream);
+      localStreamRef.current = newLocalStream;
+      setIsScreenSharing(false);
+      
+      // Notify other participants about screen sharing stop
+      if (callId && callId !== 'new') {
+        socketService.notifyScreenShareStop(callId, user?.id);
+      }
+      
+      toast.success('Screen sharing stopped');
+    } catch (error) {
+      console.error('Error stopping screen share:', error);
+      setIsScreenSharing(false);
+      toast.error('Error stopping screen share');
+    }
+  };
+
+  const endCall = async () => {
+    try {
+      setCallState('ending');
+      
+      // Notify server about call end
+      if (socketService.getConnectionStatus() && callId && callId !== 'new') {
+        socketService.endCall(callId);
+      }
+      
+      // Send notification to other participants
+      participants.forEach(participant => {
+        if (participant.id !== user?.id) {
+          socketService.emit('call_participant_left', {
+            callId,
+            participantId: user?.id,
+            reason: 'ended_by_user'
+          });
+        }
+      });
+      
+      toast.success('Call ended');
+    } catch (error) {
+      console.error('Error ending call:', error);
+      toast.error('Error ending call');
+    } finally {
+      // Always cleanup and navigate
+      await cleanupCall();
+      setCallState('ended');
+      
+      // Navigate after a short delay to show the ended state
+      setTimeout(() => {
+        navigate('/dashboard');
+      }, 1500);
+    }
+  };
+
+  const cleanupCall = async () => {
+    try {
+      // Stop local stream tracks
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach(track => {
+          try {
+            track.stop();
+          } catch (e) {
+            console.warn('Error stopping track:', e);
+          }
+        });
+        localStreamRef.current = null;
+      }
+
+      if (localStream) {
+        localStream.getTracks().forEach(track => {
+          try {
+            track.stop();
+          } catch (e) {
+            console.warn('Error stopping local stream track:', e);
+          }
+        });
+        setLocalStream(null);
+      }
+
+      // Stop remote streams
+      remoteStreams.forEach(stream => {
+        stream.getTracks().forEach(track => {
+          try {
+            track.stop();
+          } catch (e) {
+            console.warn('Error stopping remote stream track:', e);
+          }
+        });
+      });
+      setRemoteStreams(new Map());
+
+      // Close all peer connections
+      peerConnections.current.forEach((pc, participantId) => {
+        try {
+          if (pc.connectionState !== 'closed') {
+            pc.close();
+          }
+        } catch (e) {
+          console.warn(`Error closing peer connection for ${participantId}:`, e);
+        }
+      });
+      peerConnections.current.clear();
+
+      // Clear duration timer
+      if (durationInterval.current) {
+        clearInterval(durationInterval.current);
+        durationInterval.current = null;
+      }
+
+      // Reset call state
+      setParticipants([]);
+      setMainStreamId(null);
+      setIsScreenSharing(false);
+      setCallDuration(0);
+      
+      console.log('Call cleanup completed');
+    } catch (error) {
+      console.error('Error during call cleanup:', error);
+    }
+  };
+
+  const handleStreamClick = (streamId) => {
+    setMainStreamId(streamId);
+  };
+
+  if (callState === 'failed') {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center text-white">
+          <ExclamationTriangleIcon className="h-16 w-16 mx-auto mb-4 text-red-500" />
+          <h2 className="text-2xl font-bold mb-2">Call Failed</h2>
+          <p className="text-gray-300 mb-6">Unable to start the call. Please check your camera and microphone permissions.</p>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="btn btn-primary"
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (callState === 'ended' || callState === 'ending') {
+    return (
+      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+        <div className="text-center text-white">
+          <PhoneXMarkIcon className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+          <h2 className="text-2xl font-bold mb-2">Call Ended</h2>
+          <p className="text-gray-300 mb-6">The call has ended. You will be redirected shortly.</p>
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="btn btn-primary"
+          >
+            Return to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-gray-900 relative overflow-hidden">
+      {callState === 'connecting' && (
+        <div className="absolute inset-0 flex items-center justify-center z-10">
+          <div className="text-center text-white">
+            <LoadingSpinner size="lg" color="white" />
+            <p className="mt-4 text-lg">Connecting to call...</p>
+          </div>
+        </div>
+      )}
+
+      {/* Video layout */}
+      <div className="h-screen flex">
+        {/* Main video area */}
+        <div className="flex-1 relative">
+          {mainStreamId && remoteStreams.has(mainStreamId) ? (
+            <VideoStream
+              stream={remoteStreams.get(mainStreamId)}
+              isLocal={false}
+              isVideoEnabled={true}
+              isAudioEnabled={true}
+              participantName={participants.find(p => p.id === mainStreamId)?.name}
+              participantId={mainStreamId}
+              isMainStream={true}
+              className="w-full h-full"
+            />
+          ) : localStream ? (
+            <VideoStream
+              stream={localStream}
+              isLocal={true}
+              isVideoEnabled={isVideoEnabled}
+              isAudioEnabled={isAudioEnabled}
+              participantName={user?.name}
+              participantId="local"
+              isMainStream={true}
+              className="w-full h-full"
+            />
+          ) : (
+            <div className="w-full h-full bg-gray-800 flex items-center justify-center">
+              <LoadingSpinner size="lg" color="white" />
+            </div>
+          )}
+        </div>
+
+        {/* Side panel for additional participants */}
+        {(participants.length > 0 || localStream) && (
+          <div className="w-80 bg-gray-800 p-4 space-y-4 overflow-y-auto">
+            <h3 className="text-white font-medium mb-4">
+              Participants ({participants.length + 1})
+            </h3>
+            
+            {/* Local stream thumbnail */}
+            {localStream && mainStreamId !== 'local' && (
+              <VideoStream
+                stream={localStream}
+                isLocal={true}
+                isVideoEnabled={isVideoEnabled}
+                isAudioEnabled={isAudioEnabled}
+                participantName={user?.name}
+                participantId="local"
+                onStreamClick={handleStreamClick}
+                className="w-full h-32"
+              />
+            )}
+
+            {/* Remote stream thumbnails */}
+            {Array.from(remoteStreams.entries()).map(([participantId, stream]) => {
+              if (participantId === mainStreamId) return null;
+              
+              const participant = participants.find(p => p.id === participantId);
+              return (
+                <VideoStream
+                  key={participantId}
+                  stream={stream}
+                  isLocal={false}
+                  isVideoEnabled={true}
+                  isAudioEnabled={true}
+                  participantName={participant?.name}
+                  participantId={participantId}
+                  onStreamClick={handleStreamClick}
+                  className="w-full h-32"
+                />
+              );
+            })}
+          </div>
+        )}
+
+        {/* Chat panel */}
+        {showChat && (
+          <div className="w-80 bg-white border-l border-gray-200">
+            <div className="p-4 border-b">
+              <h3 className="font-medium">Call Chat</h3>
+            </div>
+            <div className="flex-1 p-4">
+              <p className="text-gray-500 text-sm">Chat feature coming soon...</p>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* Call controls */}
+      <VideoCallControls
+        isAudioEnabled={isAudioEnabled}
+        isVideoEnabled={isVideoEnabled}
+        isScreenSharing={isScreenSharing}
+        isSpeakerOn={isSpeakerOn}
+        onToggleAudio={toggleAudio}
+        onToggleVideo={toggleVideo}
+        onToggleScreenShare={toggleScreenShare}
+        onToggleSpeaker={() => setIsSpeakerOn(!isSpeakerOn)}
+        onEndCall={endCall}
+        onToggleChat={() => setShowChat(!showChat)}
+        showChat={showChat}
+        callDuration={callDuration}
+        participantCount={participants.length + 1}
+      />
+    </div>
+  );
+};
+
+export default VideoCall;

@@ -1,0 +1,8 @@
+# API redirects to backend
+/api/* https://mentourme-backend.onrender.com/api/:splat 200
+
+# WebSocket proxy
+/socket.io/* https://mentourme-backend.onrender.com/socket.io/:splat 200
+
+# SPA fallback
+/* /index.html 200

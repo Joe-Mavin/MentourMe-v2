@@ -1,0 +1,46 @@
+{
+  "name": "mentourme",
+  "version": "1.0.0",
+  "description": "A modern mentorship platform connecting professionals with industry experts",
+  "main": "server/server.js",
+  "scripts": {
+    "dev": "concurrently \"npm run server:dev\" \"npm run client:dev\"",
+    "server:dev": "cd server && npm run dev",
+    "client:dev": "cd client && npm run dev",
+    "build": "cd client && npm run build",
+    "start": "cd server && npm start",
+    "install:all": "npm install && cd server && npm install && cd ../client && npm install",
+    "deploy:build": "cd client && npm run build",
+    "setup:prod": "node scripts/setup-production.js setup",
+    "validate:prod": "node scripts/setup-production.js validate",
+    "verify:deployment": "node scripts/verify-deployment.js",
+    "validate:workflows": "node scripts/validate-workflows.js",
+    "deploy": "chmod +x scripts/deploy.sh && ./scripts/deploy.sh",
+    "test": "npm run validate:workflows --test"
+  },
+  "keywords": [
+    "mentorship",
+    "career-development",
+    "professional-networking",
+    "real-time-messaging",
+    "video-calls",
+    "goal-tracking"
+  ],
+  "author": "MentourMe Team",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=8.0.0"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/mentourme.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/mentourme/issues"
+  },
+  "homepage": "https://mentourme.netlify.app"
+}

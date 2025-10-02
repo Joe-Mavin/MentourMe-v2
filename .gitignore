@@ -1,0 +1,110 @@
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.production.example
+
+# Production builds
+/client/dist/
+/client/build/
+/server/dist/
+/server/build/
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Coverage directory used by tools like istanbul
+coverage/
+.nyc_output/
+
+# Logs
+logs
+*.log
+
+# Runtime data
+pids
+*.pid
+*.seed
+*.pid.lock
+
+# Optional npm cache directory
+.npm
+
+# Optional REPL history
+.node_repl_history
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+tmp/
+temp/
+
+# Database files
+*.sqlite
+*.db
+
+# Uploads directory (if storing files locally)
+/server/uploads/*
+!/server/uploads/.gitkeep
+
+# Test files
+/coverage/
+/.nyc_output/
+
+# Build artifacts
+/client/dist/
+/server/dist/
+
+# Package manager files (keep package-lock.json for CI/CD)
+# package-lock.json - needed for GitHub Actions caching
+yarn.lock
+
+# Local development files
+.env.development
+.env.test
+
+# Production deployment files (keep examples)
+# .env.production (keep example only)
+
+# Render deployment files
+.render/
+
+# Railway deployment files
+.railway/
+
+# Cloudflare deployment files
+.wrangler/
