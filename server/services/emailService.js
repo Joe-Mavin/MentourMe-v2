@@ -20,17 +20,17 @@ class EmailService {
       return;
     }
 
-    // Configure with testmail.app SMTP settings
+    // Configure with Brevo (formerly Sendinblue) SMTP settings
     this.transporter = nodemailer.createTransporter({
-      host: 'smtp.testmail.app',
+      host: 'smtp-relay.brevo.com',
       port: 587,
       secure: false, // Use TLS
       auth: {
-        user: process.env.TESTMAIL_USERNAME || 'mentourme',
-        pass: process.env.TESTMAIL_PASSWORD || 'your-testmail-password'
+        user: process.env.BREVO_SMTP_USER || process.env.BREVO_EMAIL,
+        pass: process.env.BREVO_SMTP_PASSWORD || process.env.BREVO_API_KEY
       },
       tls: {
-        ciphers: 'SSLv3'
+        rejectUnauthorized: false
       }
     });
 

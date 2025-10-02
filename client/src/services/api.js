@@ -19,7 +19,7 @@ const getApiBaseURL = () => {
   }
   
   // Production fallback
-  return 'https://mentourme-backend.onrender.com/api';
+  return 'https://mentourme-v2.onrender.com/api';
 };
 
 // Create axios instance
