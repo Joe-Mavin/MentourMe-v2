@@ -91,7 +91,7 @@ temp/
 /server/dist/
 
 # Package manager files (keep package-lock.json for CI/CD)
-# package-lock.json - needed for GitHub Actions caching
+# package-lock.json - needed for Cloudflare Pages deployment
 yarn.lock
 
 # Local development files
