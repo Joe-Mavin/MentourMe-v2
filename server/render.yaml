@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: mentourme-backend
+    name: mentourme-v2
     env: node
     plan: free
     buildCommand: npm install
@@ -11,10 +11,7 @@ services:
       - key: PORT
         value: 5000
       - key: CLIENT_URL
-        fromService:
-          type: web
-          name: mentourme-frontend
-          property: url
+        value: https://mentourme-v3.pages.dev
       # Database configuration (Railway MariaDB)
       - key: DB_HOST
         sync: false
@@ -47,7 +44,7 @@ services:
         sync: false
       # CORS Configuration
       - key: ALLOWED_ORIGINS
-        value: https://mentourme.pages.dev,https://mentourme-app.pages.dev
+        value: https://mentourme-v3.pages.dev,https://mentourme-app.pages.dev
       # Session Configuration
       - key: SESSION_SECRET
         generateValue: true
