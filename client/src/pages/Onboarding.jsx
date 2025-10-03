@@ -113,7 +113,7 @@ const daysOfWeek = [
 ];
 
 const Onboarding = () => {
-  const { user, refreshUserData } = useAuth();
+  const { user, updateOnboardingStatus } = useAuth();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [existingData, setExistingData] = useState(null);
@@ -199,10 +199,10 @@ const Onboarding = () => {
 
       await onboardingAPI.submit(submitData);
       
-      // ✅ FIX: Refresh user profile data to include onboarding information
-      const refreshResult = await refreshUserData();
-      if (!refreshResult.success) {
-        console.warn('Could not refresh profile after onboarding:', refreshResult.error);
+      // ✅ FIX: Update onboarding completion status
+      const updateResult = await updateOnboardingStatus();
+      if (!updateResult.success) {
+        console.warn('Could not update onboarding status:', updateResult.error);
       }
 
       toast.success('Onboarding completed successfully!');

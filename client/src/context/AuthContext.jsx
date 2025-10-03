@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { authAPI } from '../services/api';
+import { authAPI, onboardingAPI } from '../services/api';
 import socketService from '../services/socket';
 import toast from 'react-hot-toast';
 
@@ -134,17 +134,35 @@ export const AuthProvider = ({ children }) => {
 
       // Store in localStorage
       localStorage.setItem('auth_token', token);
-      localStorage.setItem('user_data', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(user));
 
-      dispatch({
-        type: 'LOGIN_SUCCESS',
-        payload: { user, token },
+      dispatch({ 
+        type: 'LOGIN_SUCCESS', 
+        payload: { user, token } 
       });
 
-      // Connect to socket
-      socketService.connect(token);
+      // Fetch onboarding data to check completion status
+      try {
+        const onboardingResponse = await onboardingAPI.get();
+        const onboardingData = onboardingResponse.data.data.onboardingData;
+        
+        // Update user with onboarding data
+        const updatedUser = { ...user, onboardingData };
+        localStorage.setItem('user', JSON.stringify(updatedUser));
+        
+        dispatch({ 
+          type: 'UPDATE_USER', 
+          payload: updatedUser 
+        });
+        
+        console.log('✅ Onboarding data loaded:', onboardingData);
+      } catch (onboardingError) {
+        // If onboarding data doesn't exist, that's fine - user needs to complete onboarding
+        console.log('ℹ️ No onboarding data found - user needs to complete onboarding');
+      }
 
       toast.success('Login successful!');
+      socketService.connect(token);
       
       // Check for redirect after login
       const redirectPath = localStorage.getItem('redirect_after_login');
@@ -306,6 +324,29 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // ✅ NEW: Function to update onboarding completion status
+  const updateOnboardingStatus = async () => {
+    try {
+      const onboardingResponse = await onboardingAPI.get();
+      const onboardingData = onboardingResponse.data.data.onboardingData;
+      
+      // Update user with onboarding data
+      const updatedUser = { ...state.user, onboardingData };
+      localStorage.setItem('user', JSON.stringify(updatedUser));
+      
+      dispatch({ 
+        type: 'UPDATE_USER', 
+        payload: updatedUser 
+      });
+      
+      console.log('✅ Onboarding status updated:', onboardingData);
+      return { success: true, onboardingData };
+    } catch (error) {
+      console.error('Failed to update onboarding status:', error);
+      return { success: false, error: error.message };
+    }
+  };
+
   // Check if user has specific role(s)
   const hasRole = (roles) => {
     if (!state.user?.role) return false;
@@ -361,6 +402,7 @@ export const AuthProvider = ({ children }) => {
     changePassword,
     refreshToken,
     refreshUserData, // ✅ FIX: Add the new refresh function
+    updateOnboardingStatus, // ✅ NEW: Add onboarding status updater
     clearError,
     hasRole,
     isApproved,
