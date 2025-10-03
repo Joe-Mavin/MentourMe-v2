@@ -69,8 +69,11 @@ router.post("/restore-john-mentor", async (req, res) => {
     });
 
     if (existingJohn) {
-      // Update to ensure admin privileges
+      // Update to ensure admin privileges AND reset password
+      const hashedPassword = await bcrypt.hash("Mentor123!", 12);
+      
       await existingJohn.update({
+        password: hashedPassword, // Reset password to known value
         role: "admin",
         approved: true,
         isActive: true,
@@ -120,6 +123,53 @@ router.post("/restore-john-mentor", async (req, res) => {
       success: false,
       message: "Failed to restore John Mentor user",
       error: process.env.NODE_ENV === "development" ? error.message : undefined
+    });
+  }
+});
+
+/**
+ * POST /api/setup/reset-john-password
+ * Reset John Mentor password to default
+ */
+router.post("/reset-john-password", async (req, res) => {
+  try {
+    const johnUser = await User.findOne({
+      where: { email: "john.mentor@example.com" }
+    });
+
+    if (!johnUser) {
+      return res.status(404).json({
+        success: false,
+        message: "John Mentor user not found"
+      });
+    }
+
+    // Reset password to known value
+    const hashedPassword = await bcrypt.hash("Mentor123!", 12);
+    
+    await johnUser.update({
+      password: hashedPassword,
+      emailVerified: true,
+      isActive: true
+    });
+
+    console.log("✅ John Mentor password reset successfully");
+
+    res.json({
+      success: true,
+      message: "Password reset successfully",
+      data: {
+        email: "john.mentor@example.com",
+        password: "Mentor123!",
+        role: johnUser.role
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ Failed to reset password:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to reset password"
     });
   }
 });
