@@ -129,7 +129,7 @@ router.post("/restore-john-mentor", async (req, res) => {
 
 /**
  * POST /api/setup/reset-john-password
- * Reset John Mentor password to default
+ * Reset John Mentor password to default with verification
  */
 router.post("/reset-john-password", async (req, res) => {
   try {
@@ -144,24 +144,39 @@ router.post("/reset-john-password", async (req, res) => {
       });
     }
 
-    // Reset password to known value
-    const hashedPassword = await bcrypt.hash("Mentor123!", 12);
+    const newPassword = "Mentor123!";
     
+    // Hash password with bcrypt directly (same as User model)
+    const saltRounds = 12;
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    
+    // Update password directly in database
     await johnUser.update({
       password: hashedPassword,
       emailVerified: true,
-      isActive: true
+      isActive: true,
+      approved: true
     });
 
+    // Verify the password was set correctly
+    const updatedUser = await User.findOne({
+      where: { email: "john.mentor@example.com" }
+    });
+    
+    const passwordTest = await bcrypt.compare(newPassword, updatedUser.password);
+
     console.log("✅ John Mentor password reset successfully");
+    console.log("🔍 Password verification:", passwordTest);
 
     res.json({
       success: true,
-      message: "Password reset successfully",
+      message: "Password reset and verified successfully",
       data: {
         email: "john.mentor@example.com",
         password: "Mentor123!",
-        role: johnUser.role
+        role: johnUser.role,
+        passwordVerified: passwordTest,
+        hashPreview: hashedPassword.substring(0, 20) + "..."
       }
     });
 
@@ -169,7 +184,8 @@ router.post("/reset-john-password", async (req, res) => {
     console.error("❌ Failed to reset password:", error);
     res.status(500).json({
       success: false,
-      message: "Failed to reset password"
+      message: "Failed to reset password",
+      error: error.message
     });
   }
 });
