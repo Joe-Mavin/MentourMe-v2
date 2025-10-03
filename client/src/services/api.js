@@ -242,6 +242,19 @@ export const adminAPI = {
   deleteRoom: (roomId) => api.delete(`/admin/rooms/${roomId}`),
 };
 
+// Video Call API
+export const videoCallAPI = {
+  create: (data) => api.post('/video-calls', data),
+  join: (callId) => api.post(`/video-calls/${callId}/join`),
+  leave: (callId) => api.post(`/video-calls/${callId}/leave`),
+  end: (callId) => api.post(`/video-calls/${callId}/end`),
+  get: (callId) => api.get(`/video-calls/${callId}`),
+  getActive: () => api.get('/video-calls/active'),
+};
+
+// Alias for backward compatibility
+export const videoCallsAPI = videoCallAPI;
+
 // WebRTC Configuration API
 export const webrtcAPI = {
   getConfig: () => api.get('/webrtc/config'),
