@@ -37,10 +37,16 @@ services:
         sync: false
       - key: MAILGUN_FROM_EMAIL
         sync: false
-      # WebRTC Configuration (Metered)
+      # WebRTC Configuration (Metered - set in Render Environment Variables)
       - key: METERED_API_KEY
         sync: false
       - key: METERED_SECRET_KEY
+        sync: false
+      - key: METERED_DOMAIN
+        sync: false
+      - key: METERED_USERNAME
+        sync: false
+      - key: METERED_PASSWORD
         sync: false
       # CORS Configuration
       - key: ALLOWED_ORIGINS
