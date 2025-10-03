@@ -242,19 +242,10 @@ export const adminAPI = {
   deleteRoom: (roomId) => api.delete(`/admin/rooms/${roomId}`),
 };
 
-// WebRTC API
+// WebRTC Configuration API
 export const webrtcAPI = {
-  getActiveCalls: () => api.get('/webrtc/calls/active'),
-  getCallStats: (callId) => api.get(`/webrtc/calls/${callId}/stats`),
-};
-
-// Video Calls API
-export const videoCallsAPI = {
-  initiateCall: (data) => api.post('/video-calls/initiate', data),
-  acceptCall: (callId) => api.post(`/video-calls/${callId}/accept`),
-  rejectCall: (callId, data) => api.post(`/video-calls/${callId}/reject`, data),
-  endCall: (callId, data) => api.post(`/video-calls/${callId}/end`, data),
-  getCallHistory: (params = {}) => api.get('/video-calls/history', { params }),
+  getConfig: () => api.get('/webrtc/config'),
+  test: () => api.get('/webrtc/test'),
 };
 
 // Recommendations API endpoints
