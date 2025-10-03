@@ -175,6 +175,57 @@ router.post("/reset-john-password", async (req, res) => {
 });
 
 /**
+ * POST /api/setup/debug-login
+ * Debug login issues for John Mentor
+ */
+router.post("/debug-login", async (req, res) => {
+  try {
+    const { email = "john.mentor@example.com", password = "Mentor123!" } = req.body;
+    
+    // Find user
+    const user = await User.findOne({ 
+      where: { email }
+    });
+
+    if (!user) {
+      return res.json({
+        success: false,
+        debug: {
+          userFound: false,
+          email: email
+        }
+      });
+    }
+
+    // Test password comparison
+    const isPasswordValid = await user.comparePassword(password);
+    
+    res.json({
+      success: true,
+      debug: {
+        userFound: true,
+        email: user.email,
+        role: user.role,
+        isActive: user.isActive,
+        approved: user.approved,
+        emailVerified: user.emailVerified,
+        passwordValid: isPasswordValid,
+        hashedPassword: user.password.substring(0, 20) + "...", // Show first 20 chars
+        testPassword: password
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ Debug login error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Debug failed",
+      error: error.message
+    });
+  }
+});
+
+/**
  * GET /api/setup/status
  * Check setup status - shows if admin users exist
  */
