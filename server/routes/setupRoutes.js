@@ -23,7 +23,8 @@ router.post("/admin", async (req, res) => {
     }
 
     // Create the admin user
-    const hashedPassword = await bcrypt.hash("Admin123!", 12);
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash("Admin123!", salt);
     
     const adminUser = await User.create({
       name: "Admin User",
@@ -70,7 +71,8 @@ router.post("/restore-john-mentor", async (req, res) => {
 
     if (existingJohn) {
       // Update to ensure admin privileges AND reset password
-      const hashedPassword = await bcrypt.hash("Mentor123!", 12);
+      const salt = await bcrypt.genSalt(12);
+      const hashedPassword = await bcrypt.hash("Mentor123!", salt);
       
       await existingJohn.update({
         password: hashedPassword, // Reset password to known value
@@ -92,7 +94,8 @@ router.post("/restore-john-mentor", async (req, res) => {
     }
 
     // Create John Mentor with admin role
-    const hashedPassword = await bcrypt.hash("Mentor123!", 12);
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash("Mentor123!", salt);
     
     const johnUser = await User.create({
       name: "John Mentor",
@@ -146,9 +149,9 @@ router.post("/reset-john-password", async (req, res) => {
 
     const newPassword = "Mentor123!";
     
-    // Hash password with bcrypt directly (same as User model)
-    const saltRounds = 12;
-    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    // Hash password exactly like User model does (genSalt + hash)
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
     
     // Update password directly in database
     await johnUser.update({
