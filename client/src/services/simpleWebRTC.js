@@ -21,11 +21,11 @@ class SimpleWebRTC {
   /**
    * Initialize the WebRTC connection
    */
-  async initialize(socket, callId, isInitiator = false) {
+  async initialize(socketService, callId, isInitiator = false) {
     try {
       console.log('🚀 Initializing Simple WebRTC:', { callId, isInitiator });
       
-      this.socket = socket;
+      this.socket = socketService;
       this.callId = callId;
       this.isInitiator = isInitiator;
       
@@ -36,7 +36,7 @@ class SimpleWebRTC {
       this.setupPeerConnection();
       
       // Join the call room
-      this.socket.emit('join_room', { roomId: this.callId });
+      this.socket.joinConversation(`room_${this.callId}`);
       
       // Setup socket listeners
       this.setupSocketListeners();
@@ -104,19 +104,30 @@ class SimpleWebRTC {
     
     // Handle remote stream
     this.peerConnection.ontrack = (event) => {
-      console.log('📺 Received remote stream');
-      this.remoteStream = event.streams[0];
-      this.onRemoteStream?.(this.remoteStream);
+      console.log('📺 Received remote stream:', event);
+      console.log('📺 Event streams:', event.streams);
+      console.log('📺 Event track:', event.track);
+      
+      if (event.streams && event.streams[0]) {
+        this.remoteStream = event.streams[0];
+        console.log('✅ Remote stream set:', this.remoteStream.id);
+        console.log('📺 Remote stream tracks:', this.remoteStream.getTracks());
+        this.onRemoteStream?.(this.remoteStream);
+      } else {
+        console.warn('⚠️ No streams in track event');
+      }
     };
     
     // Handle ICE candidates
     this.peerConnection.onicecandidate = (event) => {
       if (event.candidate) {
         console.log('🧊 Sending ICE candidate');
-        this.socket.emit('ice-candidate', {
-          callId: this.callId,
-          candidate: event.candidate
-        });
+        if (this.socket.socket && this.socket.socket.connected) {
+          this.socket.socket.emit('ice-candidate', {
+            callId: this.callId,
+            candidate: event.candidate
+          });
+        }
       }
     };
     
@@ -135,19 +146,32 @@ class SimpleWebRTC {
   setupSocketListeners() {
     console.log('🔌 Setting up socket listeners...');
     
+    // Use socketService event system
     this.socket.on('offer', async (data) => {
-      console.log('📥 Received offer');
-      await this.handleOffer(data.offer);
+      console.log('📥 Received offer:', data);
+      if (data.offer) {
+        await this.handleOffer(data.offer);
+      } else {
+        console.error('❌ No offer in data:', data);
+      }
     });
     
     this.socket.on('answer', async (data) => {
-      console.log('📥 Received answer');
-      await this.handleAnswer(data.answer);
+      console.log('📥 Received answer:', data);
+      if (data.answer) {
+        await this.handleAnswer(data.answer);
+      } else {
+        console.error('❌ No answer in data:', data);
+      }
     });
     
     this.socket.on('ice-candidate', async (data) => {
-      console.log('🧊 Received ICE candidate');
-      await this.handleIceCandidate(data.candidate);
+      console.log('🧊 Received ICE candidate:', data);
+      if (data.candidate) {
+        await this.handleIceCandidate(data.candidate);
+      } else {
+        console.error('❌ No candidate in data:', data);
+      }
     });
   }
 
@@ -185,10 +209,12 @@ class SimpleWebRTC {
       
       await this.peerConnection.setLocalDescription(offer);
       
-      this.socket.emit('offer', {
-        callId: this.callId,
-        offer: offer
-      });
+      if (this.socket.socket && this.socket.socket.connected) {
+        this.socket.socket.emit('offer', {
+          callId: this.callId,
+          offer: offer
+        });
+      }
       
       console.log('✅ Offer sent');
     } catch (error) {
@@ -222,10 +248,12 @@ class SimpleWebRTC {
       const answer = await this.peerConnection.createAnswer();
       await this.peerConnection.setLocalDescription(answer);
       
-      this.socket.emit('answer', {
-        callId: this.callId,
-        answer: answer
-      });
+      if (this.socket.socket && this.socket.socket.connected) {
+        this.socket.socket.emit('answer', {
+          callId: this.callId,
+          answer: answer
+        });
+      }
       
       console.log('✅ Answer sent');
     } catch (error) {
