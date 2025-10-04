@@ -438,35 +438,35 @@ class SocketService {
       }
     });
 
-    // WebRTC signaling for peer-to-peer connections
+    // Simple WebRTC signaling
     socket.on("offer", (data) => {
-      const { targetId, offer, callId } = data;
-      console.log(`📡 Relaying offer from ${userId} to ${targetId} for call ${callId}`);
+      const { callId, offer } = data;
+      console.log(`📡 Broadcasting offer for call ${callId}`);
       
-      this.sendToUser(targetId, "offer", {
-        fromId: userId,
+      // Broadcast to all users in the call room except sender
+      socket.to(callId).emit("offer", {
         offer,
         callId
       });
     });
 
     socket.on("answer", (data) => {
-      const { targetId, answer, callId } = data;
-      console.log(`📡 Relaying answer from ${userId} to ${targetId} for call ${callId}`);
+      const { callId, answer } = data;
+      console.log(`📡 Broadcasting answer for call ${callId}`);
       
-      this.sendToUser(targetId, "answer", {
-        fromId: userId,
+      // Broadcast to all users in the call room except sender
+      socket.to(callId).emit("answer", {
         answer,
         callId
       });
     });
 
     socket.on("ice-candidate", (data) => {
-      const { targetId, candidate, callId } = data;
-      console.log(`🧊 Relaying ICE candidate from ${userId} to ${targetId} for call ${callId}`);
+      const { callId, candidate } = data;
+      console.log(`🧊 Broadcasting ICE candidate for call ${callId}`);
       
-      this.sendToUser(targetId, "ice-candidate", {
-        fromId: userId,
+      // Broadcast to all users in the call room except sender
+      socket.to(callId).emit("ice-candidate", {
         candidate,
         callId
       });

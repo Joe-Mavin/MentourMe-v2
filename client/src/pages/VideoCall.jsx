@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import socketService from '../services/socket';
-import webrtcService from '../services/webrtcService';
+import simpleWebRTC from '../services/simpleWebRTC';
 import VideoStream from '../components/video/VideoStream';
 import VideoCallControls from '../components/video/VideoCallControls';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -72,77 +72,49 @@ const VideoCall = () => {
 
   const initializeCall = async () => {
     try {
-      console.log('🚀 Initializing video call:', callId);
+      console.log('🚀 Initializing simple video call:', callId);
       
       // Determine if this user is the initiator
       const isInitiator = callId === 'new' || searchParams.get('initiator') === 'true';
       
-      // Initialize WebRTC service
-      const success = await webrtcService.initialize(callId, isInitiator, user?.id);
-      if (!success) {
-        throw new Error('Failed to initialize WebRTC service');
-      }
-      
-      // Get local stream from WebRTC service
-      const stream = webrtcService.getLocalStream();
-      setLocalStream(stream);
-      localStreamRef.current = stream;
-      
-      // Setup WebRTC event handlers
-      webrtcService.onRemoteStreamAdded = (participantId, remoteStream) => {
-        console.log('📺 Remote stream added:', participantId);
-        setRemoteStreams(prev => new Map(prev.set(participantId, remoteStream)));
-        // Don't add to participants here - that's handled by socket events
-        setCallState('connected'); // Mark call as connected when we get remote stream
+      // Setup simple WebRTC callbacks
+      simpleWebRTC.onLocalStream = (stream) => {
+        console.log('📺 Got local stream');
+        setLocalStream(stream);
+        localStreamRef.current = stream;
       };
       
-      webrtcService.onRemoteStreamRemoved = (participantId) => {
-        console.log('📺 Remote stream removed:', participantId);
-        setRemoteStreams(prev => {
-          const newMap = new Map(prev);
-          newMap.delete(participantId);
-          return newMap;
-        });
-        setParticipants(prev => prev.filter(p => p && p.id !== participantId));
+      simpleWebRTC.onRemoteStream = (stream) => {
+        console.log('📺 Got remote stream');
+        setRemoteStreams(new Map([['remote', stream]]));
+        setCallState('connected');
+        toast.success('Connected to call!');
       };
       
-      webrtcService.onConnectionStateChange = (participantId, state) => {
-        console.log(`🔄 Connection state for ${participantId}:`, state);
+      simpleWebRTC.onConnectionChange = (state) => {
+        console.log('🔄 Connection state:', state);
         if (state === 'connected') {
           setCallState('connected');
-          toast.success('Connected to call!');
-        } else if (state === 'failed' || state === 'disconnected') {
-          toast.error(`Connection ${state} with participant`);
+        } else if (state === 'failed') {
+          setCallState('failed');
+          toast.error('Connection failed');
         }
       };
       
-      webrtcService.onError = (error) => {
+      simpleWebRTC.onError = (error) => {
         console.error('❌ WebRTC error:', error);
         toast.error('Connection error: ' + error.message);
+        setCallState('failed');
       };
 
-      // Check socket connection before proceeding
-      if (!socketService.getConnectionStatus()) {
-        console.warn('⚠️ Socket not connected, attempting to reconnect...');
-        toast.warning('Connecting to server...');
-        // Give socket time to connect
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        if (!socketService.getConnectionStatus()) {
-          throw new Error('Unable to connect to server. Please check your internet connection.');
-        }
+      // Initialize simple WebRTC
+      const success = await simpleWebRTC.initialize(socketService.socket, callId, isInitiator);
+      if (!success) {
+        throw new Error('Failed to initialize WebRTC');
       }
-
-      // Notify backend that we're joining the call
-      socketService.emit('participant-joined', { callId });
       
-      if (callId === 'new') {
-        // Initiate new call
-        initiateCall();
-      } else {
-        // Join existing call
-        joinCall();
-      }
+      console.log('✅ Simple WebRTC initialized successfully');
+      
     } catch (error) {
       console.error('Failed to initialize call:', error);
       
@@ -540,13 +512,8 @@ const VideoCall = () => {
     try {
       console.log('🧹 Cleaning up call...');
       
-      // Notify backend that we're leaving the call
-      if (callId && callId !== 'new') {
-        socketService.emit('participant-left', { callId });
-      }
-      
-      // Use WebRTC service to clean up everything
-      webrtcService.endCall();
+      // Use simple WebRTC to clean up everything
+      simpleWebRTC.endCall();
       
       // Clear local state
       setLocalStream(null);
@@ -564,13 +531,13 @@ const VideoCall = () => {
   const handleToggleAudio = () => {
     const newState = !isAudioEnabled;
     setIsAudioEnabled(newState);
-    webrtcService.toggleAudio(newState);
+    simpleWebRTC.toggleAudio(newState);
   };
 
   const handleToggleVideo = () => {
     const newState = !isVideoEnabled;
     setIsVideoEnabled(newState);
-    webrtcService.toggleVideo(newState);
+    simpleWebRTC.toggleVideo(newState);
   };
 
   const handleToggleScreenShare = () => {
