@@ -121,7 +121,7 @@ const DirectVideoCall = ({ mentorship, onCallInitiated }) => {
       toast.success(`${callType === 'video' ? 'Video' : 'Audio'} call initiated!`);
       
       // Navigate to video call page
-      navigate(`/video-call/${callContext.callId}?role=${myRole}&purpose=${selectedPurpose}`);
+      navigate(`/video-call/${callContext.callId}?type=${callType}&role=${myRole}&purpose=${selectedPurpose}&initiator=true`);
       
       if (onCallInitiated) {
         onCallInitiated(callContext);

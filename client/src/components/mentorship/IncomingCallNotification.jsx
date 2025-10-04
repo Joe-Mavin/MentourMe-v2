@@ -102,7 +102,7 @@ const IncomingCallNotification = ({ socket }) => {
     setIsResponding(true);
     try {
       await videoCallsAPI.acceptCall(callData.callId);
-      navigate(`/video-call/${callData.callId}`);
+      navigate(`/video-call/${callData.callId}?type=${callData.callType}&initiator=false`);
       setIncomingCall(null);
     } catch (error) {
       console.error('Failed to accept call:', error);

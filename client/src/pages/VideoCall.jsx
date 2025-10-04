@@ -92,12 +92,8 @@ const VideoCall = () => {
       webrtcService.onRemoteStreamAdded = (participantId, remoteStream) => {
         console.log('📺 Remote stream added:', participantId);
         setRemoteStreams(prev => new Map(prev.set(participantId, remoteStream)));
-        setParticipants(prev => {
-          if (!prev.find(p => p.id === participantId)) {
-            return [...prev, { id: participantId, name: `Participant ${participantId}` }];
-          }
-          return prev;
-        });
+        // Don't add to participants here - that's handled by socket events
+        setCallState('connected'); // Mark call as connected when we get remote stream
       };
       
       webrtcService.onRemoteStreamRemoved = (participantId) => {
@@ -122,6 +118,9 @@ const VideoCall = () => {
         toast.error('Connection error: ' + error.message);
       };
 
+      // Notify backend that we're joining the call
+      socketService.emit('participant-joined', { callId });
+      
       if (callId === 'new') {
         // Initiate new call
         initiateCall();
@@ -185,22 +184,36 @@ const VideoCall = () => {
   };
 
   const setupSocketListeners = () => {
+    // WebRTC signaling events are handled by webrtcService
+    // We only need to handle call management events here
     socketService.on('call_initiated', handleCallInitiated);
-    socketService.on('call_participant_joined', handleParticipantJoined);
-    socketService.on('call_participant_left', handleParticipantLeft);
     socketService.on('call_ended', handleCallEnded);
-    socketService.on('webrtc_offer', handleWebRTCOffer);
-    socketService.on('webrtc_answer', handleWebRTCAnswer);
-    socketService.on('webrtc_ice_candidate', handleICECandidate);
+    
+    // Participant events for UI updates
+    socketService.on('participant-joined', (data) => {
+      console.log('👤 Participant joined:', data);
+      const { participantId, participantInfo } = data;
+      if (participantId !== user.id) { // Don't add ourselves
+        setParticipants(prev => {
+          if (!prev.find(p => p.id === participantId)) {
+            return [...prev, participantInfo];
+          }
+          return prev;
+        });
+      }
+    });
+    
+    socketService.on('participant-left', (data) => {
+      console.log('👋 Participant left:', data);
+      const { participantId } = data;
+      setParticipants(prev => prev.filter(p => p.id !== participantId));
+    });
 
     return () => {
       socketService.off('call_initiated', handleCallInitiated);
-      socketService.off('call_participant_joined', handleParticipantJoined);
-      socketService.off('call_participant_left', handleParticipantLeft);
       socketService.off('call_ended', handleCallEnded);
-      socketService.off('webrtc_offer', handleWebRTCOffer);
-      socketService.off('webrtc_answer', handleWebRTCAnswer);
-      socketService.off('webrtc_ice_candidate', handleICECandidate);
+      socketService.off('participant-joined');
+      socketService.off('participant-left');
     };
   };
 
@@ -509,6 +522,11 @@ const VideoCall = () => {
   const cleanupCall = async () => {
     try {
       console.log('🧹 Cleaning up call...');
+      
+      // Notify backend that we're leaving the call
+      if (callId && callId !== 'new') {
+        socketService.emit('participant-left', { callId });
+      }
       
       // Use WebRTC service to clean up everything
       webrtcService.endCall();
