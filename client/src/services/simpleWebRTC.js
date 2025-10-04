@@ -24,6 +24,8 @@ class SimpleWebRTC {
   async initialize(socketService, callId, isInitiator = false) {
     try {
       console.log('🚀 Initializing Simple WebRTC:', { callId, isInitiator });
+      console.log('🔌 Socket service:', socketService);
+      console.log('📊 Socket connected:', socketService?.getConnectionStatus());
       
       this.socket = socketService;
       this.callId = callId;
@@ -63,18 +65,21 @@ class SimpleWebRTC {
   async getUserMedia() {
     try {
       console.log('🎥 Getting user media...');
+      console.log('📱 Navigator mediaDevices available:', !!navigator.mediaDevices);
       
       this.localStream = await navigator.mediaDevices.getUserMedia({
         video: true,
         audio: true
       });
       
-      console.log('✅ Got local stream');
+      console.log('✅ Got local stream:', this.localStream.id);
+      console.log('📺 Stream tracks:', this.localStream.getTracks().map(t => ({ kind: t.kind, enabled: t.enabled })));
       this.onLocalStream?.(this.localStream);
       
       return this.localStream;
     } catch (error) {
       console.error('❌ Failed to get user media:', error);
+      console.error('❌ Error details:', error.name, error.message);
       throw error;
     }
   }

@@ -193,7 +193,23 @@ class SocketService {
       this.emit('call_participant_left', data);
     });
 
-    // WebRTC signaling events
+    // WebRTC signaling events - Simple names to match our implementation
+    this.socket.on('offer', (data) => {
+      console.log('🔌 Socket received offer:', data);
+      this.emit('offer', data);
+    });
+
+    this.socket.on('answer', (data) => {
+      console.log('🔌 Socket received answer:', data);
+      this.emit('answer', data);
+    });
+
+    this.socket.on('ice-candidate', (data) => {
+      console.log('🔌 Socket received ICE candidate:', data);
+      this.emit('ice-candidate', data);
+    });
+
+    // Legacy WebRTC events for backward compatibility
     this.socket.on('webrtc_offer', (data) => {
       this.emit('webrtc_offer', data);
     });

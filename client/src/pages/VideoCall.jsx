@@ -45,13 +45,20 @@ const VideoCall = () => {
   const isRoomCall = searchParams.get('room') === 'true';
 
   useEffect(() => {
-    initializeCall();
-    setupSocketListeners();
+    console.log('🔄 VideoCall useEffect triggered:', { user: !!user, callId });
+    
+    if (user && callId) {
+      console.log('✅ Starting call initialization...');
+      initializeCall();
+    } else {
+      console.log('⚠️ Missing user or callId:', { user: !!user, callId });
+    }
 
     return () => {
+      console.log('🧹 VideoCall cleanup triggered');
       cleanupCall();
     };
-  }, []);
+  }, [user, callId]);
 
   // Duration timer
   useEffect(() => {
@@ -73,6 +80,8 @@ const VideoCall = () => {
   const initializeCall = async () => {
     try {
       console.log('🚀 Initializing simple video call:', callId);
+      console.log('📊 Socket status:', socketService.getConnectionStatus());
+      console.log('👤 User:', user);
       
       // Determine if this user is the initiator
       const isInitiator = callId === 'new' || searchParams.get('initiator') === 'true';
