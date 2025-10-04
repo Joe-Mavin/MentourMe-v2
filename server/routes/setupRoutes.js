@@ -284,13 +284,9 @@ router.post("/force-login", async (req, res) => {
     // Set a simple password that we know will work
     const simplePassword = "password123";
     
-    // Let the User model handle the hashing via the beforeCreate/beforeUpdate hook
-    await johnUser.update({
-      password: simplePassword, // This will trigger the beforeUpdate hook to hash it
-      emailVerified: true,
-      isActive: true,
-      approved: true
-    });
+    // Force the password change to trigger the beforeUpdate hook
+    johnUser.set('password', simplePassword);
+    await johnUser.save();
 
     // Test the password immediately
     const updatedUser = await User.findOne({
@@ -310,6 +306,8 @@ router.post("/force-login", async (req, res) => {
         role: johnUser.role,
         directBcryptTest: passwordTest,
         modelMethodTest: modelTest,
+        hookTriggered: johnUser.changed('password'),
+        newHashPreview: updatedUser.password.substring(0, 30) + "...",
         instructions: "Try logging in with this simple password first"
       }
     });
@@ -319,6 +317,58 @@ router.post("/force-login", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Failed to set simple password",
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/setup/nuclear-reset
+ * Nuclear option: Delete and recreate John Mentor user from scratch
+ */
+router.post("/nuclear-reset", async (req, res) => {
+  try {
+    // Delete existing user completely
+    await User.destroy({
+      where: { email: "john.mentor@example.com" }
+    });
+
+    // Create fresh user (this will trigger beforeCreate hook)
+    const newUser = await User.create({
+      name: "John Mentor",
+      email: "john.mentor@example.com",
+      password: "password123", // beforeCreate hook will hash this
+      role: "admin",
+      approved: true,
+      isActive: true,
+      emailVerified: true,
+      phone: "+1234567890"
+    });
+
+    // Test the password immediately
+    const bcrypt = require('bcryptjs');
+    const passwordTest = await bcrypt.compare("password123", newUser.password);
+    const modelTest = await newUser.comparePassword("password123");
+
+    res.json({
+      success: true,
+      message: "User completely recreated",
+      data: {
+        email: "john.mentor@example.com",
+        password: "password123",
+        role: newUser.role,
+        directBcryptTest: passwordTest,
+        modelMethodTest: modelTest,
+        hashPreview: newUser.password.substring(0, 30) + "...",
+        instructions: "Fresh user created - try logging in with password123"
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ Failed to recreate user:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to recreate user",
       error: error.message
     });
   }
