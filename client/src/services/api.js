@@ -245,6 +245,7 @@ export const adminAPI = {
 // Video Call API
 export const videoCallAPI = {
   create: (data) => api.post('/video-calls', data),
+  initiateCall: (data) => api.post('/video-calls/initiate', data),
   join: (callId) => api.post(`/video-calls/${callId}/join`),
   leave: (callId) => api.post(`/video-calls/${callId}/leave`),
   end: (callId) => api.post(`/video-calls/${callId}/end`),
