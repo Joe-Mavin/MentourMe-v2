@@ -13,10 +13,14 @@ import {
 } from '@heroicons/react/24/outline';
 
 const VideoCall = () => {
+  console.log('🎬 VideoCall component loaded!');
+  
   const { callId } = useParams();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { user } = useAuth();
+  
+  console.log('📋 VideoCall params:', { callId, searchParams: Object.fromEntries(searchParams) });
 
   // Call state
   const [callState, setCallState] = useState('connecting'); // connecting, connected, ended, failed

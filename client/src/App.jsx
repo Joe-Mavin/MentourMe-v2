@@ -72,11 +72,11 @@ const AppRoutes = () => {
       {/* Protected routes */}
       <Route path="/" element={<ProtectedRoute />}>
         <Route 
-          path="/video-call/:roomId" 
+          path="/video-call/:callId" 
           element={
             !isOnboardingCompleted() ? 
               <Navigate to="/onboarding" replace /> : 
-              <Layout><VideoCall /></Layout>
+              <VideoCall />
           } 
         />
         <Route 
@@ -212,14 +212,6 @@ const AppRoutes = () => {
           } 
         />
         
-        <Route 
-          path="/video-call/:callId" 
-          element={
-            !isOnboardingCompleted() ? 
-              <Navigate to="/onboarding" replace /> : 
-              <MentorshipVideoCall />
-          } 
-        />
 
         {/* Mentorship routes */}
         <Route 
