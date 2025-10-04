@@ -438,31 +438,69 @@ class SocketService {
       }
     });
 
-    // WebRTC signaling
-    socket.on("webrtc_offer", (data) => {
-      const { receiverId, offer, callId } = data;
-      this.io.to(`user_${receiverId}`).emit("webrtc_offer", {
+    // WebRTC signaling for peer-to-peer connections
+    socket.on("offer", (data) => {
+      const { targetId, offer, callId } = data;
+      console.log(`📡 Relaying offer from ${userId} to ${targetId} for call ${callId}`);
+      
+      this.sendToUser(targetId, "offer", {
+        fromId: userId,
         offer,
-        callId,
-        senderId: userId
+        callId
       });
     });
 
-    socket.on("webrtc_answer", (data) => {
-      const { receiverId, answer, callId } = data;
-      this.io.to(`user_${receiverId}`).emit("webrtc_answer", {
+    socket.on("answer", (data) => {
+      const { targetId, answer, callId } = data;
+      console.log(`📡 Relaying answer from ${userId} to ${targetId} for call ${callId}`);
+      
+      this.sendToUser(targetId, "answer", {
+        fromId: userId,
         answer,
-        callId,
-        senderId: userId
+        callId
       });
     });
 
-    socket.on("webrtc_ice_candidate", (data) => {
-      const { receiverId, candidate, callId } = data;
-      this.io.to(`user_${receiverId}`).emit("webrtc_ice_candidate", {
+    socket.on("ice-candidate", (data) => {
+      const { targetId, candidate, callId } = data;
+      console.log(`🧊 Relaying ICE candidate from ${userId} to ${targetId} for call ${callId}`);
+      
+      this.sendToUser(targetId, "ice-candidate", {
+        fromId: userId,
         candidate,
-        callId,
-        senderId: userId
+        callId
+      });
+    });
+
+    // Call participant management
+    socket.on("participant-joined", (data) => {
+      const { callId } = data;
+      console.log(`👤 User ${userId} joined call ${callId}`);
+      
+      // Join the call room
+      socket.join(callId);
+      
+      // Notify other participants
+      socket.to(callId).emit("participant-joined", {
+        participantId: userId,
+        participantInfo: {
+          id: userId,
+          name: socket.user.name,
+          avatar: socket.user.avatar
+        }
+      });
+    });
+
+    socket.on("participant-left", (data) => {
+      const { callId } = data;
+      console.log(`👋 User ${userId} left call ${callId}`);
+      
+      // Leave the call room
+      socket.leave(callId);
+      
+      // Notify other participants
+      socket.to(callId).emit("participant-left", {
+        participantId: userId
       });
     });
   }

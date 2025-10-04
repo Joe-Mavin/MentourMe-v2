@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import socketService from '../services/socket';
+import webrtcService from '../services/webrtcService';
 import VideoStream from '../components/video/VideoStream';
 import VideoCallControls from '../components/video/VideoCallControls';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -71,15 +72,55 @@ const VideoCall = () => {
 
   const initializeCall = async () => {
     try {
-      // Get user media
-      const constraints = {
-        video: callType === 'video',
-        audio: true
-      };
-
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      console.log('🚀 Initializing video call:', callId);
+      
+      // Determine if this user is the initiator
+      const isInitiator = callId === 'new' || searchParams.get('initiator') === 'true';
+      
+      // Initialize WebRTC service
+      const success = await webrtcService.initialize(callId, isInitiator);
+      if (!success) {
+        throw new Error('Failed to initialize WebRTC service');
+      }
+      
+      // Get local stream from WebRTC service
+      const stream = webrtcService.getLocalStream();
       setLocalStream(stream);
       localStreamRef.current = stream;
+      
+      // Setup WebRTC event handlers
+      webrtcService.onRemoteStreamAdded = (participantId, remoteStream) => {
+        console.log('📺 Remote stream added:', participantId);
+        setRemoteStreams(prev => new Map(prev.set(participantId, remoteStream)));
+        setParticipants(prev => {
+          if (!prev.find(p => p.id === participantId)) {
+            return [...prev, { id: participantId, name: `Participant ${participantId}` }];
+          }
+          return prev;
+        });
+      };
+      
+      webrtcService.onRemoteStreamRemoved = (participantId) => {
+        console.log('📺 Remote stream removed:', participantId);
+        setRemoteStreams(prev => {
+          const newMap = new Map(prev);
+          newMap.delete(participantId);
+          return newMap;
+        });
+        setParticipants(prev => prev.filter(p => p.id !== participantId));
+      };
+      
+      webrtcService.onConnectionStateChange = (participantId, state) => {
+        console.log(`🔄 Connection state for ${participantId}:`, state);
+        if (state === 'connected') {
+          setCallState('connected');
+        }
+      };
+      
+      webrtcService.onError = (error) => {
+        console.error('❌ WebRTC error:', error);
+        toast.error('Connection error: ' + error.message);
+      };
 
       if (callId === 'new') {
         // Initiate new call
@@ -89,13 +130,11 @@ const VideoCall = () => {
         joinCall();
       }
     } catch (error) {
-      console.error('Failed to get user media:', error);
-      console.error('Media error details:', error.name, error.message);
+      console.error('Failed to initialize call:', error);
       
-      // More specific error handling
-      let errorMessage = 'Failed to access camera/microphone';
+      let errorMessage = 'Failed to access camera/microphone. Please check permissions.';
       if (error.name === 'NotAllowedError') {
-        errorMessage = 'Camera/microphone access denied. Please allow permissions and refresh.';
+        errorMessage = 'Camera/microphone access denied. Please allow permissions and try again.';
       } else if (error.name === 'NotFoundError') {
         errorMessage = 'No camera/microphone found. Please connect a device.';
       } else if (error.name === 'NotReadableError') {
@@ -469,69 +508,47 @@ const VideoCall = () => {
 
   const cleanupCall = async () => {
     try {
-      // Stop local stream tracks
-      if (localStreamRef.current) {
-        localStreamRef.current.getTracks().forEach(track => {
-          try {
-            track.stop();
-          } catch (e) {
-            console.warn('Error stopping track:', e);
-          }
-        });
-        localStreamRef.current = null;
-      }
-
-      if (localStream) {
-        localStream.getTracks().forEach(track => {
-          try {
-            track.stop();
-          } catch (e) {
-            console.warn('Error stopping local stream track:', e);
-          }
-        });
-        setLocalStream(null);
-      }
-
-      // Stop remote streams
-      remoteStreams.forEach(stream => {
-        stream.getTracks().forEach(track => {
-          try {
-            track.stop();
-          } catch (e) {
-            console.warn('Error stopping remote stream track:', e);
-          }
-        });
-      });
-      setRemoteStreams(new Map());
-
-      // Close all peer connections
-      peerConnections.current.forEach((pc, participantId) => {
-        try {
-          if (pc.connectionState !== 'closed') {
-            pc.close();
-          }
-        } catch (e) {
-          console.warn(`Error closing peer connection for ${participantId}:`, e);
-        }
-      });
-      peerConnections.current.clear();
-
-      // Clear duration timer
-      if (durationInterval.current) {
-        clearInterval(durationInterval.current);
-        durationInterval.current = null;
-      }
-
-      // Reset call state
-      setParticipants([]);
-      setMainStreamId(null);
-      setIsScreenSharing(false);
-      setCallDuration(0);
+      console.log('🧹 Cleaning up call...');
       
-      console.log('Call cleanup completed');
+      // Use WebRTC service to clean up everything
+      webrtcService.endCall();
+      
+      // Clear local state
+      setLocalStream(null);
+      setRemoteStreams(new Map());
+      setParticipants([]);
+      localStreamRef.current = null;
+
+      console.log('✅ Call cleanup completed');
     } catch (error) {
-      console.error('Error during call cleanup:', error);
+      console.error('❌ Error during call cleanup:', error);
     }
+  };
+
+  // Control handlers
+  const handleToggleAudio = () => {
+    const newState = !isAudioEnabled;
+    setIsAudioEnabled(newState);
+    webrtcService.toggleAudio(newState);
+  };
+
+  const handleToggleVideo = () => {
+    const newState = !isVideoEnabled;
+    setIsVideoEnabled(newState);
+    webrtcService.toggleVideo(newState);
+  };
+
+  const handleToggleScreenShare = () => {
+    setIsScreenSharing(!isScreenSharing);
+    toast.info('Screen sharing not yet implemented');
+  };
+
+  const handleToggleSpeaker = () => {
+    setIsSpeakerOn(!isSpeakerOn);
+  };
+
+  const handleToggleChat = () => {
+    toast.info('Chat not yet implemented');
   };
 
   const handleStreamClick = (streamId) => {
@@ -680,13 +697,12 @@ const VideoCall = () => {
         isVideoEnabled={isVideoEnabled}
         isScreenSharing={isScreenSharing}
         isSpeakerOn={isSpeakerOn}
-        onToggleAudio={toggleAudio}
-        onToggleVideo={toggleVideo}
-        onToggleScreenShare={toggleScreenShare}
-        onToggleSpeaker={() => setIsSpeakerOn(!isSpeakerOn)}
+        onToggleAudio={handleToggleAudio}
+        onToggleVideo={handleToggleVideo}
+        onToggleScreenShare={handleToggleScreenShare}
+        onToggleSpeaker={handleToggleSpeaker}
         onEndCall={endCall}
-        onToggleChat={() => setShowChat(!showChat)}
-        showChat={showChat}
+        onToggleChat={handleToggleChat}
         callDuration={callDuration}
         participantCount={participants.length + 1}
       />
