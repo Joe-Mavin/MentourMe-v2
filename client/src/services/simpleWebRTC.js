@@ -9,6 +9,7 @@ class SimpleWebRTC {
     this.isInitiator = false;
     this.callId = null;
     this.socket = null;
+    this.offerCreated = false; // Flag to prevent multiple offers
     
     // Callbacks
     this.onLocalStream = null;
@@ -157,6 +158,26 @@ class SimpleWebRTC {
     try {
       console.log('📤 Creating offer...');
       
+      // Check if we already created an offer
+      if (this.offerCreated) {
+        console.log('⚠️ Offer already created, skipping');
+        return;
+      }
+      
+      // Check if we already have a local description
+      if (this.peerConnection.localDescription) {
+        console.log('⚠️ Already have local description, skipping offer creation');
+        return;
+      }
+      
+      // Check signaling state
+      if (this.peerConnection.signalingState !== 'stable') {
+        console.log('⚠️ Peer connection not in stable state:', this.peerConnection.signalingState);
+        return;
+      }
+      
+      this.offerCreated = true; // Mark that we're creating an offer
+      
       const offer = await this.peerConnection.createOffer({
         offerToReceiveAudio: true,
         offerToReceiveVideo: true
@@ -172,6 +193,7 @@ class SimpleWebRTC {
       console.log('✅ Offer sent');
     } catch (error) {
       console.error('❌ Failed to create offer:', error);
+      this.offerCreated = false; // Reset flag on error
       this.onError?.(error);
     }
   }
@@ -182,6 +204,18 @@ class SimpleWebRTC {
   async handleOffer(offer) {
     try {
       console.log('📥 Handling offer...');
+      
+      // Check if we already have a remote description
+      if (this.peerConnection.remoteDescription) {
+        console.log('⚠️ Already have remote description, ignoring offer');
+        return;
+      }
+      
+      // Check signaling state
+      if (this.peerConnection.signalingState !== 'stable' && this.peerConnection.signalingState !== 'have-local-offer') {
+        console.log('⚠️ Cannot handle offer in current state:', this.peerConnection.signalingState);
+        return;
+      }
       
       await this.peerConnection.setRemoteDescription(offer);
       
@@ -206,6 +240,19 @@ class SimpleWebRTC {
   async handleAnswer(answer) {
     try {
       console.log('📥 Handling answer...');
+      
+      // Check if we already have a remote description
+      if (this.peerConnection.remoteDescription) {
+        console.log('⚠️ Already have remote description, ignoring answer');
+        return;
+      }
+      
+      // Check signaling state - should be have-local-offer
+      if (this.peerConnection.signalingState !== 'have-local-offer') {
+        console.log('⚠️ Cannot handle answer in current state:', this.peerConnection.signalingState);
+        return;
+      }
+      
       await this.peerConnection.setRemoteDescription(answer);
       console.log('✅ Answer processed');
     } catch (error) {
@@ -268,6 +315,9 @@ class SimpleWebRTC {
     
     // Clear remote stream
     this.remoteStream = null;
+    
+    // Reset flags
+    this.offerCreated = false;
     
     // Remove socket listeners
     if (this.socket) {
