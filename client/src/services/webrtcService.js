@@ -109,9 +109,22 @@ class WebRTCService {
         console.log(`🔄 Connection state for ${participantId}:`, peerConnection.connectionState);
         this.onConnectionStateChange?.(participantId, peerConnection.connectionState);
         
-        if (peerConnection.connectionState === 'disconnected' || 
-            peerConnection.connectionState === 'failed') {
+        if (peerConnection.connectionState === 'connected') {
+          console.log(`✅ Peer connection established with ${participantId}`);
+        } else if (peerConnection.connectionState === 'disconnected' || 
+                   peerConnection.connectionState === 'failed') {
+          console.log(`❌ Peer connection failed/disconnected for ${participantId}`);
           this.removePeerConnection(participantId);
+        }
+      };
+      
+      // Handle ICE connection state changes
+      peerConnection.oniceconnectionstatechange = () => {
+        console.log(`🧊 ICE connection state for ${participantId}:`, peerConnection.iceConnectionState);
+        if (peerConnection.iceConnectionState === 'connected' || 
+            peerConnection.iceConnectionState === 'completed') {
+          console.log(`✅ ICE connection established with ${participantId}`);
+          this.onConnectionStateChange?.(participantId, 'connected');
         }
       };
       
@@ -138,12 +151,23 @@ class WebRTCService {
         return;
       }
       
-      // Create new peer connection if needed
-      if (!peerConnection) {
+      // Create new peer connection if needed or reset if in bad state
+      if (!peerConnection || peerConnection.connectionState === 'failed') {
+        if (peerConnection) {
+          peerConnection.close();
+          this.peerConnections.delete(participantId);
+        }
         peerConnection = this.createPeerConnection(participantId);
       }
       
-      const offer = await peerConnection.createOffer();
+      // Create offer with consistent options
+      const offerOptions = {
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true,
+        iceRestart: false
+      };
+      
+      const offer = await peerConnection.createOffer(offerOptions);
       await peerConnection.setLocalDescription(offer);
       
       socketService.emit('offer', {
@@ -155,6 +179,12 @@ class WebRTCService {
       console.log('✅ Offer sent to:', participantId);
     } catch (error) {
       console.error('❌ Failed to create offer:', error);
+      // Clean up failed peer connection
+      const peerConnection = this.peerConnections.get(participantId);
+      if (peerConnection) {
+        peerConnection.close();
+        this.peerConnections.delete(participantId);
+      }
       throw error;
     }
   }
@@ -166,18 +196,35 @@ class WebRTCService {
     try {
       console.log('📥 Handling offer from:', participantId);
       
-      const peerConnection = this.peerConnections.get(participantId) || 
-                           this.createPeerConnection(participantId);
+      let peerConnection = this.peerConnections.get(participantId);
+      
+      // Create new peer connection or reset if in bad state
+      if (!peerConnection || peerConnection.connectionState === 'failed') {
+        if (peerConnection) {
+          peerConnection.close();
+          this.peerConnections.delete(participantId);
+        }
+        peerConnection = this.createPeerConnection(participantId);
+      }
       
       // Check if we can set remote description
       if (peerConnection.signalingState !== 'stable' && peerConnection.signalingState !== 'have-local-offer') {
         console.warn(`⚠️ Cannot handle offer, peer connection in state: ${peerConnection.signalingState}`);
-        return;
+        // Reset the peer connection if it's in a bad state
+        peerConnection.close();
+        this.peerConnections.delete(participantId);
+        peerConnection = this.createPeerConnection(participantId);
       }
       
       await peerConnection.setRemoteDescription(offer);
       
-      const answer = await peerConnection.createAnswer();
+      // Create answer with consistent options
+      const answerOptions = {
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true
+      };
+      
+      const answer = await peerConnection.createAnswer(answerOptions);
       await peerConnection.setLocalDescription(answer);
       
       socketService.emit('answer', {
@@ -189,6 +236,12 @@ class WebRTCService {
       console.log('✅ Answer sent to:', participantId);
     } catch (error) {
       console.error('❌ Failed to handle offer:', error);
+      // Clean up failed peer connection
+      const peerConnection = this.peerConnections.get(participantId);
+      if (peerConnection) {
+        peerConnection.close();
+        this.peerConnections.delete(participantId);
+      }
       throw error;
     }
   }

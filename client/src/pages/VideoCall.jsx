@@ -110,6 +110,9 @@ const VideoCall = () => {
         console.log(`🔄 Connection state for ${participantId}:`, state);
         if (state === 'connected') {
           setCallState('connected');
+          toast.success('Connected to call!');
+        } else if (state === 'failed' || state === 'disconnected') {
+          toast.error(`Connection ${state} with participant`);
         }
       };
       
@@ -117,6 +120,18 @@ const VideoCall = () => {
         console.error('❌ WebRTC error:', error);
         toast.error('Connection error: ' + error.message);
       };
+
+      // Check socket connection before proceeding
+      if (!socketService.getConnectionStatus()) {
+        console.warn('⚠️ Socket not connected, attempting to reconnect...');
+        toast.warning('Connecting to server...');
+        // Give socket time to connect
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        if (!socketService.getConnectionStatus()) {
+          throw new Error('Unable to connect to server. Please check your internet connection.');
+        }
+      }
 
       // Notify backend that we're joining the call
       socketService.emit('participant-joined', { callId });
