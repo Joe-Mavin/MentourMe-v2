@@ -103,7 +103,7 @@ const VideoCall = () => {
           newMap.delete(participantId);
           return newMap;
         });
-        setParticipants(prev => prev.filter(p => p.id !== participantId));
+        setParticipants(prev => prev.filter(p => p && p.id !== participantId));
       };
       
       webrtcService.onConnectionStateChange = (participantId, state) => {
@@ -193,9 +193,9 @@ const VideoCall = () => {
     socketService.on('participant-joined', (data) => {
       console.log('👤 Participant joined:', data);
       const { participantId, participantInfo } = data;
-      if (participantId !== user.id) { // Don't add ourselves
+      if (participantId && participantInfo && participantId !== user?.id) { // Don't add ourselves
         setParticipants(prev => {
-          if (!prev.find(p => p.id === participantId)) {
+          if (!prev.find(p => p && p.id === participantId)) {
             return [...prev, participantInfo];
           }
           return prev;
@@ -206,7 +206,9 @@ const VideoCall = () => {
     socketService.on('participant-left', (data) => {
       console.log('👋 Participant left:', data);
       const { participantId } = data;
-      setParticipants(prev => prev.filter(p => p.id !== participantId));
+      if (participantId) {
+        setParticipants(prev => prev.filter(p => p && p.id !== participantId));
+      }
     });
 
     return () => {
@@ -657,7 +659,7 @@ const VideoCall = () => {
         {(participants.length > 0 || localStream) && (
           <div className="w-80 bg-gray-800 p-4 space-y-4 overflow-y-auto">
             <h3 className="text-white font-medium mb-4">
-              Participants ({participants.length + 1})
+              Participants ({(participants?.length || 0) + 1})
             </h3>
             
             {/* Local stream thumbnail */}
@@ -678,7 +680,7 @@ const VideoCall = () => {
             {Array.from(remoteStreams.entries()).map(([participantId, stream]) => {
               if (participantId === mainStreamId) return null;
               
-              const participant = participants.find(p => p.id === participantId);
+              const participant = participants.find(p => p && p.id === participantId);
               return (
                 <VideoStream
                   key={participantId}
@@ -686,7 +688,7 @@ const VideoCall = () => {
                   isLocal={false}
                   isVideoEnabled={true}
                   isAudioEnabled={true}
-                  participantName={participant?.name}
+                  participantName={participant?.name || `Participant ${participantId}`}
                   participantId={participantId}
                   onStreamClick={handleStreamClick}
                   className="w-full h-32"
@@ -722,7 +724,7 @@ const VideoCall = () => {
         onEndCall={endCall}
         onToggleChat={handleToggleChat}
         callDuration={callDuration}
-        participantCount={participants.length + 1}
+        participantCount={(participants?.length || 0) + 1}
       />
     </div>
   );
