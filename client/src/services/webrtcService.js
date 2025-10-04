@@ -24,12 +24,13 @@ class WebRTCService {
   /**
    * Initialize WebRTC service for a call
    */
-  async initialize(callId, isInitiator = false) {
+  async initialize(callId, isInitiator = false, userId = null) {
     try {
       console.log('🚀 Initializing WebRTC service for call:', callId);
       
       this.callId = callId;
       this.isInitiator = isInitiator;
+      this.userId = userId;
       
       // Get WebRTC configuration
       this.config = await webrtcConfigService.getPeerConnectionConfig();
@@ -129,8 +130,18 @@ class WebRTCService {
     try {
       console.log('📤 Creating offer for:', participantId);
       
-      const peerConnection = this.peerConnections.get(participantId) || 
-                           this.createPeerConnection(participantId);
+      let peerConnection = this.peerConnections.get(participantId);
+      
+      // If peer connection exists and is not in stable state, don't create new offer
+      if (peerConnection && peerConnection.signalingState !== 'stable') {
+        console.warn(`⚠️ Peer connection already in progress for ${participantId}, state: ${peerConnection.signalingState}`);
+        return;
+      }
+      
+      // Create new peer connection if needed
+      if (!peerConnection) {
+        peerConnection = this.createPeerConnection(participantId);
+      }
       
       const offer = await peerConnection.createOffer();
       await peerConnection.setLocalDescription(offer);
@@ -157,6 +168,12 @@ class WebRTCService {
       
       const peerConnection = this.peerConnections.get(participantId) || 
                            this.createPeerConnection(participantId);
+      
+      // Check if we can set remote description
+      if (peerConnection.signalingState !== 'stable' && peerConnection.signalingState !== 'have-local-offer') {
+        console.warn(`⚠️ Cannot handle offer, peer connection in state: ${peerConnection.signalingState}`);
+        return;
+      }
       
       await peerConnection.setRemoteDescription(offer);
       
@@ -185,8 +202,16 @@ class WebRTCService {
       
       const peerConnection = this.peerConnections.get(participantId);
       if (peerConnection) {
+        // Check if we can set remote description
+        if (peerConnection.signalingState !== 'have-local-offer') {
+          console.warn(`⚠️ Cannot handle answer, peer connection in state: ${peerConnection.signalingState}`);
+          return;
+        }
+        
         await peerConnection.setRemoteDescription(answer);
         console.log('✅ Answer processed from:', participantId);
+      } else {
+        console.warn('⚠️ No peer connection found for participant:', participantId);
       }
     } catch (error) {
       console.error('❌ Failed to handle answer:', error);
@@ -229,8 +254,11 @@ class WebRTCService {
     
     socketService.on('participant-joined', ({ participantId }) => {
       console.log('👤 Participant joined:', participantId);
-      if (this.isInitiator) {
-        this.createOffer(participantId);
+      // Only the initiator creates offers, or if we have a lower ID (to prevent collision)
+      if (this.isInitiator || (participantId && participantId < (this.userId || 0))) {
+        setTimeout(() => {
+          this.createOffer(participantId);
+        }, 100); // Small delay to prevent race conditions
       }
     });
     

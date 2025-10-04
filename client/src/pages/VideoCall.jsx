@@ -78,7 +78,7 @@ const VideoCall = () => {
       const isInitiator = callId === 'new' || searchParams.get('initiator') === 'true';
       
       // Initialize WebRTC service
-      const success = await webrtcService.initialize(callId, isInitiator);
+      const success = await webrtcService.initialize(callId, isInitiator, user?.id);
       if (!success) {
         throw new Error('Failed to initialize WebRTC service');
       }
