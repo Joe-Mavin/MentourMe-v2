@@ -195,7 +195,7 @@ router.post("/reset-john-password", async (req, res) => {
 
 /**
  * POST /api/setup/debug-login
- * Debug login issues for John Mentor
+ * Debug login issues for John Mentor with multiple test methods
  */
 router.post("/debug-login", async (req, res) => {
   try {
@@ -216,8 +216,25 @@ router.post("/debug-login", async (req, res) => {
       });
     }
 
-    // Test password comparison
-    const isPasswordValid = await user.comparePassword(password);
+    // Test password comparison using model method
+    const isPasswordValidModel = await user.comparePassword(password);
+    
+    // Test password comparison using direct bcrypt
+    const bcrypt = require('bcryptjs');
+    const isPasswordValidDirect = await bcrypt.compare(password, user.password);
+    
+    // Test with different password variations
+    const testPasswords = [
+      "Mentor123!",
+      "mentor123!",
+      "MENTOR123!",
+      "Mentor123"
+    ];
+    
+    const passwordTests = {};
+    for (const testPwd of testPasswords) {
+      passwordTests[testPwd] = await bcrypt.compare(testPwd, user.password);
+    }
     
     res.json({
       success: true,
@@ -228,9 +245,12 @@ router.post("/debug-login", async (req, res) => {
         isActive: user.isActive,
         approved: user.approved,
         emailVerified: user.emailVerified,
-        passwordValid: isPasswordValid,
-        hashedPassword: user.password.substring(0, 20) + "...", // Show first 20 chars
-        testPassword: password
+        passwordValidModel: isPasswordValidModel,
+        passwordValidDirect: isPasswordValidDirect,
+        passwordTests: passwordTests,
+        hashedPassword: user.password.substring(0, 30) + "...",
+        testPassword: password,
+        hashType: user.password.substring(0, 4) // Show hash type ($2a$, $2b$, etc.)
       }
     });
 
@@ -239,6 +259,66 @@ router.post("/debug-login", async (req, res) => {
     res.status(500).json({
       success: false,
       message: "Debug failed",
+      error: error.message
+    });
+  }
+});
+
+/**
+ * POST /api/setup/force-login
+ * Force create a working login for John Mentor by setting a simple password
+ */
+router.post("/force-login", async (req, res) => {
+  try {
+    const johnUser = await User.findOne({
+      where: { email: "john.mentor@example.com" }
+    });
+
+    if (!johnUser) {
+      return res.status(404).json({
+        success: false,
+        message: "John Mentor user not found"
+      });
+    }
+
+    // Set a simple password that we know will work
+    const simplePassword = "password123";
+    
+    // Let the User model handle the hashing via the beforeCreate/beforeUpdate hook
+    await johnUser.update({
+      password: simplePassword, // This will trigger the beforeUpdate hook to hash it
+      emailVerified: true,
+      isActive: true,
+      approved: true
+    });
+
+    // Test the password immediately
+    const updatedUser = await User.findOne({
+      where: { email: "john.mentor@example.com" }
+    });
+    
+    const bcrypt = require('bcryptjs');
+    const passwordTest = await bcrypt.compare(simplePassword, updatedUser.password);
+    const modelTest = await updatedUser.comparePassword(simplePassword);
+
+    res.json({
+      success: true,
+      message: "Simple password set successfully",
+      data: {
+        email: "john.mentor@example.com",
+        password: simplePassword,
+        role: johnUser.role,
+        directBcryptTest: passwordTest,
+        modelMethodTest: modelTest,
+        instructions: "Try logging in with this simple password first"
+      }
+    });
+
+  } catch (error) {
+    console.error("❌ Failed to set simple password:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to set simple password",
       error: error.message
     });
   }
