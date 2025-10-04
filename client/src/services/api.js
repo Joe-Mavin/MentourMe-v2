@@ -246,9 +246,11 @@ export const adminAPI = {
 export const videoCallAPI = {
   create: (data) => api.post('/video-calls', data),
   initiateCall: (data) => api.post('/video-calls/initiate', data),
+  acceptCall: (callId) => api.post(`/video-calls/${callId}/accept`),
+  rejectCall: (callId, data) => api.post(`/video-calls/${callId}/reject`, data),
   join: (callId) => api.post(`/video-calls/${callId}/join`),
   leave: (callId) => api.post(`/video-calls/${callId}/leave`),
-  end: (callId) => api.post(`/video-calls/${callId}/end`),
+  end: (callId, data) => api.post(`/video-calls/${callId}/end`, data),
   get: (callId) => api.get(`/video-calls/${callId}`),
   getActive: () => api.get('/video-calls/active'),
 };
