@@ -643,8 +643,8 @@ const VideoCall = () => {
         </div>
       )}
 
-      {/* Video layout */}
-      <div className="h-screen flex">
+      {/* Video layout - Responsive */}
+      <div className="h-screen flex flex-col lg:flex-row">
         {/* Main video area */}
         <div className="flex-1 relative">
           {mainStreamId && remoteStreams.has(mainStreamId) ? (
@@ -674,11 +674,48 @@ const VideoCall = () => {
               <LoadingSpinner size="lg" color="white" />
             </div>
           )}
+          
+          {/* Mobile: Floating participant thumbnails */}
+          <div className="lg:hidden absolute top-4 right-4 space-y-2 z-10">
+            {/* Local stream thumbnail for mobile */}
+            {localStream && mainStreamId !== 'local' && (
+              <VideoStream
+                stream={localStream}
+                isLocal={true}
+                isVideoEnabled={isVideoEnabled}
+                isAudioEnabled={isAudioEnabled}
+                participantName={user?.name}
+                participantId="local"
+                onStreamClick={handleStreamClick}
+                className="w-20 h-28 sm:w-24 sm:h-32 rounded-lg shadow-lg border-2 border-white/20"
+              />
+            )}
+
+            {/* Remote stream thumbnails for mobile */}
+            {Array.from(remoteStreams.entries()).map(([participantId, stream]) => {
+              if (participantId === mainStreamId) return null;
+              
+              const participant = participants.find(p => p && p.id === participantId);
+              return (
+                <VideoStream
+                  key={participantId}
+                  stream={stream}
+                  isLocal={false}
+                  isVideoEnabled={true}
+                  isAudioEnabled={true}
+                  participantName={participant?.name || `Participant ${participantId}`}
+                  participantId={participantId}
+                  onStreamClick={handleStreamClick}
+                  className="w-20 h-28 sm:w-24 sm:h-32 rounded-lg shadow-lg border-2 border-white/20"
+                />
+              );
+            })}
+          </div>
         </div>
 
-        {/* Side panel for additional participants */}
+        {/* Desktop: Side panel for additional participants */}
         {(participants.length > 0 || localStream) && (
-          <div className="w-80 bg-gray-800 p-4 space-y-4 overflow-y-auto">
+          <div className="hidden lg:block w-80 bg-gray-800 p-4 space-y-4 overflow-y-auto">
             <h3 className="text-white font-medium mb-4">
               Participants ({(participants?.length || 0) + 1})
             </h3>

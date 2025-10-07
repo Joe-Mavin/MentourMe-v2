@@ -78,20 +78,20 @@ const VideoCallControls = ({
   };
 
   return (
-    <div className="absolute bottom-0 left-0 right-0 bg-gray-900 bg-opacity-90 text-white p-4 z-50">
-      <div className="flex items-center justify-between max-w-4xl mx-auto">
-        {/* Call info */}
-        <div className="flex items-center space-x-4">
-          <div className="text-sm">
-            <p className="font-medium">{formatDuration(callDuration)}</p>
-            <p className="text-gray-300 text-xs">
+    <div className="absolute bottom-0 left-0 right-0 bg-gray-900 bg-opacity-95 text-white p-2 sm:p-4 z-50">
+      <div className="flex flex-col sm:flex-row items-center justify-between max-w-4xl mx-auto space-y-2 sm:space-y-0">
+        {/* Mobile: Call info at top, Desktop: Call info at left */}
+        <div className="flex items-center space-x-4 order-2 sm:order-1">
+          <div className="text-sm text-center sm:text-left">
+            <p className="font-medium text-xs sm:text-sm">{formatDuration(callDuration)}</p>
+            <p className="text-gray-300 text-xs hidden sm:block">
               {participantCount} participant{participantCount > 1 ? 's' : ''}
             </p>
           </div>
         </div>
 
-        {/* Main controls */}
-        <div className="flex items-center space-x-3">
+        {/* Main controls - Centered on mobile */}
+        <div className="flex items-center space-x-2 sm:space-x-3 order-1 sm:order-2">
           {/* Audio toggle */}
           <div className="relative">
             <button
@@ -109,7 +109,7 @@ const VideoCallControls = ({
               }}
               disabled={isLoading.audio}
               className={clsx(
-                'p-3 rounded-full transition-all duration-200 relative cursor-pointer',
+                'p-2 sm:p-3 rounded-full transition-all duration-200 relative cursor-pointer',
                 isAudioEnabled
                   ? 'bg-gray-700 hover:bg-gray-600 text-white'
                   : 'bg-red-600 hover:bg-red-700 text-white',
@@ -118,11 +118,11 @@ const VideoCallControls = ({
               title={isAudioEnabled ? 'Mute microphone' : 'Unmute microphone'}
             >
               {isLoading.audio ? (
-                <div className="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full" />
+                <div className="animate-spin h-5 w-5 sm:h-6 sm:w-6 border-2 border-white border-t-transparent rounded-full" />
               ) : isAudioEnabled ? (
-                <MicrophoneIcon className="h-6 w-6" />
+                <MicrophoneIcon className="h-5 w-5 sm:h-6 sm:w-6" />
               ) : (
-                <MicrophoneSolidIcon className="h-6 w-6" />
+                <MicrophoneSolidIcon className="h-5 w-5 sm:h-6 sm:w-6" />
               )}
             </button>
             {!isAudioEnabled && (
@@ -147,7 +147,7 @@ const VideoCallControls = ({
               }}
               disabled={isLoading.video}
               className={clsx(
-                'p-3 rounded-full transition-all duration-200 cursor-pointer',
+                'p-2 sm:p-3 rounded-full transition-all duration-200 cursor-pointer',
                 isVideoEnabled
                   ? 'bg-gray-700 hover:bg-gray-600 text-white'
                   : 'bg-red-600 hover:bg-red-700 text-white',
@@ -156,11 +156,11 @@ const VideoCallControls = ({
               title={isVideoEnabled ? 'Turn off camera' : 'Turn on camera'}
             >
               {isLoading.video ? (
-                <div className="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full" />
+                <div className="animate-spin h-5 w-5 sm:h-6 sm:w-6 border-2 border-white border-t-transparent rounded-full" />
               ) : isVideoEnabled ? (
-                <VideoCameraIcon className="h-6 w-6" />
+                <VideoCameraIcon className="h-5 w-5 sm:h-6 sm:w-6" />
               ) : (
-                <VideoCameraSolidIcon className="h-6 w-6" />
+                <VideoCameraSolidIcon className="h-5 w-5 sm:h-6 sm:w-6" />
               )}
             </button>
             {!isVideoEnabled && (
@@ -185,7 +185,7 @@ const VideoCallControls = ({
               }}
               disabled={isLoading.screen}
               className={clsx(
-                'p-3 rounded-full transition-all duration-200 cursor-pointer',
+                'p-2 sm:p-3 rounded-full transition-all duration-200 cursor-pointer',
                 isScreenSharing
                   ? 'bg-blue-600 hover:bg-blue-700 text-white'
                   : 'bg-gray-700 hover:bg-gray-600 text-white',
@@ -194,11 +194,11 @@ const VideoCallControls = ({
               title={isScreenSharing ? 'Stop screen sharing' : 'Share screen'}
             >
               {isLoading.screen ? (
-                <div className="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full" />
+                <div className="animate-spin h-5 w-5 sm:h-6 sm:w-6 border-2 border-white border-t-transparent rounded-full" />
               ) : isScreenSharing ? (
-                <ComputerDesktopSolidIcon className="h-6 w-6" />
+                <ComputerDesktopSolidIcon className="h-5 w-5 sm:h-6 sm:w-6" />
               ) : (
-                <ComputerDesktopIcon className="h-6 w-6" />
+                <ComputerDesktopIcon className="h-5 w-5 sm:h-6 sm:w-6" />
               )}
             </button>
             {isScreenSharing && (
@@ -233,9 +233,9 @@ const VideoCallControls = ({
             {isLoading.speaker ? (
               <div className="animate-spin h-6 w-6 border-2 border-white border-t-transparent rounded-full" />
             ) : isSpeakerOn ? (
-              <SpeakerWaveIcon className="h-6 w-6" />
+              <SpeakerWaveIcon className="h-5 w-5 sm:h-6 sm:w-6" />
             ) : (
-              <SpeakerWaveSolidIcon className="h-6 w-6" />
+              <SpeakerWaveSolidIcon className="h-5 w-5 sm:h-6 sm:w-6" />
             )}
           </button>
 
@@ -252,14 +252,14 @@ const VideoCallControls = ({
               }
             }}
             className={clsx(
-              'p-3 rounded-full transition-all duration-200 cursor-pointer',
+              'p-2 sm:p-3 rounded-full transition-all duration-200 cursor-pointer',
               showChat
                 ? 'bg-blue-600 hover:bg-blue-700 text-white'
                 : 'bg-gray-700 hover:bg-gray-600 text-white'
             )}
             title="Toggle chat"
           >
-            <ChatBubbleLeftIcon className="h-6 w-6" />
+              <ChatBubbleLeftIcon className="h-5 w-5 sm:h-6 sm:w-6" />
           </button>
 
           {/* End call */}
@@ -284,7 +284,7 @@ const VideoCallControls = ({
               )}
               title={showEndCallConfirm ? 'Click again to confirm' : 'End call'}
             >
-              <PhoneXMarkIcon className="h-6 w-6" />
+              <PhoneXMarkIcon className="h-5 w-5 sm:h-6 sm:w-6" />
             </button>
             {showEndCallConfirm && (
               <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded whitespace-nowrap">
@@ -310,7 +310,7 @@ const VideoCallControls = ({
               // Add more options functionality here
               console.log('More options clicked');
             }}
-            className="p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors duration-200 cursor-pointer"
+            className="p-1 sm:p-2 rounded-full bg-gray-700 hover:bg-gray-600 transition-colors duration-200 cursor-pointer"
             title="More options"
           >
             <EllipsisHorizontalIcon className="h-5 w-5" />
