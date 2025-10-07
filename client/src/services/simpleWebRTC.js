@@ -47,8 +47,7 @@ class SimpleWebRTC {
       // Join the call room using proper socket event
       if (this.socket.socket && this.socket.socket.connected) {
         this.socket.socket.emit('join_room', { roomId: this.callId });
-        // Also emit participant-joined to notify others
-        this.socket.socket.emit('participant-joined', { callId: this.callId });
+        // Don't emit participant-joined separately - the server handles this
       }
       
       // Setup socket listeners
@@ -181,6 +180,25 @@ class SimpleWebRTC {
    */
   setupSocketListeners() {
     console.log('🔌 Setting up socket listeners...');
+    
+    // Room management events
+    this.socket.on('room_joined', (data) => {
+      console.log('✅ Successfully joined room:', data);
+      console.log('👥 Participant count:', data.participantCount);
+    });
+    
+    this.socket.on('participant-joined', (data) => {
+      console.log('👤 Participant joined:', data);
+      console.log('👥 New participant count:', data.participantCount);
+      
+      // If we're the initiator and someone else joins, create an offer
+      if (this.isInitiator && data.participantId !== this.socket.socket?.id) {
+        console.log('🚀 Initiator creating offer for new participant');
+        setTimeout(() => {
+          this.createOffer();
+        }, 1000);
+      }
+    });
     
     // Use socketService event system
     this.socket.on('offer', async (data) => {

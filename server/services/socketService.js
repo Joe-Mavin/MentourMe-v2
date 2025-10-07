@@ -357,9 +357,36 @@ class SocketService {
     // Room management for video calls
     socket.on("join_room", (data) => {
       const { roomId } = data;
-      console.log(`User ${userId} joining room: ${roomId}`);
+      console.log(`🎬 User ${userId} (${socket.user.name}) joining video call room: ${roomId}`);
+      
+      // Join the room
       socket.join(roomId);
-      socket.emit("room_joined", { roomId, success: true });
+      
+      // Get current participants in the room
+      const roomSockets = this.io.sockets.adapter.rooms.get(roomId);
+      const participantCount = roomSockets ? roomSockets.size : 1;
+      
+      console.log(`📊 Room ${roomId} now has ${participantCount} participants`);
+      
+      // Confirm room joined to the user
+      socket.emit("room_joined", { 
+        roomId, 
+        success: true, 
+        participantCount: participantCount 
+      });
+      
+      // Notify other participants that someone joined
+      socket.to(roomId).emit("participant-joined", {
+        participantId: userId,
+        participantInfo: {
+          id: userId,
+          name: socket.user.name,
+          avatar: socket.user.avatar
+        },
+        participantCount: participantCount
+      });
+      
+      console.log(`✅ User ${userId} successfully joined room ${roomId}`);
     });
 
     socket.on("leave_room", (data) => {

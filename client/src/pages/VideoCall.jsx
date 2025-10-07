@@ -126,6 +126,32 @@ const VideoCall = () => {
         throw new Error('Failed to initialize WebRTC');
       }
       
+      // Set up additional socket listeners for UI updates
+      socketService.on('participant-joined', (data) => {
+        console.log('🎬 UI: Participant joined:', data);
+        if (data.participantInfo && data.participantId !== user?.id) {
+          setParticipants(prev => {
+            const exists = prev.find(p => p.id === data.participantId);
+            if (!exists) {
+              return [...prev, data.participantInfo];
+            }
+            return prev;
+          });
+        }
+      });
+      
+      socketService.on('participant-left', (data) => {
+        console.log('🎬 UI: Participant left:', data);
+        if (data.participantId) {
+          setParticipants(prev => prev.filter(p => p.id !== data.participantId));
+          setRemoteStreams(prev => {
+            const newStreams = new Map(prev);
+            newStreams.delete(data.participantId);
+            return newStreams;
+          });
+        }
+      });
+      
       console.log('✅ Simple WebRTC initialized successfully');
       
     } catch (error) {
