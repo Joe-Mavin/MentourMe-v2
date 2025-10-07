@@ -53,16 +53,7 @@ class SimpleWebRTC {
       // Setup socket listeners
       this.setupSocketListeners();
       
-      // If initiator, create offer after room is confirmed joined
-      if (this.isInitiator) {
-        // Wait for room_joined confirmation before creating offer
-        this.socket.on('room_joined', () => {
-          setTimeout(() => {
-            console.log('🚀 Initiator creating offer after room joined');
-            this.createOffer();
-          }, 1000); // Shorter delay after room confirmation
-        });
-      }
+      // Offer creation will be handled by participant-joined event
       
       // Start connection monitoring
       this.startConnectionMonitoring();
@@ -190,13 +181,16 @@ class SimpleWebRTC {
     this.socket.on('participant-joined', (data) => {
       console.log('👤 Participant joined:', data);
       console.log('👥 New participant count:', data.participantCount);
+      console.log('🔍 Checking: isInitiator =', this.isInitiator, 'participantId =', data.participantId, 'myUserId =', this.socket.userId);
       
       // If we're the initiator and someone else joins, create an offer
-      if (this.isInitiator && data.participantId !== this.socket.socket?.id) {
+      if (this.isInitiator && data.participantId !== this.socket.userId) {
         console.log('🚀 Initiator creating offer for new participant');
         setTimeout(() => {
           this.createOffer();
         }, 1000);
+      } else {
+        console.log('⏸️ Not creating offer - isInitiator:', this.isInitiator, 'same user:', data.participantId === this.socket.userId);
       }
     });
     

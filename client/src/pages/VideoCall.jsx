@@ -89,6 +89,12 @@ const VideoCall = () => {
       
       // Determine if this user is the initiator
       const isInitiator = callId === 'new' || searchParams.get('initiator') === 'true';
+      console.log('🔍 Initiator check:', { 
+        callId, 
+        isNew: callId === 'new', 
+        initiatorParam: searchParams.get('initiator'), 
+        isInitiator 
+      });
       
       // Setup simple WebRTC callbacks
       simpleWebRTC.onLocalStream = (stream) => {
