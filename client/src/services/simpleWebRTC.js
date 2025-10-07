@@ -25,15 +25,16 @@ class SimpleWebRTC {
   /**
    * Initialize the WebRTC connection
    */
-  async initialize(socketService, callId, isInitiator = false) {
+  async initialize(socket, callId, isInitiator, userId = null) {
     try {
       console.log('🚀 Initializing Simple WebRTC:', { callId, isInitiator });
-      console.log('🔌 Socket service:', socketService);
-      console.log('📊 Socket connected:', socketService?.getConnectionStatus());
+      console.log('🔌 Socket service:', socket);
+      console.log('📊 Socket connected:', socket?.getConnectionStatus());
       
-      this.socket = socketService;
+      this.socket = socket;
       this.callId = callId;
       this.isInitiator = isInitiator;
+      this.userId = userId;
       
       // Load WebRTC configuration
       await this.loadWebRTCConfig();
@@ -181,16 +182,16 @@ class SimpleWebRTC {
     this.socket.on('participant-joined', (data) => {
       console.log('👤 Participant joined:', data);
       console.log('👥 New participant count:', data.participantCount);
-      console.log('🔍 Checking: isInitiator =', this.isInitiator, 'participantId =', data.participantId, 'myUserId =', this.socket.userId);
+      console.log('🔍 Checking: isInitiator =', this.isInitiator, 'participantId =', data.participantId, 'myUserId =', this.userId);
       
       // If we're the initiator and someone else joins, create an offer
-      if (this.isInitiator && data.participantId !== this.socket.userId) {
+      if (this.isInitiator && data.participantId !== this.userId) {
         console.log('🚀 Initiator creating offer for new participant');
         setTimeout(() => {
           this.createOffer();
         }, 1000);
       } else {
-        console.log('⏸️ Not creating offer - isInitiator:', this.isInitiator, 'same user:', data.participantId === this.socket.userId);
+        console.log('⏸️ Not creating offer - isInitiator:', this.isInitiator, 'same user:', data.participantId === this.userId);
       }
     });
     

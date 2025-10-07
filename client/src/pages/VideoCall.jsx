@@ -127,7 +127,7 @@ const VideoCall = () => {
       };
 
       // Initialize simple WebRTC
-      const success = await simpleWebRTC.initialize(socketService, callId, isInitiator);
+      const success = await simpleWebRTC.initialize(socketService, callId, isInitiator, user?.id);
       if (!success) {
         throw new Error('Failed to initialize WebRTC');
       }
