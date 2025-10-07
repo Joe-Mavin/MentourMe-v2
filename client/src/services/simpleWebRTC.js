@@ -179,8 +179,8 @@ class SimpleWebRTC {
       console.log('👥 Participant count:', data.participantCount);
     });
     
-    this.socket.on('participant-joined', (data) => {
-      console.log('👤 Participant joined:', data);
+    this.socket.on('call_participant_joined', (data) => {
+      console.log('👤 Call participant joined:', data);
       console.log('👥 New participant count:', data.participantCount);
       console.log('🔍 Checking: isInitiator =', this.isInitiator, 'participantId =', data.participantId, 'myUserId =', this.userId);
       

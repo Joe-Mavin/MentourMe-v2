@@ -133,8 +133,8 @@ const VideoCall = () => {
       }
       
       // Set up additional socket listeners for UI updates
-      socketService.on('participant-joined', (data) => {
-        console.log('🎬 UI: Participant joined:', data);
+      socketService.on('call_participant_joined', (data) => {
+        console.log('🎬 UI: Call participant joined:', data);
         if (data.participantInfo && data.participantId !== user?.id) {
           setParticipants(prev => {
             const exists = prev.find(p => p.id === data.participantId);
@@ -146,16 +146,19 @@ const VideoCall = () => {
         }
       });
       
-      socketService.on('participant-left', (data) => {
-        console.log('🎬 UI: Participant left:', data);
-        if (data.participantId) {
-          setParticipants(prev => prev.filter(p => p.id !== data.participantId));
-          setRemoteStreams(prev => {
-            const newStreams = new Map(prev);
-            newStreams.delete(data.participantId);
-            return newStreams;
-          });
-        }
+      socketService.on('call_participant_left', (data) => {
+        console.log('🎬 UI: Call participant left:', data);
+        setParticipants(prev => prev.filter(p => p.id !== data.participantId));
+        
+        // Remove their remote stream
+        setRemoteStreams(prev => {
+          const newStreams = new Map(prev);
+          newStreams.delete(data.participantId);
+          return newStreams;
+        });
+        
+        // If they were the main stream, switch to local
+        setMainStreamId(prev => prev === data.participantId ? 'local' : prev);
       });
       
       console.log('✅ Simple WebRTC initialized successfully');
