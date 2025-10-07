@@ -1,3 +1,5 @@
+import webrtcConfigService from './webrtcConfig';
+
 /**
  * Simple WebRTC Service - Minimal, reliable implementation
  */
@@ -10,6 +12,8 @@ class SimpleWebRTC {
     this.callId = null;
     this.socket = null;
     this.offerCreated = false; // Flag to prevent multiple offers
+    this.webrtcConfig = null;
+    this.connectionMonitorInterval = null;
     
     // Callbacks
     this.onLocalStream = null;
@@ -31,24 +35,38 @@ class SimpleWebRTC {
       this.callId = callId;
       this.isInitiator = isInitiator;
       
+      // Load WebRTC configuration
+      await this.loadWebRTCConfig();
+      
       // Get user media first
       await this.getUserMedia();
       
       // Setup peer connection
       this.setupPeerConnection();
       
-      // Join the call room
-      this.socket.joinConversation(`room_${this.callId}`);
+      // Join the call room using proper socket event
+      if (this.socket.socket && this.socket.socket.connected) {
+        this.socket.socket.emit('join_room', { roomId: this.callId });
+        // Also emit participant-joined to notify others
+        this.socket.socket.emit('participant-joined', { callId: this.callId });
+      }
       
       // Setup socket listeners
       this.setupSocketListeners();
       
-      // If initiator, create offer after a short delay
+      // If initiator, create offer after room is confirmed joined
       if (this.isInitiator) {
-        setTimeout(() => {
-          this.createOffer();
-        }, 2000); // Longer delay to ensure both participants are ready
+        // Wait for room_joined confirmation before creating offer
+        this.socket.on('room_joined', () => {
+          setTimeout(() => {
+            console.log('🚀 Initiator creating offer after room joined');
+            this.createOffer();
+          }, 1000); // Shorter delay after room confirmation
+        });
       }
+      
+      // Start connection monitoring
+      this.startConnectionMonitoring();
       
       console.log('✅ Simple WebRTC initialized');
       return true;
@@ -56,6 +74,26 @@ class SimpleWebRTC {
       console.error('❌ Failed to initialize WebRTC:', error);
       this.onError?.(error);
       return false;
+    }
+  }
+
+  /**
+   * Load WebRTC configuration from backend
+   */
+  async loadWebRTCConfig() {
+    try {
+      console.log('⚙️ Loading WebRTC configuration...');
+      this.webrtcConfig = await webrtcConfigService.getPeerConnectionConfig();
+      console.log('✅ WebRTC config loaded:', this.webrtcConfig);
+    } catch (error) {
+      console.warn('⚠️ Failed to load WebRTC config, using fallback:', error);
+      // Fallback configuration
+      this.webrtcConfig = {
+        iceServers: [
+          { urls: 'stun:stun.l.google.com:19302' },
+          { urls: 'stun:stun1.l.google.com:19302' }
+        ]
+      };
     }
   }
 
@@ -89,16 +127,9 @@ class SimpleWebRTC {
    */
   setupPeerConnection() {
     console.log('🔗 Setting up peer connection...');
+    console.log('⚙️ Using WebRTC config:', this.webrtcConfig);
     
-    // Simple STUN configuration
-    const config = {
-      iceServers: [
-        { urls: 'stun:stun.l.google.com:19302' },
-        { urls: 'stun:stun1.l.google.com:19302' }
-      ]
-    };
-    
-    this.peerConnection = new RTCPeerConnection(config);
+    this.peerConnection = new RTCPeerConnection(this.webrtcConfig);
     
     // Add local stream
     if (this.localStream) {
@@ -334,6 +365,9 @@ class SimpleWebRTC {
   endCall() {
     console.log('📞 Ending call...');
     
+    // Stop connection monitoring
+    this.stopConnectionMonitoring();
+    
     // Stop local stream
     if (this.localStream) {
       this.localStream.getTracks().forEach(track => track.stop());
@@ -357,9 +391,64 @@ class SimpleWebRTC {
       this.socket.off('offer');
       this.socket.off('answer');
       this.socket.off('ice-candidate');
+      this.socket.off('room_joined');
+      this.socket.off('participant-joined');
     }
     
     console.log('✅ Call ended');
+  }
+
+  /**
+   * Monitor connection quality
+   */
+  startConnectionMonitoring() {
+    if (this.connectionMonitorInterval) {
+      clearInterval(this.connectionMonitorInterval);
+    }
+    
+    this.connectionMonitorInterval = setInterval(async () => {
+      if (this.peerConnection) {
+        try {
+          const stats = await this.peerConnection.getStats();
+          this.analyzeConnectionStats(stats);
+        } catch (error) {
+          console.warn('⚠️ Failed to get connection stats:', error);
+        }
+      }
+    }, 5000); // Check every 5 seconds
+  }
+
+  /**
+   * Analyze connection statistics
+   */
+  analyzeConnectionStats(stats) {
+    let inboundRtp = null;
+    
+    stats.forEach(report => {
+      if (report.type === 'inbound-rtp' && report.mediaType === 'video') {
+        inboundRtp = report;
+      }
+    });
+    
+    if (inboundRtp) {
+      const packetsLost = inboundRtp.packetsLost || 0;
+      const packetsReceived = inboundRtp.packetsReceived || 0;
+      const lossRate = packetsReceived > 0 ? (packetsLost / packetsReceived) * 100 : 0;
+      
+      if (lossRate > 5) {
+        console.warn(`⚠️ High packet loss detected: ${lossRate.toFixed(2)}%`);
+      }
+    }
+  }
+
+  /**
+   * Stop connection monitoring
+   */
+  stopConnectionMonitoring() {
+    if (this.connectionMonitorInterval) {
+      clearInterval(this.connectionMonitorInterval);
+      this.connectionMonitorInterval = null;
+    }
   }
 
   /**
