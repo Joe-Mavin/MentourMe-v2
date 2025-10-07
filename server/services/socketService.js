@@ -419,7 +419,8 @@ class SocketService {
     });
 
     socket.on("initiate_call", (data) => {
-      const { receiverId, callType = "video", roomId } = data;
+      const { targetUserId, receiverId, callType = "video", roomId } = data;
+      const actualReceiverId = targetUserId || receiverId; // Support both parameter names
 
       const callData = {
         callId: `call_${Date.now()}_${userId}`,
@@ -429,11 +430,13 @@ class SocketService {
         roomId
       };
 
-      if (receiverId) {
+      if (actualReceiverId) {
         // Direct call
-        this.io.to(`user_${receiverId}`).emit("incoming_call", callData);
+        console.log(`📞 Sending incoming_call to user_${actualReceiverId}`);
+        this.io.to(`user_${actualReceiverId}`).emit("incoming_call", callData);
       } else if (roomId) {
         // Room call
+        console.log(`📞 Sending incoming_room_call to room_${roomId}`);
         socket.to(`room_${roomId}`).emit("incoming_room_call", callData);
       }
 

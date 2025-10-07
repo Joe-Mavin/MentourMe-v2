@@ -90,19 +90,14 @@ const DirectVideoCall = ({ mentorship, onCallInitiated }) => {
 
   const initiateCall = async () => {
     if (!selectedPurpose) {
-      toast.error('Please select a call purpose');
+      toast.error('Please select a purpose for the call');
       return;
     }
 
     setIsInitiating(true);
+    
     try {
-      console.log('🚀 Initiating call with data:', {
-        targetUserId: otherUser.id,
-        callType,
-        purpose: selectedPurpose,
-        sessionType: 'mentorship'
-      });
-      
+      // Initiate call via API (which will handle socket notifications)
       const response = await videoCallsAPI.initiateCall({
         targetUserId: otherUser.id,
         callType,

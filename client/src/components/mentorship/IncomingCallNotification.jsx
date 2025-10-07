@@ -25,50 +25,13 @@ const IncomingCallNotification = ({ socket }) => {
       console.log('Incoming call received:', callData);
       setIncomingCall(callData);
       
-      // Show toast notification
-      toast.custom((t) => (
-        <div className="bg-white border border-gray-200 rounded-lg shadow-lg p-4 max-w-sm">
-          <div className="flex items-center">
-            <div className="flex-shrink-0">
-              <div className="w-10 h-10 bg-primary-100 rounded-full flex items-center justify-center">
-                {callData.callType === 'video' ? (
-                  <VideoCameraIcon className="w-5 h-5 text-primary-600" />
-                ) : (
-                  <PhoneIcon className="w-5 h-5 text-primary-600" />
-                )}
-              </div>
-            </div>
-            <div className="ml-3 flex-1">
-              <p className="text-sm font-medium text-gray-900">
-                Incoming {callData.callType} call
-              </p>
-              <p className="text-sm text-gray-500">
-                {callData.callerName} ({callData.callerRole})
-              </p>
-              <p className="text-xs text-gray-400">
-                {callData.purpose}
-              </p>
-            </div>
-          </div>
-          <div className="mt-3 flex space-x-2">
-            <button
-              onClick={() => acceptCall(callData)}
-              className="flex-1 bg-green-600 text-white px-3 py-2 rounded text-sm hover:bg-green-700"
-            >
-              Accept
-            </button>
-            <button
-              onClick={() => rejectCall(callData)}
-              className="flex-1 bg-red-600 text-white px-3 py-2 rounded text-sm hover:bg-red-700"
-            >
-              Decline
-            </button>
-          </div>
-        </div>
-      ), {
-        duration: 30000, // 30 seconds
-        position: 'top-right'
-      });
+      // Play notification sound (optional)
+      try {
+        const audio = new Audio('/notification-sound.mp3');
+        audio.play().catch(e => console.log('Could not play notification sound'));
+      } catch (e) {
+        // Ignore audio errors
+      }
     });
 
     // Listen for call accepted/rejected events
