@@ -278,7 +278,7 @@ class SimpleWebRTC {
    */
   async handleOffer(offer) {
     try {
-      console.log('📥 Handling offer...');
+      console.log('📥 Handling offer...', 'Current state:', this.peerConnection.signalingState);
       
       // Check if we already have a remote description
       if (this.peerConnection.remoteDescription) {
@@ -286,25 +286,33 @@ class SimpleWebRTC {
         return;
       }
       
-      // Check signaling state
+      // Only accept offers in stable or have-local-offer state
       if (this.peerConnection.signalingState !== 'stable' && this.peerConnection.signalingState !== 'have-local-offer') {
-        console.log('⚠️ Cannot handle offer in current state:', this.peerConnection.signalingState);
-        return;
+        console.log('⚠️ Invalid signaling state for offer:', this.peerConnection.signalingState, 'Waiting...');
+        
+        // Wait a bit and retry if in wrong state
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        if (this.peerConnection.signalingState !== 'stable' && this.peerConnection.signalingState !== 'have-local-offer') {
+          console.log('⚠️ Still in wrong state, skipping offer');
+          return;
+        }
       }
       
       await this.peerConnection.setRemoteDescription(offer);
+      console.log('✅ Remote description set');
       
       const answer = await this.peerConnection.createAnswer();
       await this.peerConnection.setLocalDescription(answer);
+      console.log('✅ Answer created and set as local description');
       
-      if (this.socket.socket && this.socket.socket.connected) {
-        this.socket.socket.emit('answer', {
-          callId: this.callId,
-          answer: answer
-        });
-      }
+      // Send answer back
+      this.socket.emit('answer', {
+        answer: answer,
+        callId: this.callId
+      });
       
-      console.log('✅ Answer sent');
+      console.log('✅ Offer processed and answer sent');
     } catch (error) {
       console.error('❌ Failed to handle offer:', error);
       this.onError?.(error);
@@ -316,7 +324,7 @@ class SimpleWebRTC {
    */
   async handleAnswer(answer) {
     try {
-      console.log('📥 Handling answer...');
+      console.log('📥 Handling answer...', 'Current state:', this.peerConnection.signalingState);
       
       // Check if we already have a remote description
       if (this.peerConnection.remoteDescription) {
@@ -324,16 +332,36 @@ class SimpleWebRTC {
         return;
       }
       
-      // Check signaling state - should be have-local-offer
+      // Only accept answers in have-local-offer state
       if (this.peerConnection.signalingState !== 'have-local-offer') {
-        console.log('⚠️ Cannot handle answer in current state:', this.peerConnection.signalingState);
-        return;
+        console.log('⚠️ Invalid signaling state for answer:', this.peerConnection.signalingState, 'Expected: have-local-offer');
+        
+        // If we're in stable state, it means the connection was already established
+        if (this.peerConnection.signalingState === 'stable') {
+          console.log('✅ Connection already established, ignoring answer');
+          return;
+        }
+        
+        // Wait a bit and check again
+        await new Promise(resolve => setTimeout(resolve, 100));
+        
+        if (this.peerConnection.signalingState !== 'have-local-offer') {
+          console.log('⚠️ Still in wrong state, skipping answer');
+          return;
+        }
       }
       
       await this.peerConnection.setRemoteDescription(answer);
-      console.log('✅ Answer processed');
+      console.log('✅ Answer processed, connection should be established');
     } catch (error) {
       console.error('❌ Failed to handle answer:', error);
+      
+      // Don't treat this as a fatal error if we're already in stable state
+      if (error.message.includes('stable')) {
+        console.log('ℹ️ Connection already stable, ignoring error');
+        return;
+      }
+      
       this.onError?.(error);
     }
   }

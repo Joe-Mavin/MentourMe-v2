@@ -21,6 +21,7 @@ const VideoCallControls = ({
   isAudioEnabled,
   isVideoEnabled,
   isScreenSharing,
+  isScreenShareSupported = true,
   isSpeakerOn,
   onToggleAudio,
   onToggleVideo,
@@ -183,15 +184,23 @@ const VideoCallControls = ({
                   }
                 }
               }}
-              disabled={isLoading.screen}
+              disabled={isLoading.screen || !isScreenShareSupported}
               className={clsx(
-                'p-2 sm:p-3 rounded-full transition-all duration-200 cursor-pointer',
-                isScreenSharing
-                  ? 'bg-blue-600 hover:bg-blue-700 text-white'
-                  : 'bg-gray-700 hover:bg-gray-600 text-white',
+                'p-2 sm:p-3 rounded-full transition-all duration-200',
+                !isScreenShareSupported 
+                  ? 'bg-gray-500 text-gray-300 cursor-not-allowed opacity-50'
+                  : isScreenSharing
+                    ? 'bg-blue-600 hover:bg-blue-700 text-white cursor-pointer'
+                    : 'bg-gray-700 hover:bg-gray-600 text-white cursor-pointer',
                 isLoading.screen && 'opacity-50 cursor-not-allowed'
               )}
-              title={isScreenSharing ? 'Stop screen sharing' : 'Share screen'}
+              title={
+                !isScreenShareSupported 
+                  ? 'Screen sharing not supported on mobile devices'
+                  : isScreenSharing 
+                    ? 'Stop screen sharing' 
+                    : 'Share screen'
+              }
             >
               {isLoading.screen ? (
                 <div className="animate-spin h-5 w-5 sm:h-6 sm:w-6 border-2 border-white border-t-transparent rounded-full" />

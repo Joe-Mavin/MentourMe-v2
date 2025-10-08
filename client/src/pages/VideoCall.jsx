@@ -32,6 +32,7 @@ const VideoCall = () => {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isScreenShareSupported, setIsScreenShareSupported] = useState(false);
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [showChat, setShowChat] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
@@ -64,7 +65,25 @@ const VideoCall = () => {
     };
   }, [user, callId]);
 
-  // Duration timer
+  useEffect(() => {
+    // Check screen sharing support
+    const checkScreenShareSupport = () => {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const hasGetDisplayMedia = navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia;
+      setIsScreenShareSupported(!isMobile && hasGetDisplayMedia);
+    };
+
+    checkScreenShareSupport();
+    initializeCall();
+    
+    // Cleanup on unmount
+    return () => {
+      if (durationInterval.current) {
+        clearInterval(durationInterval.current);
+      }
+    };
+  }, [callId, user]);
+
   useEffect(() => {
     if (callState === 'connected' && !durationInterval.current) {
       callStartTime.current = Date.now();
@@ -427,6 +446,11 @@ const VideoCall = () => {
   };
 
   const toggleScreenShare = async () => {
+    if (!isScreenShareSupported) {
+      toast.error('Screen sharing is not supported on mobile devices');
+      return;
+    }
+
     try {
       if (!isScreenSharing) {
         // Start screen sharing using simpleWebRTC
@@ -451,7 +475,13 @@ const VideoCall = () => {
       }
     } catch (error) {
       console.error('Error toggling screen share:', error);
-      toast.error('Failed to toggle screen sharing');
+      if (error.name === 'NotAllowedError') {
+        toast.error('Screen sharing permission denied');
+      } else if (error.name === 'NotSupportedError') {
+        toast.error('Screen sharing not supported on this device');
+      } else {
+        toast.error('Failed to toggle screen sharing');
+      }
       setIsScreenSharing(false);
     }
   };
@@ -719,6 +749,7 @@ const VideoCall = () => {
         isAudioEnabled={isAudioEnabled}
         isVideoEnabled={isVideoEnabled}
         isScreenSharing={isScreenSharing}
+        isScreenShareSupported={isScreenShareSupported}
         isSpeakerOn={isSpeakerOn}
         onToggleAudio={handleToggleAudio}
         onToggleVideo={handleToggleVideo}
