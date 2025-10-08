@@ -193,6 +193,17 @@ class SocketService {
       this.emit('call_participant_left', data);
     });
 
+    // Screen sharing events
+    this.socket.on('screen_share_started', (data) => {
+      console.log('🖥️ Screen sharing started:', data);
+      this.emit('screen_share_started', data);
+    });
+
+    this.socket.on('screen_share_stopped', (data) => {
+      console.log('🖥️ Screen sharing stopped:', data);
+      this.emit('screen_share_stopped', data);
+    });
+
     // WebRTC signaling events - Simple names to match our implementation
     this.socket.on('offer', (data) => {
       console.log('🔌 Frontend socket received offer:', data);

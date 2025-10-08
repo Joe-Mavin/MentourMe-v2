@@ -502,6 +502,31 @@ class SocketService {
       });
     });
 
+    // Screen sharing events
+    socket.on("screen_share_started", (data) => {
+      const { callId, participantId } = data;
+      console.log(`🖥️ User ${participantId} started screen sharing in call ${callId}`);
+      
+      // Broadcast to all users in the call room except sender
+      socket.to(callId).emit("screen_share_started", {
+        callId,
+        participantId,
+        timestamp: new Date().toISOString()
+      });
+    });
+
+    socket.on("screen_share_stopped", (data) => {
+      const { callId, participantId } = data;
+      console.log(`🖥️ User ${participantId} stopped screen sharing in call ${callId}`);
+      
+      // Broadcast to all users in the call room except sender
+      socket.to(callId).emit("screen_share_stopped", {
+        callId,
+        participantId,
+        timestamp: new Date().toISOString()
+      });
+    });
+
     // Call participant management
     socket.on("participant-joined", (data) => {
       const { callId } = data;

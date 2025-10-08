@@ -105,7 +105,10 @@ const VideoCall = () => {
       
       simpleWebRTC.onRemoteStream = (stream) => {
         console.log('📺 Got remote stream');
-        setRemoteStreams(new Map([['remote', stream]]));
+        // Find the participant who isn't us to assign the stream
+        const remoteParticipant = participants.find(p => p.id !== user?.id);
+        const participantId = remoteParticipant?.id || 'remote';
+        setRemoteStreams(new Map([[participantId, stream]]));
         setCallState('connected');
         toast.success('Connected to call!');
       };
@@ -148,6 +151,12 @@ const VideoCall = () => {
       
       socketService.on('call_participant_left', (data) => {
         console.log('🎬 UI: Call participant left:', data);
+        const leftParticipant = participants.find(p => p.id === data.participantId);
+        const participantName = leftParticipant?.name || 'Participant';
+        
+        // Show notification
+        toast.info(`${participantName} left the call`);
+        
         setParticipants(prev => prev.filter(p => p.id !== data.participantId));
         
         // Remove their remote stream
@@ -159,6 +168,33 @@ const VideoCall = () => {
         
         // If they were the main stream, switch to local
         setMainStreamId(prev => prev === data.participantId ? 'local' : prev);
+      });
+      
+      // Handle call ended by other participant
+      socketService.on('call_ended', (data) => {
+        console.log('📞 Call ended by another participant:', data);
+        toast.info('The call has ended');
+        setCallState('ended');
+        
+        // Clean up and navigate back
+        setTimeout(() => {
+          navigate('/dashboard');
+        }, 2000);
+      });
+
+      // Handle screen sharing events
+      socketService.on('screen_share_started', (data) => {
+        console.log('🖥️ Screen sharing started by participant:', data);
+        const participant = participants.find(p => p.id === data.participantId);
+        const participantName = participant?.name || 'Participant';
+        toast.info(`${participantName} started screen sharing`);
+      });
+
+      socketService.on('screen_share_stopped', (data) => {
+        console.log('🖥️ Screen sharing stopped by participant:', data);
+        const participant = participants.find(p => p.id === data.participantId);
+        const participantName = participant?.name || 'Participant';
+        toast.info(`${participantName} stopped screen sharing`);
       });
       
       console.log('✅ Simple WebRTC initialized successfully');
@@ -588,9 +624,8 @@ const VideoCall = () => {
     simpleWebRTC.toggleVideo(newState);
   };
 
-  const handleToggleScreenShare = () => {
-    setIsScreenSharing(!isScreenSharing);
-    toast.info('Screen sharing not yet implemented');
+  const handleToggleScreenShare = async () => {
+    await toggleScreenShare();
   };
 
   const handleToggleSpeaker = () => {
