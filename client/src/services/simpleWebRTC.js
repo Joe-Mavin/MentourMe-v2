@@ -6,15 +6,14 @@ import webrtcConfigService from './webrtcConfig';
 class SimpleWebRTC {
   constructor() {
     this.localStream = null;
-    this.remoteStream = null;
     this.peerConnection = null;
-    this.isInitiator = false;
-    this.callId = null;
     this.socket = null;
-    this.offerCreated = false; // Flag to prevent multiple offers
-    this.answerCreated = false;
+    this.callId = null;
+    this.isInitialized = false;
     this.webrtcConfig = null;
-    this.connectionMonitorInterval = null;
+    this.originalVideoTrack = null; // Store original camera track for screen sharing
+    this.isProcessingOffer = false; // Prevent concurrent offer processing
+    this.isProcessingAnswer = false; // Prevent concurrent answer processing
     
     // Callbacks
     this.onLocalStream = null;
@@ -290,10 +289,22 @@ class SimpleWebRTC {
    * Handle incoming offer
    */
   async handleOffer(offer) {
+    // Prevent concurrent offer processing
+    if (this.isProcessingOffer) {
+      console.log('⚠️ Already processing an offer, ignoring duplicate');
+      return;
+    }
+    
+    this.isProcessingOffer = true;
+    
     try {
       console.log('📥 Handling offer...', 'Current state:', this.peerConnection.signalingState);
       
-      // Check if we already have a remote description
+      if (!this.peerConnection) {
+        console.error('❌ No peer connection available');
+        return;
+      }
+      
       if (this.peerConnection.remoteDescription) {
         console.log('⚠️ Already have remote description, ignoring offer');
         return;
@@ -324,12 +335,33 @@ class SimpleWebRTC {
       const answer = await this.peerConnection.createAnswer();
       
       // Check state again before setting local description
-      if (this.peerConnection.signalingState !== 'have-remote-offer') {
-        console.log('⚠️ State changed before setting local description:', this.peerConnection.signalingState);
-        return;
+      const currentState = this.peerConnection.signalingState;
+      if (currentState !== 'have-remote-offer') {
+        console.log('⚠️ State changed before setting local description:', currentState);
+        
+        // If we're in stable state, it means the connection was already established
+        if (currentState === 'stable') {
+          console.log('✅ Connection already in stable state, skipping answer');
+          return;
+        }
+        
+        // For other states, wait a bit and check again
+        await new Promise(resolve => setTimeout(resolve, 50));
+        const newState = this.peerConnection.signalingState;
+        
+        if (newState !== 'have-remote-offer') {
+          console.log('⚠️ Still in wrong state after wait:', newState, 'Aborting answer');
+          return;
+        }
       }
       
-      await this.peerConnection.setLocalDescription(answer);
+      // Double-check state right before setting local description
+      if (this.peerConnection.signalingState === 'have-remote-offer') {
+        await this.peerConnection.setLocalDescription(answer);
+      } else {
+        console.log('⚠️ State changed at last moment:', this.peerConnection.signalingState, 'Skipping setLocalDescription');
+        return;
+      }
       console.log('✅ Answer created and set as local description');
       
       // Send answer back
@@ -342,6 +374,8 @@ class SimpleWebRTC {
     } catch (error) {
       console.error('❌ Failed to handle offer:', error);
       this.onError?.(error);
+    } finally {
+      this.isProcessingOffer = false;
     }
   }
 
@@ -349,6 +383,14 @@ class SimpleWebRTC {
    * Handle incoming answer
    */
   async handleAnswer(answer) {
+    // Prevent concurrent answer processing
+    if (this.isProcessingAnswer) {
+      console.log('⚠️ Already processing an answer, ignoring duplicate');
+      return;
+    }
+    
+    this.isProcessingAnswer = true;
+    
     try {
       console.log('📥 Handling answer...', 'Current state:', this.peerConnection.signalingState);
       
@@ -389,6 +431,8 @@ class SimpleWebRTC {
       }
       
       this.onError?.(error);
+    } finally {
+      this.isProcessingAnswer = false;
     }
   }
 
