@@ -131,14 +131,27 @@ class SimpleWebRTC {
   setupPeerConnection() {
     console.log('🔗 Setting up peer connection...');
     console.log('⚙️ Using WebRTC config:', this.webrtcConfig);
+    console.log('🔗 Local stream available:', !!this.localStream);
     
     this.peerConnection = new RTCPeerConnection(this.webrtcConfig);
     
-    // Add local stream
+    // Add local stream with fallback
     if (this.localStream) {
+      console.log('🎥 Adding local tracks to peer connection');
+      console.log('🎥 Stream tracks:', this.localStream.getTracks().map(t => ({ 
+        kind: t.kind, 
+        enabled: t.enabled, 
+        readyState: t.readyState,
+        id: t.id 
+      })));
+      
       this.localStream.getTracks().forEach(track => {
+        console.log('🎥 Adding track:', track.kind, track.enabled, track.readyState);
         this.peerConnection.addTrack(track, this.localStream);
       });
+      console.log('🎥 All local tracks added to peer connection');
+    } else {
+      console.warn('⚠️ No local stream available during peer connection setup');
     }
     
     // Handle remote stream
@@ -191,19 +204,22 @@ class SimpleWebRTC {
       console.log('👥 Participant count:', data.participantCount);
     });
     
-    this.socket.on('call_participant_joined', (data) => {
+    this.socket.on('call_participant_joined', async (data) => {
       console.log('👤 Call participant joined:', data);
       console.log('👥 New participant count:', data.participantCount);
-      console.log('🔍 Checking: isInitiator =', this.isInitiator, 'participantId =', data.participantId, 'myUserId =', this.userId);
       
-      // If we're the initiator and someone else joins, create an offer
-      if (this.isInitiator && data.participantId !== this.userId) {
-        console.log('🚀 Initiator creating offer for new participant');
-        setTimeout(() => {
-          this.createOffer();
-        }, 1000);
-      } else {
-        console.log('⏸️ Not creating offer - isInitiator:', this.isInitiator, 'same user:', data.participantId === this.userId);
+      // If we're the initiator and this is the first participant to join, create offer
+      if (this.isInitiator && data.participantCount === 2) {
+        console.log('🚀 Creating offer for new participant...');
+        console.log('⏳ Waiting for participant media setup...');
+        
+        // Wait for the new participant to set up their media
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
+        // Ensure our own media is ready too
+        await this.ensureLocalMedia();
+        
+        this.createOffer();
       }
     });
     
@@ -242,6 +258,10 @@ class SimpleWebRTC {
   async createOffer() {
     try {
       console.log('📤 Creating offer...');
+      console.log('📤 Local stream status:', !!this.localStream);
+      
+      // Ensure we have local media before creating offer
+      await this.ensureLocalMedia();
       
       // Check if we already created an offer
       if (this.offerCreated) {
@@ -249,15 +269,9 @@ class SimpleWebRTC {
         return;
       }
       
-      // Check if we already have a local description
-      if (this.peerConnection.localDescription) {
-        console.log('⚠️ Already have local description, skipping offer creation');
-        return;
-      }
-      
       // Check signaling state
       if (this.peerConnection.signalingState !== 'stable') {
-        console.log('⚠️ Peer connection not in stable state:', this.peerConnection.signalingState);
+        console.log('⚠️ Not in stable state for offer creation:', this.peerConnection.signalingState);
         return;
       }
       
@@ -286,6 +300,30 @@ class SimpleWebRTC {
   }
 
   /**
+   * Ensure local media is available
+   */
+  async ensureLocalMedia() {
+    if (!this.localStream) {
+      console.warn('⚠️ No local stream available, attempting to get media...');
+      try {
+        await this.getUserMedia();
+        
+        // Add tracks to existing peer connection if available
+        if (this.peerConnection && this.localStream) {
+          console.log('🎥 Adding newly acquired tracks to existing peer connection');
+          this.localStream.getTracks().forEach(track => {
+            console.log('🎥 Adding track:', track.kind, track.enabled, track.readyState);
+            this.peerConnection.addTrack(track, this.localStream);
+          });
+        }
+      } catch (error) {
+        console.error('❌ Failed to get media for offer handling:', error);
+        throw error;
+      }
+    }
+  }
+
+  /**
    * Handle incoming offer
    */
   async handleOffer(offer) {
@@ -299,6 +337,13 @@ class SimpleWebRTC {
     
     try {
       console.log('📥 Handling offer...', 'Current state:', this.peerConnection.signalingState);
+      console.log('📥 Current local stream status:', {
+        localStream: !!this.localStream,
+        peerConnection: !!this.peerConnection
+      });
+      
+      // Ensure we have local media before handling offer
+      await this.ensureLocalMedia();
       
       if (!this.peerConnection) {
         console.error('❌ No peer connection available');
