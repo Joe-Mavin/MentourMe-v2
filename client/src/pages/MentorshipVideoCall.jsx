@@ -335,11 +335,40 @@ const MentorshipVideoCall = () => {
     const { fromParticipant, offer } = data;
     const pc = await createPeerConnection(fromParticipant);
     
-    await pc.setRemoteDescription(offer);
-    const answer = await pc.createAnswer();
-    await pc.setLocalDescription(answer);
-    
-    socketService.sendWebRTCAnswer(fromParticipant, answer);
+    try {
+      // Check signaling state before setting remote description
+      if (pc.signalingState !== 'stable' && pc.signalingState !== 'have-local-offer') {
+        console.warn('⚠️ Invalid signaling state for offer:', pc.signalingState);
+        return;
+      }
+      
+      await pc.setRemoteDescription(offer);
+      
+      // Check state before creating answer
+      if (pc.signalingState !== 'have-remote-offer') {
+        console.warn('⚠️ Not in correct state for creating answer:', pc.signalingState);
+        return;
+      }
+      
+      const answer = await pc.createAnswer();
+      
+      // Check state again before setting local description
+      if (pc.signalingState !== 'have-remote-offer') {
+        console.warn('⚠️ State changed before setting local description:', pc.signalingState);
+        return;
+      }
+      
+      await pc.setLocalDescription(answer);
+      socketService.sendWebRTCAnswer(fromParticipant, answer);
+    } catch (error) {
+      console.error('❌ Failed to handle WebRTC offer:', error);
+      
+      // Don't treat this as a fatal error if we're already in stable state
+      if (error.message && error.message.includes('stable')) {
+        console.log('ℹ️ Connection already stable, ignoring error');
+        return;
+      }
+    }
   };
 
   const handleWebRTCAnswer = async (data) => {
@@ -347,7 +376,37 @@ const MentorshipVideoCall = () => {
     const pc = peerConnections.current.get(fromParticipant);
     
     if (pc) {
-      await pc.setRemoteDescription(answer);
+      try {
+        // Check if we already have a remote description
+        if (pc.remoteDescription) {
+          console.log('⚠️ Already have remote description, ignoring answer');
+          return;
+        }
+        
+        // Only accept answers in have-local-offer state
+        if (pc.signalingState !== 'have-local-offer') {
+          console.log('⚠️ Invalid signaling state for answer:', pc.signalingState);
+          
+          // If we're in stable state, it means the connection was already established
+          if (pc.signalingState === 'stable') {
+            console.log('✅ Connection already established, ignoring answer');
+            return;
+          }
+          
+          return;
+        }
+        
+        await pc.setRemoteDescription(answer);
+        console.log('✅ Answer processed, connection should be established');
+      } catch (error) {
+        console.error('❌ Failed to handle WebRTC answer:', error);
+        
+        // Don't treat this as a fatal error if we're already in stable state
+        if (error.message && error.message.includes('stable')) {
+          console.log('ℹ️ Connection already stable, ignoring error');
+          return;
+        }
+      }
     }
   };
 
@@ -356,7 +415,13 @@ const MentorshipVideoCall = () => {
     const pc = peerConnections.current.get(fromParticipant);
     
     if (pc) {
-      await pc.addIceCandidate(candidate);
+      try {
+        await pc.addIceCandidate(candidate);
+        console.log('✅ ICE candidate added');
+      } catch (error) {
+        console.error('❌ Failed to add ICE candidate:', error);
+        // Don't treat ICE candidate errors as fatal
+      }
     }
   };
 
@@ -383,6 +448,12 @@ const MentorshipVideoCall = () => {
   const toggleScreenShare = async () => {
     try {
       if (!isScreenSharing) {
+        // Check if getDisplayMedia is available
+        if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+          throw new Error('Screen sharing is not supported in this browser');
+        }
+        
+        // Use direct call to avoid context binding issues
         const screenStream = await navigator.mediaDevices.getDisplayMedia({
           video: { mediaSource: 'screen', width: { max: 1920 }, height: { max: 1080 } },
           audio: { echoCancellation: true, noiseSuppression: true }
@@ -419,10 +490,26 @@ const MentorshipVideoCall = () => {
       }
     } catch (error) {
       console.error('Screen share error:', error);
+      
+      // Handle specific screen sharing errors
       if (error.name === 'NotAllowedError') {
-        toast.error('Screen sharing permission denied');
+        toast.error('Screen sharing permission denied. Please allow screen sharing and try again.');
+      } else if (error.name === 'NotFoundError') {
+        toast.error('No screen available for sharing.');
+      } else if (error.name === 'NotSupportedError') {
+        toast.error('Screen sharing is not supported in this browser.');
+      } else if (error.message && error.message.includes('getDisplayMedia')) {
+        toast.error('Screen sharing API error. Please try refreshing the page.');
+      } else if (error.message && error.message.includes('message channel')) {
+        console.warn('⚠️ Browser extension conflict during screen sharing, retrying...');
+        toast.warn('Browser extension conflict detected. Retrying...');
+        // Retry once after a short delay
+        setTimeout(() => {
+          toggleScreenShare();
+        }, 1000);
+        return;
       } else {
-        toast.error('Failed to share screen');
+        toast.error('Failed to share screen. Please try again.');
       }
     }
   };
