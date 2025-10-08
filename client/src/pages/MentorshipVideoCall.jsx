@@ -34,6 +34,7 @@ const MentorshipVideoCall = () => {
   const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   const [isVideoEnabled, setIsVideoEnabled] = useState(true);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
+  const [isScreenShareSupported, setIsScreenShareSupported] = useState(false);
   const [isSpeakerOn, setIsSpeakerOn] = useState(true);
   const [showChat, setShowChat] = useState(false);
   const [callDuration, setCallDuration] = useState(0);
@@ -98,6 +99,17 @@ const MentorshipVideoCall = () => {
       window.removeEventListener('beforeunload', globalCleanup);
       window.removeEventListener('unload', globalCleanup);
     };
+  }, []);
+
+  // Check screen sharing support
+  useEffect(() => {
+    const checkScreenShareSupport = () => {
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      const hasGetDisplayMedia = navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia;
+      setIsScreenShareSupported(!isMobile && hasGetDisplayMedia);
+    };
+
+    checkScreenShareSupport();
   }, []);
 
   // Duration timer
@@ -446,6 +458,11 @@ const MentorshipVideoCall = () => {
   };
 
   const toggleScreenShare = async () => {
+    if (!isScreenShareSupported) {
+      toast.error('Screen sharing is not supported on mobile devices');
+      return;
+    }
+
     try {
       if (!isScreenSharing) {
         // Check if getDisplayMedia is available
@@ -955,6 +972,7 @@ const MentorshipVideoCall = () => {
         isAudioEnabled={isAudioEnabled}
         isVideoEnabled={isVideoEnabled}
         isScreenSharing={isScreenSharing}
+        isScreenShareSupported={isScreenShareSupported}
         isSpeakerOn={isSpeakerOn}
         onToggleAudio={toggleAudio}
         onToggleVideo={toggleVideo}
