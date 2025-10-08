@@ -474,6 +474,136 @@ class SimpleWebRTC {
   getRemoteStream() {
     return this.remoteStream;
   }
+
+  /**
+   * Start screen sharing
+   */
+  async startScreenShare() {
+    try {
+      console.log('🖥️ Starting screen share...');
+      
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: {
+          mediaSource: 'screen',
+          width: { max: 1920 },
+          height: { max: 1080 },
+          frameRate: { max: 30 }
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          sampleRate: 44100
+        }
+      });
+
+      const videoTrack = screenStream.getVideoTracks()[0];
+      
+      // Store original video track for later restoration
+      this.originalVideoTrack = this.localStream?.getVideoTracks()[0];
+      
+      // Replace video track in peer connection
+      if (this.peerConnection) {
+        const videoSender = this.peerConnection.getSenders().find(sender => 
+          sender.track && sender.track.kind === 'video'
+        );
+        
+        if (videoSender) {
+          await videoSender.replaceTrack(videoTrack);
+          console.log('✅ Video track replaced with screen share');
+        }
+      }
+
+      // Update local stream
+      if (this.localStream) {
+        // Remove old video track
+        const oldVideoTrack = this.localStream.getVideoTracks()[0];
+        if (oldVideoTrack) {
+          this.localStream.removeTrack(oldVideoTrack);
+        }
+        
+        // Add screen share track
+        this.localStream.addTrack(videoTrack);
+        
+        // Notify callback about stream update
+        if (this.onLocalStream) {
+          this.onLocalStream(this.localStream);
+        }
+      }
+
+      // Listen for screen share end
+      videoTrack.onended = () => {
+        console.log('🖥️ Screen share ended by user');
+        this.stopScreenShare();
+        // Notify about screen sharing state change
+        if (this.onScreenShareEnded) {
+          this.onScreenShareEnded();
+        }
+      };
+
+      console.log('✅ Screen sharing started successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to start screen sharing:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Stop screen sharing and restore camera
+   */
+  async stopScreenShare() {
+    try {
+      console.log('🖥️ Stopping screen share...');
+      
+      if (!this.originalVideoTrack) {
+        // Get camera stream if we don't have the original track
+        const cameraStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: 1280, height: 720 },
+          audio: false
+        });
+        this.originalVideoTrack = cameraStream.getVideoTracks()[0];
+      }
+
+      // Replace screen share track with camera track in peer connection
+      if (this.peerConnection) {
+        const videoSender = this.peerConnection.getSenders().find(sender => 
+          sender.track && sender.track.kind === 'video'
+        );
+        
+        if (videoSender && this.originalVideoTrack) {
+          await videoSender.replaceTrack(this.originalVideoTrack);
+          console.log('✅ Video track restored to camera');
+        }
+      }
+
+      // Update local stream
+      if (this.localStream) {
+        // Remove screen share track
+        const screenTrack = this.localStream.getVideoTracks()[0];
+        if (screenTrack) {
+          screenTrack.stop();
+          this.localStream.removeTrack(screenTrack);
+        }
+        
+        // Add camera track back
+        if (this.originalVideoTrack) {
+          this.localStream.addTrack(this.originalVideoTrack);
+        }
+        
+        // Notify callback about stream update
+        if (this.onLocalStream) {
+          this.onLocalStream(this.localStream);
+        }
+      }
+
+      this.originalVideoTrack = null;
+      console.log('✅ Screen sharing stopped successfully');
+      return true;
+    } catch (error) {
+      console.error('❌ Failed to stop screen sharing:', error);
+      throw error;
+    }
+  }
 }
 
 // Create singleton

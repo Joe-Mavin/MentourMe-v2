@@ -123,6 +123,17 @@ const VideoCall = () => {
         }
       };
       
+      simpleWebRTC.onScreenShareEnded = () => {
+        console.log('🖥️ Screen share ended automatically');
+        setIsScreenSharing(false);
+        toast.info('Screen sharing stopped');
+        
+        // Notify other participants
+        if (callId && callId !== 'new') {
+          socketService.notifyScreenShareStop(callId, user?.id);
+        }
+      };
+
       simpleWebRTC.onError = (error) => {
         console.error('❌ WebRTC error:', error);
         toast.error('Connection error: ' + error.message);
@@ -418,58 +429,8 @@ const VideoCall = () => {
   const toggleScreenShare = async () => {
     try {
       if (!isScreenSharing) {
-        // Start screen sharing
-        const screenStream = await navigator.mediaDevices.getDisplayMedia({
-          video: {
-            mediaSource: 'screen',
-            width: { max: 1920 },
-            height: { max: 1080 },
-            frameRate: { max: 30 }
-          },
-          audio: {
-            echoCancellation: true,
-            noiseSuppression: true,
-            sampleRate: 44100
-          }
-        });
-        
-        const videoTrack = screenStream.getVideoTracks()[0];
-        const audioTrack = screenStream.getAudioTracks()[0];
-
-        // Store original camera stream
-        const originalVideoTrack = localStreamRef.current?.getVideoTracks()[0];
-        
-        // Replace video track in all peer connections
-        const replacePromises = [];
-        peerConnections.current.forEach(pc => {
-          const videoSender = pc.getSenders().find(s => 
-            s.track && s.track.kind === 'video'
-          );
-          if (videoSender && videoTrack) {
-            replacePromises.push(videoSender.replaceTrack(videoTrack));
-          }
-
-          // Add audio track if available
-          if (audioTrack) {
-            const audioSender = pc.getSenders().find(s => 
-              s.track && s.track.kind === 'audio'
-            );
-            if (!audioSender) {
-              pc.addTrack(audioTrack, screenStream);
-            }
-          }
-        });
-
-        await Promise.all(replacePromises);
-        
-        // Update local stream for UI
-        const newLocalStream = new MediaStream();
-        newLocalStream.addTrack(videoTrack);
-        if (localStreamRef.current?.getAudioTracks()[0]) {
-          newLocalStream.addTrack(localStreamRef.current.getAudioTracks()[0]);
-        }
-        setLocalStream(newLocalStream);
-        
+        // Start screen sharing using simpleWebRTC
+        await simpleWebRTC.startScreenShare();
         setIsScreenSharing(true);
         toast.success('Screen sharing started');
         
@@ -477,84 +438,24 @@ const VideoCall = () => {
         if (callId && callId !== 'new') {
           socketService.notifyScreenShareStart(callId, user?.id);
         }
+      } else {
+        // Stop screen sharing using simpleWebRTC
+        await simpleWebRTC.stopScreenShare();
+        setIsScreenSharing(false);
+        toast.success('Screen sharing stopped');
         
-        // Listen for screen share end (user clicks "Stop sharing" in browser)
-        videoTrack.onended = async () => {
-          await stopScreenSharing(originalVideoTrack);
-        };
-      } else {
-        // Stop screen sharing
-        await stopScreenSharing();
-      }
-    } catch (error) {
-      console.error('Screen share error:', error);
-      if (error.name === 'NotAllowedError') {
-        toast.error('Screen sharing permission denied');
-      } else if (error.name === 'NotSupportedError') {
-        toast.error('Screen sharing not supported in this browser');
-      } else {
-        toast.error('Failed to share screen');
-      }
-    }
-  };
-
-  const stopScreenSharing = async (originalVideoTrack = null) => {
-    try {
-      // Get the original camera track or create new one
-      let cameraTrack = originalVideoTrack;
-      if (!cameraTrack || cameraTrack.readyState === 'ended') {
-        const cameraStream = await navigator.mediaDevices.getUserMedia({
-          video: true,
-          audio: false
-        });
-        cameraTrack = cameraStream.getVideoTracks()[0];
-      }
-
-      // Replace screen share track with camera track in all peer connections
-      const replacePromises = [];
-      peerConnections.current.forEach(pc => {
-        const videoSender = pc.getSenders().find(s => 
-          s.track && s.track.kind === 'video'
-        );
-        if (videoSender && cameraTrack) {
-          replacePromises.push(videoSender.replaceTrack(cameraTrack));
+        // Notify other participants about screen sharing stop
+        if (callId && callId !== 'new') {
+          socketService.notifyScreenShareStop(callId, user?.id);
         }
-      });
-
-      await Promise.all(replacePromises);
-      
-      // Update local stream
-      const newLocalStream = new MediaStream();
-      newLocalStream.addTrack(cameraTrack);
-      if (localStreamRef.current?.getAudioTracks()[0]) {
-        newLocalStream.addTrack(localStreamRef.current.getAudioTracks()[0]);
       }
-      
-      // Stop current screen sharing tracks
-      if (localStream) {
-        localStream.getVideoTracks().forEach(track => {
-          if (track.label.includes('screen') || track.kind === 'video') {
-            track.stop();
-          }
-        });
-      }
-      
-      setLocalStream(newLocalStream);
-      localStreamRef.current = newLocalStream;
-      setIsScreenSharing(false);
-      
-      // Notify other participants about screen sharing stop
-      if (callId && callId !== 'new') {
-        socketService.notifyScreenShareStop(callId, user?.id);
-      }
-      
-      toast.success('Screen sharing stopped');
     } catch (error) {
-      console.error('Error stopping screen share:', error);
+      console.error('Error toggling screen share:', error);
+      toast.error('Failed to toggle screen sharing');
       setIsScreenSharing(false);
-      toast.error('Error stopping screen share');
     }
   };
+
 
   const endCall = async () => {
     try {
