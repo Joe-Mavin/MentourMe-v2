@@ -12,6 +12,7 @@ class SimpleWebRTC {
     this.callId = null;
     this.socket = null;
     this.offerCreated = false; // Flag to prevent multiple offers
+    this.answerCreated = false;
     this.webrtcConfig = null;
     this.connectionMonitorInterval = null;
     
@@ -63,6 +64,18 @@ class SimpleWebRTC {
       return true;
     } catch (error) {
       console.error('❌ Failed to initialize WebRTC:', error);
+      
+      // Handle specific error types
+      if (error.name === 'NotAllowedError') {
+        console.error('❌ Camera/microphone permission denied');
+      } else if (error.name === 'NotFoundError') {
+        console.error('❌ No camera/microphone found');
+      } else if (error.message && error.message.includes('message channel')) {
+        console.warn('⚠️ Browser extension conflict detected, continuing...');
+        // Don't treat extension conflicts as fatal errors
+        return true;
+      }
+      
       this.onError?.(error);
       return false;
     }
@@ -302,7 +315,20 @@ class SimpleWebRTC {
       await this.peerConnection.setRemoteDescription(offer);
       console.log('✅ Remote description set');
       
+      // Check state before creating answer
+      if (this.peerConnection.signalingState !== 'have-remote-offer') {
+        console.log('⚠️ Not in correct state for creating answer:', this.peerConnection.signalingState);
+        return;
+      }
+      
       const answer = await this.peerConnection.createAnswer();
+      
+      // Check state again before setting local description
+      if (this.peerConnection.signalingState !== 'have-remote-offer') {
+        console.log('⚠️ State changed before setting local description:', this.peerConnection.signalingState);
+        return;
+      }
+      
       await this.peerConnection.setLocalDescription(answer);
       console.log('✅ Answer created and set as local description');
       
@@ -510,6 +536,12 @@ class SimpleWebRTC {
     try {
       console.log('🖥️ Starting screen share...');
       
+      // Check if getDisplayMedia is available
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getDisplayMedia) {
+        throw new Error('Screen sharing is not supported in this browser');
+      }
+      
+      // Use direct call to avoid context binding issues
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
         video: {
           mediaSource: 'screen',
@@ -572,6 +604,76 @@ class SimpleWebRTC {
       return true;
     } catch (error) {
       console.error('❌ Failed to start screen sharing:', error);
+      
+      // Handle specific screen sharing errors
+      if (error.name === 'NotAllowedError') {
+        throw new Error('Screen sharing permission denied. Please allow screen sharing and try again.');
+      } else if (error.name === 'NotFoundError') {
+        throw new Error('No screen available for sharing.');
+      } else if (error.name === 'NotSupportedError') {
+        throw new Error('Screen sharing is not supported in this browser.');
+      } else if (error.message && error.message.includes('getDisplayMedia')) {
+        throw new Error('Screen sharing API error. Please try refreshing the page.');
+      } else if (error.message && error.message.includes('message channel')) {
+        console.warn('⚠️ Browser extension conflict during screen sharing, retrying...');
+        // Retry once after a short delay
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        try {
+          const screenStream = await navigator.mediaDevices.getDisplayMedia({
+            video: {
+              mediaSource: 'screen',
+              width: { max: 1920 },
+              height: { max: 1080 },
+              frameRate: { max: 30 }
+            },
+            audio: {
+              echoCancellation: true,
+              noiseSuppression: true,
+              sampleRate: 44100
+            }
+          });
+          
+          // Continue with the same logic as above...
+          const videoTrack = screenStream.getVideoTracks()[0];
+          this.originalVideoTrack = this.localStream?.getVideoTracks()[0];
+          
+          if (this.peerConnection) {
+            const videoSender = this.peerConnection.getSenders().find(sender => 
+              sender.track && sender.track.kind === 'video'
+            );
+            
+            if (videoSender) {
+              await videoSender.replaceTrack(videoTrack);
+            }
+          }
+
+          if (this.localStream) {
+            const oldVideoTrack = this.localStream.getVideoTracks()[0];
+            if (oldVideoTrack) {
+              this.localStream.removeTrack(oldVideoTrack);
+            }
+            this.localStream.addTrack(videoTrack);
+            
+            if (this.onLocalStream) {
+              this.onLocalStream(this.localStream);
+            }
+          }
+
+          videoTrack.onended = () => {
+            console.log('🖥️ Screen share ended by user');
+            this.stopScreenShare();
+            if (this.onScreenShareEnded) {
+              this.onScreenShareEnded();
+            }
+          };
+          
+          console.log('✅ Screen sharing started successfully (after retry)');
+          return true;
+        } catch (retryError) {
+          throw new Error('Screen sharing failed after retry. Please try again.');
+        }
+      }
+      
       throw error;
     }
   }
