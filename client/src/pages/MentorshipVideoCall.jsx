@@ -195,6 +195,9 @@ const MentorshipVideoCall = () => {
 
       // Join the call room
       if (socketService.getConnectionStatus()) {
+        console.log('🏠 Joining call room:', callId);
+        console.log('👤 Current user info:', { id: user?.id, name: user?.name, role: user?.role });
+        
         socketService.joinRoom(callId);
         
         // Add current user as a participant (only once)
@@ -213,6 +216,7 @@ const MentorshipVideoCall = () => {
           console.log('👤 Current user already added, skipping...');
         }
         
+        console.log('✅ Successfully joined call room and set up local participant');
         setCallState('connected');
       } else {
         throw new Error('Socket not connected');
@@ -243,12 +247,16 @@ const MentorshipVideoCall = () => {
   };
 
   const setupSocketListeners = () => {
+    console.log('🔌 Setting up socket listeners for video call...');
+    
     socketService.on('call_participant_joined', handleParticipantJoined);
     socketService.on('call_participant_left', handleParticipantLeft);
     socketService.on('call_ended', handleCallEnded);
     socketService.on('webrtc_offer', handleWebRTCOffer);
     socketService.on('webrtc_answer', handleWebRTCAnswer);
     socketService.on('webrtc_ice_candidate', handleICECandidate);
+    
+    console.log('✅ Socket listeners set up for video call');
 
     return () => {
       socketService.off('call_participant_joined', handleParticipantJoined);
@@ -263,6 +271,9 @@ const MentorshipVideoCall = () => {
   const handleParticipantJoined = async (data) => {
     const { participantId, participantInfo } = data;
     
+    console.log('👤 Participant joined event:', data);
+    console.log('👤 Current user ID:', user?.id, 'Joined participant ID:', participantId);
+    
     // Only add if not already in participants and not the current user
     if (participantId !== user?.id) {
       setParticipants(prev => {
@@ -274,7 +285,19 @@ const MentorshipVideoCall = () => {
         }
         return prev;
       });
-      await createPeerConnection(participantId);
+      
+      // Create peer connection and offer for the new participant
+      const pc = await createPeerConnection(participantId);
+      
+      // Determine if we should create an offer (first participant to join creates offer)
+      const shouldCreateOffer = participants.length === 1; // Only current user was in the call
+      
+      if (shouldCreateOffer) {
+        console.log('🚀 Creating offer for new participant:', participantId);
+        await createOfferForParticipant(participantId, pc);
+      } else {
+        console.log('⏸️ Not creating offer - waiting for offer from other participant');
+      }
     }
   };
 
@@ -376,8 +399,43 @@ const MentorshipVideoCall = () => {
     return pc;
   };
 
+  const createOfferForParticipant = async (participantId, pc) => {
+    try {
+      console.log('📤 Creating offer for participant:', participantId);
+      console.log('📤 Peer connection state:', pc.signalingState);
+      
+      // Check if we can create an offer
+      if (pc.signalingState !== 'stable') {
+        console.warn('⚠️ Cannot create offer - peer connection not in stable state:', pc.signalingState);
+        return;
+      }
+      
+      // Create offer
+      const offer = await pc.createOffer({
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true
+      });
+      
+      console.log('📤 Offer created:', offer);
+      
+      // Set local description
+      await pc.setLocalDescription(offer);
+      console.log('📤 Local description set');
+      
+      // Send offer via socket
+      socketService.sendWebRTCOffer(participantId, offer);
+      console.log('📤 Offer sent to participant:', participantId);
+      
+    } catch (error) {
+      console.error('❌ Failed to create offer for participant:', participantId, error);
+    }
+  };
+
   const handleWebRTCOffer = async (data) => {
+    console.log('📥 Received WebRTC offer:', data);
     const { fromParticipant, offer } = data;
+    console.log('📥 Offer from participant:', fromParticipant);
+    
     const pc = await createPeerConnection(fromParticipant);
     
     try {
@@ -417,7 +475,10 @@ const MentorshipVideoCall = () => {
   };
 
   const handleWebRTCAnswer = async (data) => {
+    console.log('📥 Received WebRTC answer:', data);
     const { fromParticipant, answer } = data;
+    console.log('📥 Answer from participant:', fromParticipant);
+    
     const pc = peerConnections.current.get(fromParticipant);
     
     if (pc) {
