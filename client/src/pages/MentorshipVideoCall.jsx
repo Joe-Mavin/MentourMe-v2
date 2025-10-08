@@ -181,6 +181,15 @@ const MentorshipVideoCall = () => {
 
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
       console.log('🎥 Successfully got media stream:', stream);
+      console.log('🎥 Stream ID:', stream.id);
+      console.log('🎥 Stream tracks:', stream.getTracks().map(t => ({
+        kind: t.kind,
+        enabled: t.enabled,
+        readyState: t.readyState,
+        id: t.id,
+        label: t.label
+      })));
+      
       setLocalStream(stream);
       localStreamRef.current = stream;
 
@@ -320,17 +329,41 @@ const MentorshipVideoCall = () => {
     peerConnections.current.set(participantId, pc);
 
     if (localStreamRef.current) {
+      console.log('🎥 Adding local tracks to peer connection for participant:', participantId);
       localStreamRef.current.getTracks().forEach(track => {
+        console.log('🎥 Adding track:', track.kind, track.enabled, track.readyState);
         pc.addTrack(track, localStreamRef.current);
       });
+      console.log('🎥 All local tracks added to peer connection');
+    } else {
+      console.warn('⚠️ No local stream available when creating peer connection for:', participantId);
     }
 
     pc.ontrack = (event) => {
-      const [remoteStream] = event.streams;
-      setRemoteStreams(prev => new Map(prev.set(participantId, remoteStream)));
+      console.log('📺 Received remote track event:', event);
+      console.log('📺 Track kind:', event.track.kind);
+      console.log('📺 Track enabled:', event.track.enabled);
+      console.log('📺 Track readyState:', event.track.readyState);
+      console.log('📺 Event streams:', event.streams);
       
-      if (!mainStreamId) {
-        setMainStreamId(participantId);
+      if (event.streams && event.streams[0]) {
+        const [remoteStream] = event.streams;
+        console.log('📺 Remote stream ID:', remoteStream.id);
+        console.log('📺 Remote stream tracks:', remoteStream.getTracks().map(t => ({
+          kind: t.kind,
+          enabled: t.enabled,
+          readyState: t.readyState,
+          id: t.id
+        })));
+        
+        setRemoteStreams(prev => new Map(prev.set(participantId, remoteStream)));
+        
+        if (!mainStreamId) {
+          setMainStreamId(participantId);
+          console.log('📺 Set main stream ID to:', participantId);
+        }
+      } else {
+        console.warn('⚠️ No streams in track event');
       }
     };
 
