@@ -286,6 +286,10 @@ const MentorshipVideoCall = () => {
         return prev;
       });
       
+      // Wait a moment for the new participant to set up their media
+      console.log('⏳ Waiting for participant media setup...');
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       // Create peer connection and offer for the new participant
       const pc = await createPeerConnection(participantId);
       
@@ -341,6 +345,28 @@ const MentorshipVideoCall = () => {
   };
 
   const createPeerConnection = async (participantId) => {
+    console.log('🔗 Creating peer connection for participant:', participantId);
+    console.log('🔗 Local stream available:', !!localStreamRef.current);
+    console.log('🔗 Local stream state:', localStream ? 'exists' : 'null');
+    
+    // Ensure we have local media before creating peer connection
+    if (!localStreamRef.current && !localStream) {
+      console.warn('⚠️ No local stream available, attempting to get media first...');
+      try {
+        const constraints = {
+          video: callType === 'video',
+          audio: true
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        console.log('🎥 Got media stream for peer connection:', stream.id);
+        setLocalStream(stream);
+        localStreamRef.current = stream;
+      } catch (error) {
+        console.error('❌ Failed to get media for peer connection:', error);
+        throw error;
+      }
+    }
+
     const configuration = {
       iceServers: [
         { urls: 'stun:stun.l.google.com:19302' },
@@ -351,15 +377,26 @@ const MentorshipVideoCall = () => {
     const pc = new RTCPeerConnection(configuration);
     peerConnections.current.set(participantId, pc);
 
-    if (localStreamRef.current) {
+    // Use the most current local stream reference
+    const currentStream = localStreamRef.current || localStream;
+    
+    if (currentStream) {
       console.log('🎥 Adding local tracks to peer connection for participant:', participantId);
-      localStreamRef.current.getTracks().forEach(track => {
+      console.log('🎥 Stream tracks:', currentStream.getTracks().map(t => ({ 
+        kind: t.kind, 
+        enabled: t.enabled, 
+        readyState: t.readyState,
+        id: t.id 
+      })));
+      
+      currentStream.getTracks().forEach(track => {
         console.log('🎥 Adding track:', track.kind, track.enabled, track.readyState);
-        pc.addTrack(track, localStreamRef.current);
+        pc.addTrack(track, currentStream);
       });
       console.log('🎥 All local tracks added to peer connection');
     } else {
-      console.warn('⚠️ No local stream available when creating peer connection for:', participantId);
+      console.error('❌ Still no local stream available after attempting to get media for:', participantId);
+      throw new Error('No local media stream available for peer connection');
     }
 
     pc.ontrack = (event) => {
@@ -435,10 +472,15 @@ const MentorshipVideoCall = () => {
     console.log('📥 Received WebRTC offer:', data);
     const { fromParticipant, offer } = data;
     console.log('📥 Offer from participant:', fromParticipant);
-    
-    const pc = await createPeerConnection(fromParticipant);
+    console.log('📥 Current local stream status:', {
+      localStreamRef: !!localStreamRef.current,
+      localStream: !!localStream,
+      callState: callState
+    });
     
     try {
+      const pc = await createPeerConnection(fromParticipant);
+      
       // Check signaling state before setting remote description
       if (pc.signalingState !== 'stable' && pc.signalingState !== 'have-local-offer') {
         console.warn('⚠️ Invalid signaling state for offer:', pc.signalingState);
@@ -466,11 +508,15 @@ const MentorshipVideoCall = () => {
     } catch (error) {
       console.error('❌ Failed to handle WebRTC offer:', error);
       
-      // Don't treat this as a fatal error if we're already in stable state
+      // Handle different types of errors
       if (error.message && error.message.includes('stable')) {
         console.log('ℹ️ Connection already stable, ignoring error');
-        return;
+      } else if (error.message && error.message.includes('media')) {
+        console.error('❌ Media stream error during offer handling:', error);
+      } else {
+        console.error('❌ General WebRTC offer error:', error);
       }
+      return;
     }
   };
 
