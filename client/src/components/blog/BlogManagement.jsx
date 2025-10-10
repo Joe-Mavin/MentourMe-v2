@@ -89,8 +89,10 @@ const BlogManagement = () => {
   };
 
   const handleCreatePost = () => {
+    console.log('🔥 Creating new battle post...');
     setEditingPost(null);
     setShowEditor(true);
+    console.log('🔥 Show editor set to true');
   };
 
   const handleEditPost = (post) => {

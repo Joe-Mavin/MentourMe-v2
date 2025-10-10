@@ -11,6 +11,8 @@ import {
 import clsx from 'clsx';
 
 const BlogEditor = ({ onClose, onSave, editingPost = null }) => {
+  console.log('🎨 BlogEditor rendered!', { editingPost, onClose: !!onClose, onSave: !!onSave });
+  
   const [formData, setFormData] = useState({
     title: editingPost?.title || '',
     excerpt: editingPost?.excerpt || '',
