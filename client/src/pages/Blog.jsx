@@ -12,6 +12,7 @@ import {
   BoltIcon
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
+import api from '../services/api';
 import clsx from 'clsx';
 
 const Blog = () => {
@@ -66,42 +67,34 @@ const Blog = () => {
     }
 
     try {
-      const response = await fetch(`/api/blog/${postId}/like`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
+      const response = await api.post(`/blog/${postId}/like`);
+      const { isLiked, newLikeCount } = response.data.data;
+      
+      // Update the liked posts state
+      setLikedPosts(prev => {
+        const newLikedPosts = new Set(prev);
+        if (isLiked) {
+          newLikedPosts.add(postId);
+        } else {
+          newLikedPosts.delete(postId);
         }
+        return newLikedPosts;
       });
-
-      if (response.ok) {
-        const data = await response.json();
-        const { isLiked, newLikeCount } = data.data;
-        
-        // Update the liked posts state
-        setLikedPosts(prev => {
-          const newLikedPosts = new Set(prev);
-          if (isLiked) {
-            newLikedPosts.add(postId);
-          } else {
-            newLikedPosts.delete(postId);
-          }
-          return newLikedPosts;
-        });
-        
-        // Update the post's like count with the exact count from server
-        setBlogPosts(prev => prev.map(post => 
-          post.id === postId 
-            ? { ...post, likes: newLikeCount }
-            : post
-        ));
-      } else if (response.status === 401) {
-        alert('Session expired. Please login again.');
-        window.location.href = '/login';
-      }
+      
+      // Update the post's like count with the exact count from server
+      setBlogPosts(prev => prev.map(post => 
+        post.id === postId 
+          ? { ...post, likes: newLikeCount }
+          : post
+      ));
     } catch (error) {
       console.error('Error liking post:', error);
-      alert('Please login to interact with posts.');
+      if (error.response?.status === 401) {
+        alert('Session expired. Please login again.');
+        window.location.href = '/login';
+      } else {
+        alert('Please login to interact with posts.');
+      }
     }
   };
 
@@ -124,24 +117,16 @@ const Blog = () => {
 
       // Track share count only if logged in
       if (token) {
-        const response = await fetch(`/api/blog/${postId}/share`, {
-          method: 'POST',
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
-        });
-
-        if (response.ok) {
-          // Update the post's share count
-          setBlogPosts(prevPosts => 
-            prevPosts.map(post => 
-              post.id === postId 
-                ? { ...post, shares: post.shares + 1 }
-                : post
-            )
-          );
-        }
+        await api.post(`/blog/${postId}/share`);
+        
+        // Update the post's share count
+        setBlogPosts(prevPosts => 
+          prevPosts.map(post => 
+            post.id === postId 
+              ? { ...post, shares: post.shares + 1 }
+              : post
+          )
+        );
       }
     } catch (error) {
       console.error('Error sharing post:', error);
@@ -158,18 +143,19 @@ const Blog = () => {
   const fetchBlogPosts = async () => {
     try {
       setLoading(true);
-      const params = new URLSearchParams();
-      if (selectedCategory !== 'all') params.append('category', selectedCategory);
-      if (searchTerm) params.append('search', searchTerm);
+      const params = {};
+      if (selectedCategory !== 'all') params.category = selectedCategory;
+      if (searchTerm) params.search = searchTerm;
       
-      const response = await fetch(`/api/blog?${params}`);
-      const data = await response.json();
+      const response = await api.get('/blog', { params });
+      console.log('📊 Blog posts response:', response.data);
       
-      if (data.success) {
-        setBlogPosts(data.data.blogPosts);
+      if (response.data.success) {
+        setBlogPosts(response.data.data.blogPosts || []);
       }
     } catch (error) {
       console.error('Error fetching blog posts:', error);
+      setBlogPosts([]); // Ensure we set an empty array on error
     } finally {
       setLoading(false);
     }

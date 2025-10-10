@@ -40,7 +40,7 @@ const BlogManagement = () => {
       
       const response = await api.get('/blog/my-posts');
       console.log('📊 My blog posts data:', response.data);
-      setBlogPosts(response.data.data || []);
+      setBlogPosts(response.data.data?.blogPosts || []);
     } catch (error) {
       console.error('❌ Error fetching my blog posts:', error);
     } finally {
