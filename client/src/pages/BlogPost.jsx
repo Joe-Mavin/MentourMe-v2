@@ -12,6 +12,7 @@ import {
   ChatBubbleLeftIcon as ChatBubbleLeftIconOutline
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
+import api from '../services/api';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
 
@@ -40,34 +41,26 @@ const BlogPost = () => {
   const fetchBlogPost = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('auth_token');
+      console.log('📖 Fetching blog post:', slug);
       
-      const headers = {
-        'Content-Type': 'application/json'
-      };
+      const response = await api.get(`/blog/${slug}`);
+      console.log('📖 Blog post response:', response.data);
+      
+      setPost(response.data.data.blogPost);
+      
+      const token = localStorage.getItem('auth_token');
       if (token) {
-        headers['Authorization'] = `Bearer ${token}`;
+        checkUserLikeStatus(response.data.data.blogPost.id);
       }
       
-      const response = await fetch(`/api/blog/${slug}`, { headers });
-      
-      if (response.ok) {
-        const data = await response.json();
-        setPost(data.data.blogPost);
-        
-        if (token) {
-          checkUserLikeStatus(data.data.blogPost.id);
-        }
-        
-        fetchComments(data.data.blogPost.id);
-      } else if (response.status === 404) {
+      fetchComments(response.data.data.blogPost.id);
+    } catch (error) {
+      console.error('❌ Error fetching blog post:', error);
+      if (error.response?.status === 404) {
         setError('Blog post not found');
       } else {
         setError('Failed to load blog post');
       }
-    } catch (error) {
-      console.error('Error fetching blog post:', error);
-      setError('Failed to load blog post');
     } finally {
       setLoading(false);
     }
@@ -78,31 +71,19 @@ const BlogPost = () => {
       const token = localStorage.getItem('auth_token');
       if (!token) return;
 
-      const response = await fetch(`/api/blog/${postId}/like-status`, {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setLiked(data.data.isLiked);
-      }
+      const response = await api.get(`/blog/${postId}/like-status`);
+      setLiked(response.data.data.isLiked);
     } catch (error) {
-      console.error('Error checking like status:', error);
+      console.error('❌ Error checking like status:', error);
     }
   };
 
   const fetchComments = async (postId) => {
     try {
-      const response = await fetch(`/api/blog/${postId}/comments`);
-      if (response.ok) {
-        const data = await response.json();
-        setComments(data.data.comments || []);
-      }
+      const response = await api.get(`/blog/${postId}/comments`);
+      setComments(response.data.data.comments || []);
     } catch (error) {
-      console.error('Error fetching comments:', error);
+      console.error('❌ Error fetching comments:', error);
     }
   };
 
@@ -116,30 +97,22 @@ const BlogPost = () => {
     }
 
     try {
-      const response = await fetch(`/api/blog/${post.id}/like`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const { isLiked, newLikeCount } = data.data;
-        
-        setPost(prev => ({
-          ...prev,
-          likes: newLikeCount
-        }));
-        setLiked(isLiked);
-      } else if (response.status === 401) {
+      const response = await api.post(`/blog/${post.id}/like`);
+      const { isLiked, newLikeCount } = response.data.data;
+      
+      setPost(prev => ({
+        ...prev,
+        likes: newLikeCount
+      }));
+      setLiked(isLiked);
+    } catch (error) {
+      console.error('❌ Error liking post:', error);
+      if (error.response?.status === 401) {
         alert('Session expired. Please login again.');
         navigate('/login');
+      } else {
+        alert('Please login to interact with posts.');
       }
-    } catch (error) {
-      console.error('Error liking post:', error);
-      alert('Please login to interact with posts.');
     }
   };
 
@@ -172,22 +145,12 @@ const BlogPost = () => {
     }
 
     try {
-      const response = await fetch(`/api/blog/${post.id}/comments`, {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ content: newComment })
-      });
-
-      if (response.ok) {
-        setNewComment('');
-        fetchComments(post.id);
-        toast.success('Comment added!');
-      }
+      await api.post(`/blog/${post.id}/comments`, { content: newComment });
+      setNewComment('');
+      fetchComments(post.id);
+      toast.success('Comment added!');
     } catch (error) {
-      console.error('Error adding comment:', error);
+      console.error('❌ Error adding comment:', error);
       toast.error('Failed to add comment');
     }
   };
