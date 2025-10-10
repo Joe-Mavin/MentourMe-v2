@@ -101,27 +101,140 @@ class SimpleWebRTC {
   }
 
   /**
-   * Get user media
+   * Get user media with mobile-specific handling
    */
   async getUserMedia() {
     try {
       console.log('🎥 Getting user media...');
       console.log('📱 Navigator mediaDevices available:', !!navigator.mediaDevices);
+      console.log('📱 User agent:', navigator.userAgent);
       
-      this.localStream = await navigator.mediaDevices.getUserMedia({
-        video: true,
-        audio: true
-      });
+      // Mobile-specific constraints
+      const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+      console.log('📱 Is mobile device:', isMobile);
+      
+      const constraints = {
+        video: isMobile ? {
+          width: { ideal: 640, max: 1280 },
+          height: { ideal: 480, max: 720 },
+          frameRate: { ideal: 15, max: 30 },
+          facingMode: 'user' // Front camera for mobile
+        } : {
+          width: { ideal: 1280, max: 1920 },
+          height: { ideal: 720, max: 1080 },
+          frameRate: { ideal: 30 }
+        },
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      };
+      
+      console.log('🎥 Using constraints:', constraints);
+      
+      this.localStream = await navigator.mediaDevices.getUserMedia(constraints);
       
       console.log('✅ Got local stream:', this.localStream.id);
-      console.log('📺 Stream tracks:', this.localStream.getTracks().map(t => ({ kind: t.kind, enabled: t.enabled })));
+      console.log('📺 Stream tracks:', this.localStream.getTracks().map(t => ({ 
+        kind: t.kind, 
+        enabled: t.enabled,
+        readyState: t.readyState,
+        label: t.label 
+      })));
       this.onLocalStream?.(this.localStream);
       
       return this.localStream;
     } catch (error) {
       console.error('❌ Failed to get user media:', error);
       console.error('❌ Error details:', error.name, error.message);
+      
+      // Try fallback with audio only if video fails
+      if (error.name === 'NotAllowedError' || error.name === 'PermissionDeniedError') {
+        console.warn('🔄 Camera permission denied, trying audio-only fallback...');
+        
+        // Notify user about camera permission issue
+        this.onError?.({
+          type: 'camera_permission_denied',
+          message: 'Camera access denied. Continuing with audio only.',
+          originalError: error
+        });
+        
+        try {
+          this.localStream = await navigator.mediaDevices.getUserMedia({ 
+            video: false, 
+            audio: true 
+          });
+          console.log('✅ Got audio-only stream:', this.localStream.id);
+          this.onLocalStream?.(this.localStream);
+          return this.localStream;
+        } catch (audioError) {
+          console.error('❌ Audio-only fallback also failed:', audioError);
+          this.onError?.({
+            type: 'media_access_failed',
+            message: 'Unable to access camera or microphone. Please check permissions.',
+            originalError: audioError
+          });
+        }
+      }
+      
+      // Try with minimal constraints as last resort
+      if (error.name === 'OverconstrainedError' || error.name === 'NotSupportedError') {
+        console.warn('🔄 Constraints too strict, trying minimal constraints...');
+        try {
+          this.localStream = await navigator.mediaDevices.getUserMedia({ 
+            video: { width: 320, height: 240 }, 
+            audio: true 
+          });
+          console.log('✅ Got minimal stream:', this.localStream.id);
+          this.onLocalStream?.(this.localStream);
+          return this.localStream;
+        } catch (minimalError) {
+          console.error('❌ Minimal constraints also failed:', minimalError);
+        }
+      }
+      
       throw error;
+    }
+  }
+
+  /**
+   * Ensure local media is available before creating peer connections
+   */
+  async ensureLocalMedia() {
+    if (!this.localStream) {
+      console.log('🔄 No local stream available, getting media first...');
+      await this.getUserMedia();
+    } else {
+      console.log('✅ Local stream already available:', this.localStream.id);
+    }
+    return this.localStream;
+  }
+
+  /**
+   * Check stream quality and provide feedback
+   */
+  checkStreamQuality() {
+    if (this.localStream) {
+      const videoTracks = this.localStream.getVideoTracks();
+      const audioTracks = this.localStream.getAudioTracks();
+      
+      console.log('📊 Local stream quality check:', {
+        hasVideo: videoTracks.length > 0,
+        hasAudio: audioTracks.length > 0,
+        videoEnabled: videoTracks.length > 0 ? videoTracks[0].enabled : false,
+        audioEnabled: audioTracks.length > 0 ? audioTracks[0].enabled : false,
+        videoSettings: videoTracks.length > 0 ? videoTracks[0].getSettings() : null
+      });
+      
+      // Warn if no video
+      if (videoTracks.length === 0) {
+        this.onError?.({
+          type: 'no_video_track',
+          message: 'Video not available - audio only mode',
+          severity: 'warning'
+        });
+      }
     }
   }
 
@@ -338,6 +451,7 @@ class SimpleWebRTC {
       
       // Ensure we have local media before handling offer
       await this.ensureLocalMedia();
+      this.checkStreamQuality();
       
       if (!this.peerConnection) {
         console.error('❌ No peer connection available');
@@ -841,6 +955,7 @@ class SimpleWebRTC {
       
       // Ensure our own media is ready too
       await this.ensureLocalMedia();
+      this.checkStreamQuality();
       
       console.log('📤 About to create offer...');
       this.createOffer();
