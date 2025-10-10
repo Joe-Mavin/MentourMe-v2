@@ -110,7 +110,7 @@ const MentorBlogSection = ({ mentorId, mentorName, showTitle = true }) => {
             </div>
             <div className="flex items-center space-x-1 text-gray-400">
               <EyeIcon className="w-4 h-4" />
-              <span>{stats.totalViews.toLocaleString()} views</span>
+              <span>{(stats.totalViews || 0).toLocaleString()} views</span>
             </div>
             <div className="flex items-center space-x-1 text-gray-400">
               <HeartIcon className="w-4 h-4" />

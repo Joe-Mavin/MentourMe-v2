@@ -54,14 +54,23 @@ const BlogManagement = () => {
       
       const response = await api.get('/blog/my-stats');
       console.log('📈 Blog stats data:', response.data);
-      setStats(response.data.data || {
+      
+      const statsData = response.data.data || {};
+      setStats({
+        totalPosts: statsData.totalPosts || 0,
+        totalViews: statsData.totalViews || 0,
+        totalLikes: statsData.totalLikes || 0,
+        avgEngagement: statsData.avgEngagement || 0
+      });
+    } catch (error) {
+      console.error('❌ Error fetching blog stats:', error);
+      // Set default stats on error to prevent undefined errors
+      setStats({
         totalPosts: 0,
         totalViews: 0,
         totalLikes: 0,
         avgEngagement: 0
       });
-    } catch (error) {
-      console.error('❌ Error fetching blog stats:', error);
     }
   };
 
@@ -177,7 +186,7 @@ const BlogManagement = () => {
               <EyeIcon className="w-6 h-6 text-white" />
             </div>
             <div>
-              <div className="text-2xl font-black text-white">{stats.totalViews.toLocaleString()}</div>
+              <div className="text-2xl font-black text-white">{(stats.totalViews || 0).toLocaleString()}</div>
               <div className="text-sm text-gray-400 font-medium">Total Views</div>
             </div>
           </div>
