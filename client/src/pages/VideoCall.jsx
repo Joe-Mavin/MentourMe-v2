@@ -542,7 +542,7 @@ const VideoCall = () => {
       console.log('🧹 Cleaning up call...');
       
       // Use simple WebRTC to clean up everything
-      simpleWebRTC.endCall();
+      simpleWebRTC.cleanup();
       
       // Clear local state
       setLocalStream(null);

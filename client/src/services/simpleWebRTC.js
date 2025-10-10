@@ -1102,6 +1102,68 @@ class SimpleWebRTC {
       });
     }
   }
+
+  /**
+   * Cleanup method to stop all media tracks and close connections
+   */
+  cleanup() {
+    console.log('🧹 ========== CLEANING UP WEBRTC ==========');
+    
+    // Stop all local media tracks
+    if (this.localStream) {
+      console.log('🛑 Stopping local media tracks...');
+      this.localStream.getTracks().forEach(track => {
+        console.log(`🛑 Stopping ${track.kind} track:`, track.label);
+        track.stop();
+      });
+      this.localStream = null;
+      console.log('✅ Local stream cleaned up');
+    }
+    
+    // Stop all remote media tracks
+    if (this.remoteStream) {
+      console.log('🛑 Stopping remote media tracks...');
+      this.remoteStream.getTracks().forEach(track => {
+        console.log(`🛑 Stopping remote ${track.kind} track:`, track.label);
+        track.stop();
+      });
+      this.remoteStream = null;
+      console.log('✅ Remote stream cleaned up');
+    }
+    
+    // Close peer connection
+    if (this.peerConnection) {
+      console.log('🛑 Closing peer connection...');
+      this.peerConnection.close();
+      this.peerConnection = null;
+      console.log('✅ Peer connection closed');
+    }
+    
+    // Reset flags
+    this.isProcessingOffer = false;
+    this.isProcessingAnswer = false;
+    this.offerCreated = false;
+    
+    console.log('✅ ========== CLEANUP COMPLETE ==========');
+  }
+
+  /**
+   * End call and cleanup resources
+   */
+  endCall() {
+    console.log('📞 Ending call and cleaning up...');
+    this.cleanup();
+    
+    // Emit end call event if socket is connected
+    if (this.socket?.socket?.connected && this.callId) {
+      this.socket.socket.emit('end_call', {
+        callId: this.callId,
+        reason: 'user_ended',
+        timestamp: new Date().toISOString()
+      });
+      console.log('📤 End call event sent');
+    }
+  }
 }
 
 // Create singleton
