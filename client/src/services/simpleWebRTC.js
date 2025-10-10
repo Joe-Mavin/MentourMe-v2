@@ -207,6 +207,11 @@ class SimpleWebRTC {
     this.socket.on('call_participant_joined', async (data) => {
       console.log('👤 Call participant joined:', data);
       console.log('👥 New participant count:', data.participantCount);
+      console.log('🔍 Initiator status check:', {
+        isInitiator: this.isInitiator,
+        participantCount: data.participantCount,
+        shouldCreateOffer: this.isInitiator && data.participantCount === 2
+      });
       
       // If we're the initiator and this is the first participant to join, create offer
       if (this.isInitiator && data.participantCount === 2) {
@@ -219,7 +224,14 @@ class SimpleWebRTC {
         // Ensure our own media is ready too
         await this.ensureLocalMedia();
         
+        console.log('📤 About to create offer...');
         this.createOffer();
+      } else {
+        console.log('⏸️ Not creating offer:', {
+          reason: !this.isInitiator ? 'Not initiator' : 'Wrong participant count',
+          isInitiator: this.isInitiator,
+          participantCount: data.participantCount
+        });
       }
     });
     

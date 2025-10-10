@@ -107,9 +107,23 @@ const VideoCall = () => {
       console.log('👤 User:', user);
       
       // Determine if this user is the initiator
-      const isInitiator = callId === 'new' || searchParams.get('initiator') === 'true';
+      // For mentorship calls, parse the callId to determine who initiated
+      let isInitiator = false;
+      
+      if (callId === 'new' || searchParams.get('initiator') === 'true') {
+        isInitiator = true;
+      } else if (callId && callId.includes('_')) {
+        // Parse callId format: call_timestamp_initiatorId_targetId
+        const parts = callId.split('_');
+        if (parts.length >= 3) {
+          const initiatorId = parseInt(parts[2]);
+          isInitiator = user?.id === initiatorId;
+        }
+      }
+      
       console.log('🔍 Initiator check:', { 
         callId, 
+        userId: user?.id,
         isNew: callId === 'new', 
         initiatorParam: searchParams.get('initiator'), 
         isInitiator 
