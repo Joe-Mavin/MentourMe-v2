@@ -197,6 +197,8 @@ class SimpleWebRTC {
    */
   setupSocketListeners() {
     console.log('🔌 Setting up socket listeners...');
+    console.log('🔌 Socket object:', this.socket);
+    console.log('🔌 Socket connected:', this.socket?.socket?.connected);
     
     // Room management events
     this.socket.on('room_joined', (data) => {
@@ -204,35 +206,15 @@ class SimpleWebRTC {
       console.log('👥 Participant count:', data.participantCount);
     });
     
+    // Listen for both types of participant events
     this.socket.on('call_participant_joined', async (data) => {
-      console.log('👤 Call participant joined:', data);
-      console.log('👥 New participant count:', data.participantCount);
-      console.log('🔍 Initiator status check:', {
-        isInitiator: this.isInitiator,
-        participantCount: data.participantCount,
-        shouldCreateOffer: this.isInitiator && data.participantCount === 2
-      });
-      
-      // If we're the initiator and this is the first participant to join, create offer
-      if (this.isInitiator && data.participantCount === 2) {
-        console.log('🚀 Creating offer for new participant...');
-        console.log('⏳ Waiting for participant media setup...');
-        
-        // Wait for the new participant to set up their media
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        
-        // Ensure our own media is ready too
-        await this.ensureLocalMedia();
-        
-        console.log('📤 About to create offer...');
-        this.createOffer();
-      } else {
-        console.log('⏸️ Not creating offer:', {
-          reason: !this.isInitiator ? 'Not initiator' : 'Wrong participant count',
-          isInitiator: this.isInitiator,
-          participantCount: data.participantCount
-        });
-      }
+      console.log('🎉 RECEIVED call_participant_joined event:', data);
+      await this.handleParticipantJoined(data);
+    });
+    
+    this.socket.on('participant-joined', async (data) => {
+      console.log('🎉 RECEIVED participant-joined event:', data);
+      await this.handleParticipantJoined(data);
     });
     
     // Use socketService event system
@@ -833,6 +815,41 @@ class SimpleWebRTC {
     } catch (error) {
       console.error('❌ Failed to stop screen sharing:', error);
       throw error;
+    }
+  }
+
+  /**
+   * Handle participant joined events (both types)
+   */
+  async handleParticipantJoined(data) {
+    console.log('👥 Participant joined - data:', data);
+    console.log('🔍 Initiator status check:', {
+      userId: this.userId,
+      isInitiator: this.isInitiator,
+      participantCount: data.participantCount,
+      participantId: data.participantId,
+      shouldCreateOffer: this.isInitiator && data.participantCount === 2
+    });
+    
+    // If we're the initiator and this is the first participant to join, create offer
+    if (this.isInitiator && data.participantCount === 2) {
+      console.log('🚀 Creating offer for new participant...');
+      console.log('⏳ Waiting for participant media setup...');
+      
+      // Wait for the new participant to set up their media
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
+      // Ensure our own media is ready too
+      await this.ensureLocalMedia();
+      
+      console.log('📤 About to create offer...');
+      this.createOffer();
+    } else {
+      console.log('⏸️ Not creating offer:', {
+        reason: !this.isInitiator ? 'Not initiator' : 'Wrong participant count',
+        isInitiator: this.isInitiator,
+        participantCount: data.participantCount
+      });
     }
   }
 }
