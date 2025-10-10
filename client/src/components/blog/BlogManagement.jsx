@@ -13,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { HeartIcon as HeartSolidIcon } from '@heroicons/react/24/solid';
 import BlogEditor from './BlogEditor';
+import api from '../../services/api';
 import clsx from 'clsx';
 
 const BlogManagement = () => {
@@ -35,25 +36,13 @@ const BlogManagement = () => {
   const fetchMyBlogPosts = async () => {
     try {
       setLoading(true);
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/blog/my-posts', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
-      });
+      console.log('📊 Fetching my blog posts...');
       
-      console.log('📊 Fetching my blog posts - Response status:', response.status);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('📊 My blog posts data:', data);
-        setBlogPosts(data.data.blogPosts || []);
-      } else {
-        console.error('❌ Failed to fetch blog posts:', response.status, response.statusText);
-      }
+      const response = await api.get('/blog/my-posts');
+      console.log('📊 My blog posts data:', response.data);
+      setBlogPosts(response.data.data || []);
     } catch (error) {
-      console.error('❌ Error fetching blog posts:', error);
+      console.error('❌ Error fetching my blog posts:', error);
     } finally {
       setLoading(false);
     }
@@ -61,28 +50,16 @@ const BlogManagement = () => {
 
   const fetchBlogStats = async () => {
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch('/api/blog/my-stats', {
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+      console.log('📈 Fetching blog stats...');
+      
+      const response = await api.get('/blog/my-stats');
+      console.log('📈 Blog stats data:', response.data);
+      setStats(response.data.data || {
+        totalPosts: 0,
+        totalViews: 0,
+        totalLikes: 0,
+        avgEngagement: 0
       });
-      
-      console.log('📈 Fetching blog stats - Response status:', response.status);
-      
-      if (response.ok) {
-        const data = await response.json();
-        console.log('📈 Blog stats data:', data);
-        setStats(data.data.stats || {
-          totalPosts: 0,
-          totalViews: 0,
-          totalLikes: 0,
-          avgEngagement: 0
-        });
-      } else {
-        console.error('❌ Failed to fetch blog stats:', response.status, response.statusText);
-      }
     } catch (error) {
       console.error('❌ Error fetching blog stats:', error);
     }
@@ -102,27 +79,22 @@ const BlogManagement = () => {
 
   const handleSavePost = async (postData) => {
     try {
-      const token = localStorage.getItem('auth_token');
-      const url = editingPost ? `/api/blog/${editingPost.id}` : '/api/blog';
-      const method = editingPost ? 'PUT' : 'POST';
+      console.log('💾 Saving blog post:', postData);
       
-      const response = await fetch(url, {
-        method,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify(postData)
-      });
-
-      if (response.ok) {
-        await fetchMyBlogPosts();
-        await fetchBlogStats();
-        setShowEditor(false);
-        setEditingPost(null);
+      if (editingPost) {
+        await api.put(`/blog/${editingPost.id}`, postData);
+        console.log('✅ Blog post updated successfully');
+      } else {
+        await api.post('/blog', postData);
+        console.log('✅ Blog post created successfully');
       }
+      
+      await fetchMyBlogPosts();
+      await fetchBlogStats();
+      setShowEditor(false);
+      setEditingPost(null);
     } catch (error) {
-      console.error('Error saving blog post:', error);
+      console.error('❌ Error saving blog post:', error);
     }
   };
 
@@ -132,20 +104,15 @@ const BlogManagement = () => {
     }
 
     try {
-      const token = localStorage.getItem('auth_token');
-      const response = await fetch(`/api/blog/${postId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (response.ok) {
-        await fetchMyBlogPosts();
-        await fetchBlogStats();
-      }
+      console.log('🗑️ Deleting blog post:', postId);
+      
+      await api.delete(`/blog/${postId}`);
+      console.log('✅ Blog post deleted successfully');
+      
+      await fetchMyBlogPosts();
+      await fetchBlogStats();
     } catch (error) {
-      console.error('Error deleting blog post:', error);
+      console.error('❌ Error deleting blog post:', error);
     }
   };
 
