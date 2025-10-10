@@ -520,30 +520,35 @@ const getMyBlogStats = async (req, res) => {
       });
     }
 
-    // Get aggregated stats
+    // Get aggregated stats with better null handling
     const stats = await BlogPost.findAll({
       where: { authorId: req.user.id, status: 'published' },
       attributes: [
-        [sequelize.fn('SUM', sequelize.col('views')), 'totalViews'],
-        [sequelize.fn('SUM', sequelize.col('likes')), 'totalLikes'],
-        [sequelize.fn('SUM', sequelize.col('shares')), 'totalShares'],
-        [sequelize.fn('AVG', sequelize.col('engagementScore')), 'avgEngagement']
+        [sequelize.fn('COALESCE', sequelize.fn('SUM', sequelize.col('views')), 0), 'totalViews'],
+        [sequelize.fn('COALESCE', sequelize.fn('SUM', sequelize.col('likes')), 0), 'totalLikes'],
+        [sequelize.fn('COALESCE', sequelize.fn('SUM', sequelize.col('shares')), 0), 'totalShares'],
+        [sequelize.fn('COALESCE', sequelize.fn('AVG', sequelize.col('engagementScore')), 0), 'avgEngagement']
       ],
       raw: true
     });
 
     const result = stats[0] || {};
+    console.log('📊 Raw stats result:', result);
+    
+    const finalStats = {
+      totalPosts: totalPosts,
+      totalViews: parseInt(result.totalViews) || 0,
+      totalLikes: parseInt(result.totalLikes) || 0,
+      totalShares: parseInt(result.totalShares) || 0,
+      avgEngagement: parseFloat(result.avgEngagement) || 0
+    };
+    
+    console.log('📊 Final stats being returned:', finalStats);
     
     res.json({
       success: true,
       data: {
-        stats: {
-          totalPosts: totalPosts,
-          totalViews: parseInt(result.totalViews) || 0,
-          totalLikes: parseInt(result.totalLikes) || 0,
-          totalShares: parseInt(result.totalShares) || 0,
-          avgEngagement: parseFloat(result.avgEngagement) || 0
-        }
+        stats: finalStats
       }
     });
 
