@@ -11,7 +11,7 @@ const Newsletter = require("./Newsletter")(sequelize);
 const BlogPost = require("./BlogPost")(sequelize);
 const MentorRanking = require('./MentorRanking')(sequelize);
 const BlogComment = require('./BlogComment')(sequelize);
-const BlogLike = require('./BlogLike');
+const BlogLike = require('./BlogLike')(sequelize);
 const MentorshipSession = require('./MentorshipSession')(sequelize);
 
 // User Relations
