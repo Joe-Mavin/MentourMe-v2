@@ -77,7 +77,7 @@ const MentorshipDashboard = () => {
     }
   };
 
-  const handleScheduleSession = (mentorship) => {
+  const handleScheduleSession = (mentorship = null) => {
     setSelectedMentorship(mentorship);
     setShowScheduler(true);
   };
@@ -415,7 +415,7 @@ const MentorshipDashboard = () => {
                 <button 
                   onClick={() => {
                     if (activeMentorships.length > 0) {
-                      handleScheduleSession(activeMentorships[0]);
+                      handleScheduleSession(); // Let user choose from dropdown
                     } else {
                       toast.error('You need an active mentorship to schedule a session');
                     }
@@ -479,7 +479,7 @@ const MentorshipDashboard = () => {
                 <button
                   onClick={() => {
                     if (activeMentorships.length > 0) {
-                      handleScheduleSession(activeMentorships[0]);
+                      handleScheduleSession(); // Let user choose from dropdown
                     } else {
                       toast.error('You need an active mentorship to schedule a session');
                     }
@@ -522,9 +522,10 @@ const MentorshipDashboard = () => {
       </div>
 
       {/* Session Scheduler Modal */}
-      {showScheduler && selectedMentorship && (
+      {showScheduler && (
         <SessionScheduler
           mentorship={selectedMentorship}
+          mentorships={activeMentorships}
           onClose={() => {
             setShowScheduler(false);
             setSelectedMentorship(null);

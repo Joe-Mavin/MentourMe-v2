@@ -5,12 +5,15 @@ import {
   VideoCameraIcon,
   PhoneIcon,
   UserGroupIcon,
-  XMarkIcon
+  XMarkIcon,
+  ChevronDownIcon
 } from '@heroicons/react/24/outline';
+import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
 import api from '../../services/api';
 
-const SessionScheduler = ({ mentorship, onClose, onSessionScheduled }) => {
+const SessionScheduler = ({ mentorship, mentorships = [], onClose, onSessionScheduled }) => {
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -18,6 +21,7 @@ const SessionScheduler = ({ mentorship, onClose, onSessionScheduled }) => {
     duration: 60,
     meetingType: 'video'
   });
+  const [selectedMentorship, setSelectedMentorship] = useState(mentorship || (mentorships.length > 0 ? mentorships[0] : null));
   const [loading, setLoading] = useState(false);
   const [minDateTime, setMinDateTime] = useState('');
 
@@ -52,8 +56,13 @@ const SessionScheduler = ({ mentorship, onClose, onSessionScheduled }) => {
     try {
       setLoading(true);
       
+      if (!selectedMentorship) {
+        toast.error('Please select a mentorship to schedule with');
+        return;
+      }
+
       const sessionData = {
-        mentorshipId: mentorship.id,
+        mentorshipId: selectedMentorship.id,
         title: formData.title.trim(),
         description: formData.description.trim(),
         scheduledAt: formData.scheduledAt,
@@ -107,30 +116,64 @@ const SessionScheduler = ({ mentorship, onClose, onSessionScheduled }) => {
           </button>
         </div>
 
-        {/* Mentorship Info */}
-        <div className="bg-gray-50 rounded-lg p-4 mb-6">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-              {mentorship.mentor?.avatar ? (
-                <img 
-                  src={mentorship.mentor.avatar} 
-                  alt={mentorship.mentor.name}
-                  className="w-10 h-10 rounded-full object-cover"
-                />
-              ) : (
-                <UserGroupIcon className="w-5 h-5 text-gray-500" />
-              )}
-            </div>
-            <div>
-              <p className="font-medium text-gray-900">
-                Session with {mentorship.mentor?.name || mentorship.mentee?.name}
-              </p>
-              <p className="text-sm text-gray-500">
-                Mentorship established {new Date(mentorship.respondedAt).toLocaleDateString()}
-              </p>
+        {/* Mentorship Selection */}
+        {mentorships.length > 1 ? (
+          <div className="mb-6">
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Schedule session with *
+            </label>
+            <div className="relative">
+              <select
+                value={selectedMentorship?.id || ''}
+                onChange={(e) => {
+                  const selected = mentorships.find(m => m.id === parseInt(e.target.value));
+                  setSelectedMentorship(selected);
+                }}
+                className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 appearance-none bg-white"
+              >
+                <option value="">Select a mentorship...</option>
+                {mentorships.map((m) => {
+                  const otherPerson = user?.id === m.mentorId ? m.mentee : m.mentor;
+                  const role = user?.id === m.mentorId ? 'Mentee' : 'Mentor';
+                  return (
+                    <option key={m.id} value={m.id}>
+                      {otherPerson?.name} ({role})
+                    </option>
+                  );
+                })}
+              </select>
+              <ChevronDownIcon className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
             </div>
           </div>
-        </div>
+        ) : selectedMentorship ? (
+          <div className="bg-gray-50 rounded-lg p-4 mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+                {(user?.id === selectedMentorship.mentorId ? selectedMentorship.mentee?.avatar : selectedMentorship.mentor?.avatar) ? (
+                  <img 
+                    src={user?.id === selectedMentorship.mentorId ? selectedMentorship.mentee?.avatar : selectedMentorship.mentor?.avatar} 
+                    alt={user?.id === selectedMentorship.mentorId ? selectedMentorship.mentee?.name : selectedMentorship.mentor?.name}
+                    className="w-10 h-10 rounded-full object-cover"
+                  />
+                ) : (
+                  <UserGroupIcon className="w-5 h-5 text-gray-500" />
+                )}
+              </div>
+              <div>
+                <p className="font-medium text-gray-900">
+                  Session with {user?.id === selectedMentorship.mentorId ? selectedMentorship.mentee?.name : selectedMentorship.mentor?.name}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Mentorship established {new Date(selectedMentorship.respondedAt).toLocaleDateString()}
+                </p>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p className="text-red-700">No mentorship selected. Please select a mentorship to schedule with.</p>
+          </div>
+        )}
 
         {/* Form */}
         <form onSubmit={handleSubmit} className="space-y-6">
