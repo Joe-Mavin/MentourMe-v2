@@ -212,6 +212,66 @@ class SimpleWebRTC {
   }
 
   /**
+   * Log comprehensive WebRTC status for debugging
+   */
+  logWebRTCStatus(context = 'Status Check') {
+    console.log(`🔍 ========== WEBRTC STATUS: ${context} ==========`);
+    console.log('🔍 User Info:', {
+      userId: this.userId,
+      callId: this.callId,
+      isInitiator: this.isInitiator
+    });
+    
+    console.log('🔍 Connection Status:', {
+      peerConnection: !!this.peerConnection,
+      signalingState: this.peerConnection?.signalingState,
+      connectionState: this.peerConnection?.connectionState,
+      iceConnectionState: this.peerConnection?.iceConnectionState,
+      iceGatheringState: this.peerConnection?.iceGatheringState
+    });
+    
+    console.log('🔍 Stream Status:', {
+      localStream: !!this.localStream,
+      remoteStream: !!this.remoteStream,
+      localStreamId: this.localStream?.id,
+      remoteStreamId: this.remoteStream?.id,
+      localTracks: this.localStream?.getTracks().length || 0,
+      remoteTracks: this.remoteStream?.getTracks().length || 0
+    });
+    
+    if (this.localStream) {
+      console.log('🔍 Local Stream Details:', {
+        active: this.localStream.active,
+        tracks: this.localStream.getTracks().map(t => ({
+          kind: t.kind,
+          enabled: t.enabled,
+          readyState: t.readyState,
+          id: t.id
+        }))
+      });
+    }
+    
+    if (this.remoteStream) {
+      console.log('🔍 Remote Stream Details:', {
+        active: this.remoteStream.active,
+        tracks: this.remoteStream.getTracks().map(t => ({
+          kind: t.kind,
+          enabled: t.enabled,
+          readyState: t.readyState,
+          id: t.id
+        }))
+      });
+    }
+    
+    console.log('🔍 Socket Status:', {
+      connected: this.socket?.socket?.connected,
+      socketId: this.socket?.socket?.id
+    });
+    
+    console.log('🔍 ========================================');
+  }
+
+  /**
    * Check stream quality and provide feedback
    */
   checkStreamQuality() {
@@ -269,15 +329,50 @@ class SimpleWebRTC {
     
     // Handle remote stream
     this.peerConnection.ontrack = (event) => {
-      console.log('📺 Received remote stream:', event);
-      console.log('📺 Event streams:', event.streams);
-      console.log('📺 Event track:', event.track);
+      console.log('📺 ========== REMOTE STREAM RECEIVED ==========');
+      console.log('📺 Event details:', {
+        streams: event.streams?.length || 0,
+        track: {
+          kind: event.track.kind,
+          enabled: event.track.enabled,
+          readyState: event.track.readyState,
+          id: event.track.id,
+          label: event.track.label
+        }
+      });
       
       if (event.streams && event.streams[0]) {
         this.remoteStream = event.streams[0];
-        console.log('✅ Remote stream set:', this.remoteStream.id);
-        console.log('📺 Remote stream tracks:', this.remoteStream.getTracks());
+        console.log('✅ Remote stream set:', {
+          id: this.remoteStream.id,
+          active: this.remoteStream.active,
+          trackCount: this.remoteStream.getTracks().length
+        });
+        
+        const tracks = this.remoteStream.getTracks();
+        console.log('📺 Remote stream tracks:', tracks.map(t => ({
+          kind: t.kind,
+          enabled: t.enabled,
+          readyState: t.readyState,
+          id: t.id,
+          label: t.label
+        })));
+        
+        // Check if we have video tracks
+        const videoTracks = tracks.filter(t => t.kind === 'video');
+        const audioTracks = tracks.filter(t => t.kind === 'audio');
+        console.log('📺 Remote stream composition:', {
+          videoTracks: videoTracks.length,
+          audioTracks: audioTracks.length,
+          hasVideo: videoTracks.length > 0,
+          hasAudio: audioTracks.length > 0
+        });
         this.onRemoteStream?.(this.remoteStream);
+        
+        // Log comprehensive status after receiving remote stream
+        setTimeout(() => {
+          this.logWebRTCStatus('After Remote Stream Received');
+        }, 1000);
       } else {
         console.warn('⚠️ No streams in track event');
       }
@@ -296,10 +391,28 @@ class SimpleWebRTC {
       }
     };
     
-    // Handle connection state
+    // Handle connection state changes
     this.peerConnection.onconnectionstatechange = () => {
+      console.log('🔄 ========== CONNECTION STATE CHANGE ==========');
       console.log('🔄 Connection state:', this.peerConnection.connectionState);
+      console.log('🔄 ICE connection state:', this.peerConnection.iceConnectionState);
+      console.log('🔄 ICE gathering state:', this.peerConnection.iceGatheringState);
+      console.log('🔄 Signaling state:', this.peerConnection.signalingState);
+      
+      // Log current streams
+      console.log('🔄 Current streams status:', {
+        localStream: !!this.localStream,
+        remoteStream: !!this.remoteStream,
+        localTracks: this.localStream?.getTracks().length || 0,
+        remoteTracks: this.remoteStream?.getTracks().length || 0
+      });
+      
       this.onConnectionChange?.(this.peerConnection.connectionState);
+    };
+    
+    // Handle ICE connection state changes
+    this.peerConnection.oniceconnectionstatechange = () => {
+      console.log('🧊 ICE connection state changed:', this.peerConnection.iceConnectionState);
     };
     
     console.log('✅ Peer connection setup complete');
@@ -452,6 +565,7 @@ class SimpleWebRTC {
       // Ensure we have local media before handling offer
       await this.ensureLocalMedia();
       this.checkStreamQuality();
+      this.logWebRTCStatus('Before Handling Offer');
       
       if (!this.peerConnection) {
         console.error('❌ No peer connection available');
@@ -545,7 +659,16 @@ class SimpleWebRTC {
     this.isProcessingAnswer = true;
     
     try {
-      console.log('📥 Handling answer...', 'Current state:', this.peerConnection.signalingState);
+      console.log('📥 ========== HANDLING ANSWER ==========');
+      console.log('📥 Current signaling state:', this.peerConnection.signalingState);
+      console.log('📥 Answer SDP type:', answer.type);
+      console.log('📥 Has remote description:', !!this.peerConnection.remoteDescription);
+      console.log('📥 Current streams before answer:', {
+        localStream: !!this.localStream,
+        remoteStream: !!this.remoteStream,
+        localTracks: this.localStream?.getTracks().length || 0,
+        remoteTracks: this.remoteStream?.getTracks().length || 0
+      });
       
       // Check if we already have a remote description
       if (this.peerConnection.remoteDescription) {
@@ -956,6 +1079,7 @@ class SimpleWebRTC {
       // Ensure our own media is ready too
       await this.ensureLocalMedia();
       this.checkStreamQuality();
+      this.logWebRTCStatus('Before Creating Offer');
       
       console.log('📤 About to create offer...');
       this.createOffer();
