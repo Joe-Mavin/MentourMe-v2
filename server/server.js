@@ -233,6 +233,7 @@ async function startServer() {
       MentorshipRequest,
       MentorshipSession,
       BlogComment,
+      BlogLike,
       Notification
     } = require('./models');
     
@@ -277,6 +278,9 @@ async function startServer() {
     
     await BlogComment.sync(syncOptions);
     console.log('✅ BlogComment table synced');
+    
+    await BlogLike.sync(syncOptions);
+    console.log('✅ BlogLike table synced');
     
     await Notification.sync(syncOptions);
     console.log('✅ Notification table synced');
