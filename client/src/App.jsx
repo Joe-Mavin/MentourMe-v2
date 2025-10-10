@@ -23,7 +23,6 @@ import Community from './pages/Community';
 import Profile from './pages/Profile';
 import AdminDashboard from './pages/AdminDashboard';
 import VideoCall from './pages/VideoCall';
-import MentorshipVideoCall from './pages/MentorshipVideoCall';
 import MentorshipDashboard from './pages/MentorshipDashboard';
 import NotificationsPage from './pages/NotificationsPage';
 import NotFound from './pages/NotFound';
@@ -79,12 +78,13 @@ const AppRoutes = () => {
               <VideoCall />
           } 
         />
+        {/* Unified video call route - handles both callId and roomId */}
         <Route 
-          path="/mentorship-video-call/:roomId" 
+          path="/mentorship-video-call/:callId" 
           element={
             !isOnboardingCompleted() ? 
               <Navigate to="/onboarding" replace /> : 
-              <Layout><MentorshipVideoCall /></Layout>
+              <VideoCall />
           } 
         />
         <Route 
