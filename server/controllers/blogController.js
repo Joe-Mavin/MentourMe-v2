@@ -665,6 +665,16 @@ const addComment = async (req, res) => {
     const { id } = req.params;
     const { content, parentId } = req.body;
 
+    // Ensure user is authenticated
+    if (!req.user || !req.user.id) {
+      return res.status(401).json({
+        success: false,
+        message: 'Authentication required to comment'
+      });
+    }
+
+    console.log('💬 ADD COMMENT - User:', req.user.id, 'Post:', id, 'Content length:', content?.length);
+
     const blogPost = await BlogPost.findByPk(id);
     if (!blogPost) {
       return res.status(404).json({

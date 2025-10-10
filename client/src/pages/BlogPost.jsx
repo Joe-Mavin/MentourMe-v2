@@ -137,8 +137,9 @@ const BlogPost = () => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
+    // Check both localStorage token AND auth context
     const token = localStorage.getItem('auth_token');
-    if (!token) {
+    if (!token || !user) {
       alert('Please login to comment!');
       navigate('/login');
       return;
@@ -151,7 +152,14 @@ const BlogPost = () => {
       toast.success('Comment added!');
     } catch (error) {
       console.error('❌ Error adding comment:', error);
-      toast.error('Failed to add comment');
+      if (error.response?.status === 401) {
+        alert('Your session has expired. Please login again.');
+        localStorage.removeItem('auth_token');
+        localStorage.removeItem('user_data');
+        navigate('/login');
+      } else {
+        toast.error('Failed to add comment');
+      }
     }
   };
 
