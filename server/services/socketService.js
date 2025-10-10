@@ -376,7 +376,7 @@ class SocketService {
       });
       
       // Notify other participants that someone joined
-      socket.to(roomId).emit("participant-joined", {
+      const participantData = {
         participantId: userId,
         participantInfo: {
           id: userId,
@@ -384,7 +384,10 @@ class SocketService {
           avatar: socket.user.avatar
         },
         participantCount: participantCount
-      });
+      };
+      
+      console.log(`📡 Emitting participant-joined to room ${roomId}:`, participantData);
+      socket.to(roomId).emit("participant-joined", participantData);
       
       console.log(`✅ User ${userId} successfully joined room ${roomId}`);
     });

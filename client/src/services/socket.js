@@ -186,7 +186,18 @@ class SocketService {
     });
 
     this.socket.on('call_participant_joined', (data) => {
+      console.log('🔌 Frontend socket received call_participant_joined:', data);
       this.emit('call_participant_joined', data);
+    });
+
+    this.socket.on('participant-joined', (data) => {
+      console.log('🔌 Frontend socket received participant-joined:', data);
+      this.emit('participant-joined', data);
+    });
+
+    this.socket.on('room_joined', (data) => {
+      console.log('🔌 Frontend socket received room_joined:', data);
+      this.emit('room_joined', data);
     });
 
     this.socket.on('call_participant_left', (data) => {
