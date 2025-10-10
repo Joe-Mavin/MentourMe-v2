@@ -14,7 +14,13 @@ const scheduleSession = async (req, res) => {
     } = req.body;
     const userId = req.user.id;
 
-    console.log('📅 Creating session:', { mentorshipId, title, scheduledAt, userId });
+    console.log('📅 Creating session:', { 
+      mentorshipId, 
+      title, 
+      scheduledAt, 
+      userId,
+      requestBody: req.body 
+    });
 
     // Get the mentorship to find proper mentor/mentee IDs
     const mentorship = await MentorshipRequest.findByPk(mentorshipId);
@@ -24,6 +30,14 @@ const scheduleSession = async (req, res) => {
         message: 'Mentorship not found'
       });
     }
+
+    console.log('📋 Mentorship details:', {
+      mentorshipId: mentorship.id,
+      mentorId: mentorship.mentorId,
+      menteeId: mentorship.menteeId,
+      schedulingUserId: userId,
+      isSchedulerMentor: userId === mentorship.mentorId
+    });
 
     // Create session with proper mentor/mentee assignment
     const session = await MentorshipSession.create({
@@ -135,9 +149,23 @@ const getUserSessions = async (req, res) => {
       whereClause.scheduledAt = { [Op.gte]: new Date() };
     }
 
-    // Simplified query without includes to avoid association issues
+    // Query with mentor and mentee information
     const { count, rows: sessions } = await MentorshipSession.findAndCountAll({
       where: whereClause,
+      include: [
+        {
+          model: User,
+          as: 'mentor',
+          attributes: ['id', 'name', 'avatar', 'email'],
+          required: true
+        },
+        {
+          model: User,
+          as: 'mentee', 
+          attributes: ['id', 'name', 'avatar', 'email'],
+          required: true
+        }
+      ],
       order: [['scheduledAt', upcoming === 'true' ? 'ASC' : 'DESC']],
       limit: parseInt(limit),
       offset: parseInt(offset)

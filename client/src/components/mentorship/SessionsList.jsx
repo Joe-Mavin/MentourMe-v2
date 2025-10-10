@@ -8,11 +8,13 @@ import {
   CheckCircleIcon,
   XCircleIcon
 } from '@heroicons/react/24/outline';
+import { useAuth } from '../../context/AuthContext';
 import api from '../../services/api';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
 
 const SessionsList = ({ mentorshipId = null }) => {
+  const { user } = useAuth();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('upcoming');
@@ -185,35 +187,54 @@ const SessionsList = ({ mentorshipId = null }) => {
                     </div>
 
                     {/* Participants */}
-                    <div className="flex items-center space-x-4 mt-3">
-                      <div className="flex items-center space-x-2">
-                        <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
-                          {session.mentor?.avatar ? (
-                            <img 
-                              src={session.mentor.avatar} 
-                              alt={session.mentor.name}
-                              className="w-6 h-6 rounded-full object-cover"
-                            />
-                          ) : (
-                            <UserGroupIcon className="w-3 h-3 text-gray-500" />
-                          )}
+                    <div className="flex items-center justify-between mt-3">
+                      <div className="flex items-center space-x-4">
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                            {session.mentor?.avatar ? (
+                              <img 
+                                src={session.mentor.avatar} 
+                                alt={session.mentor.name}
+                                className="w-6 h-6 rounded-full object-cover"
+                              />
+                            ) : (
+                              <UserGroupIcon className="w-3 h-3 text-gray-500" />
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-600">
+                            {session.mentor?.name}
+                            {user?.id === session.mentorId && (
+                              <span className="ml-1 text-blue-600 font-medium">(You - Mentor)</span>
+                            )}
+                          </span>
                         </div>
-                        <span className="text-xs text-gray-600">{session.mentor?.name}</span>
+                        <span className="text-gray-400">↔</span>
+                        <div className="flex items-center space-x-2">
+                          <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
+                            {session.mentee?.avatar ? (
+                              <img 
+                                src={session.mentee.avatar} 
+                                alt={session.mentee.name}
+                                className="w-6 h-6 rounded-full object-cover"
+                              />
+                            ) : (
+                              <UserGroupIcon className="w-3 h-3 text-gray-500" />
+                            )}
+                          </div>
+                          <span className="text-xs text-gray-600">
+                            {session.mentee?.name}
+                            {user?.id === session.menteeId && (
+                              <span className="ml-1 text-green-600 font-medium">(You - Mentee)</span>
+                            )}
+                          </span>
+                        </div>
                       </div>
-                      <span className="text-gray-400">↔</span>
-                      <div className="flex items-center space-x-2">
-                        <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center">
-                          {session.mentee?.avatar ? (
-                            <img 
-                              src={session.mentee.avatar} 
-                              alt={session.mentee.name}
-                              className="w-6 h-6 rounded-full object-cover"
-                            />
-                          ) : (
-                            <UserGroupIcon className="w-3 h-3 text-gray-500" />
-                          )}
-                        </div>
-                        <span className="text-xs text-gray-600">{session.mentee?.name}</span>
+                      
+                      {/* Session with indicator */}
+                      <div className="text-xs text-gray-500">
+                        Session with: <span className="font-medium text-gray-700">
+                          {user?.id === session.mentorId ? session.mentee?.name : session.mentor?.name}
+                        </span>
                       </div>
                     </div>
                   </div>
