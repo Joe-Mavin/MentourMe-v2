@@ -33,6 +33,13 @@ const BlogPost = () => {
     checkLoginStatus();
   }, [slug]);
 
+  // Sync login status when user context changes
+  useEffect(() => {
+    const token = localStorage.getItem('auth_token');
+    setIsLoggedIn(!!token && !!user);
+    console.log('🔄 Auth state sync:', { hasToken: !!token, hasUser: !!user, userId: user?.id });
+  }, [user]);
+
   const checkLoginStatus = () => {
     const token = localStorage.getItem('auth_token');
     setIsLoggedIn(!!token);
@@ -137,12 +144,26 @@ const BlogPost = () => {
     e.preventDefault();
     if (!newComment.trim()) return;
 
-    // Check both localStorage token AND auth context
+    // Enhanced authentication check with debugging
     const token = localStorage.getItem('auth_token');
-    if (!token || !user) {
+    console.log('💬 Comment Auth Check:', { 
+      hasToken: !!token, 
+      hasUser: !!user, 
+      userId: user?.id,
+      userRole: user?.role 
+    });
+
+    if (!token) {
+      console.log('❌ No token found, redirecting to login');
+      localStorage.setItem('redirect_after_login', window.location.pathname);
       alert('Please login to comment!');
       navigate('/login');
       return;
+    }
+
+    // If we have token but no user, try to proceed anyway (API will validate)
+    if (!user) {
+      console.log('⚠️ Token exists but no user in context, attempting comment anyway');
     }
 
     try {

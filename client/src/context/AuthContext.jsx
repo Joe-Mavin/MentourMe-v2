@@ -134,7 +134,7 @@ export const AuthProvider = ({ children }) => {
 
       // Store in localStorage
       localStorage.setItem('auth_token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user_data', JSON.stringify(user));
 
       dispatch({ 
         type: 'LOGIN_SUCCESS', 
@@ -148,7 +148,7 @@ export const AuthProvider = ({ children }) => {
         
         // Update user with onboarding data
         const updatedUser = { ...user, onboardingData };
-        localStorage.setItem('user', JSON.stringify(updatedUser));
+        localStorage.setItem('user_data', JSON.stringify(updatedUser));
         
         dispatch({ 
           type: 'UPDATE_USER', 
@@ -332,7 +332,7 @@ export const AuthProvider = ({ children }) => {
       
       // Update user with onboarding data
       const updatedUser = { ...state.user, onboardingData };
-      localStorage.setItem('user', JSON.stringify(updatedUser));
+      localStorage.setItem('user_data', JSON.stringify(updatedUser));
       
       dispatch({ 
         type: 'UPDATE_USER', 
