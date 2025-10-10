@@ -401,20 +401,20 @@ const BlogPost = () => {
             {comments.map((comment) => (
               <div key={comment.id} className="flex space-x-4">
                 <div className="w-10 h-10 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center flex-shrink-0">
-                  {comment.author?.avatar ? (
+                  {comment.commentAuthor?.avatar ? (
                     <img
-                      src={comment.author.avatar}
-                      alt={comment.author.name}
+                      src={comment.commentAuthor.avatar}
+                      alt={comment.commentAuthor.name}
                       className="w-10 h-10 rounded-full object-cover"
                     />
                   ) : (
-                    <UserIcon className="w-6 h-6 text-white" />
+                    <UserIcon className="w-5 h-5 text-white" />
                   )}
                 </div>
                 <div className="flex-1">
                   <div className="flex items-center space-x-2 mb-2">
                     <span className="font-bold text-white text-sm">
-                      {comment.author?.name || 'Anonymous Warrior'}
+                      {comment.commentAuthor?.name || 'Anonymous Warrior'}
                     </span>
                     <span className="text-xs text-gray-400">
                       {new Date(comment.createdAt).toLocaleDateString()}
