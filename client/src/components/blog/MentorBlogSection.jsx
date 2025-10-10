@@ -10,6 +10,7 @@ import {
   TrophyIcon
 } from '@heroicons/react/24/outline';
 import clsx from 'clsx';
+import api from '../../services/api';
 
 const MentorBlogSection = ({ mentorId, mentorName, showTitle = true }) => {
   const [blogPosts, setBlogPosts] = useState([]);
@@ -29,23 +30,20 @@ const MentorBlogSection = ({ mentorId, mentorName, showTitle = true }) => {
   const fetchMentorBlogPosts = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`/api/blog/mentor/${mentorId}`);
+      const response = await api.get(`/blog/mentor/${mentorId}`);
       
-      if (response.ok) {
-        const data = await response.json();
-        setBlogPosts(data.data.blogPosts || []);
-        
-        // Calculate stats
-        const posts = data.data.blogPosts || [];
-        const totalViews = posts.reduce((sum, post) => sum + post.views, 0);
-        const totalLikes = posts.reduce((sum, post) => sum + post.likes, 0);
-        
-        setStats({
-          totalPosts: posts.length,
-          totalViews,
-          totalLikes
-        });
-      }
+      setBlogPosts(response.data.data.blogPosts || []);
+      
+      // Calculate stats
+      const posts = response.data.data.blogPosts || [];
+      const totalViews = posts.reduce((sum, post) => sum + (post.views || 0), 0);
+      const totalLikes = posts.reduce((sum, post) => sum + (post.likes || 0), 0);
+      
+      setStats({
+        totalPosts: posts.length,
+        totalViews,
+        totalLikes
+      });
     } catch (error) {
       console.error('Error fetching mentor blog posts:', error);
     } finally {

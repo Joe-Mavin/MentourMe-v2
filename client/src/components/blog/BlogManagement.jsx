@@ -55,7 +55,8 @@ const BlogManagement = () => {
       const response = await api.get('/blog/my-stats');
       console.log('📈 Blog stats data:', response.data);
       
-      const statsData = response.data.data || {};
+      const statsData = response.data.data?.stats || {};
+      console.log('📈 Extracted stats data:', statsData);
       setStats({
         totalPosts: statsData.totalPosts || 0,
         totalViews: statsData.totalViews || 0,
