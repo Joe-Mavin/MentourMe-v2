@@ -168,10 +168,9 @@ export const AuthProvider = ({ children }) => {
       const redirectPath = localStorage.getItem('redirect_after_login');
       if (redirectPath) {
         localStorage.removeItem('redirect_after_login');
-        // Small delay to ensure state is updated
-        setTimeout(() => {
-          window.location.href = redirectPath;
-        }, 100);
+        console.log('🔄 Redirecting after login to:', redirectPath);
+        // Return redirect path so the login component can handle it
+        return { success: true, user, redirectPath };
       }
       
       return { success: true, user };

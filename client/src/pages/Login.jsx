@@ -33,9 +33,15 @@ const Login = () => {
   const onSubmit = async (data) => {
     const result = await login(data);
     if (result.success) {
-      // ✅ FIX: Navigate to role-based dashboard after login
-      const userRole = result.user?.role || 'user';
-      navigate(`/dashboard/${userRole}`, { replace: true });
+      // Check if there's a redirect path from the login context
+      if (result.redirectPath) {
+        console.log('🔄 Redirecting to saved path:', result.redirectPath);
+        navigate(result.redirectPath, { replace: true });
+      } else {
+        // Default: Navigate to role-based dashboard after login
+        const userRole = result.user?.role || 'user';
+        navigate(`/dashboard/${userRole}`, { replace: true });
+      }
     }
   };
 
