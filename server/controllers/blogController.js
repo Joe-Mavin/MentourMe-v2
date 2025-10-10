@@ -1,4 +1,4 @@
-const { BlogPost, User, MentorRanking, BlogComment, sequelize } = require('../models');
+const { BlogPost, User, MentorRanking, BlogComment, BlogLike, sequelize } = require('../models');
 const { Op } = require('sequelize');
 
 // Helper function to generate slug
@@ -303,38 +303,25 @@ const likeBlogPost = async (req, res) => {
     }
 
     // Check if user already liked this post
-    const existingLike = await sequelize.query(
-      'SELECT * FROM blog_likes WHERE userId = ? AND postId = ?',
-      {
-        replacements: [userId, id],
-        type: sequelize.QueryTypes.SELECT
-      }
-    );
+    const existingLike = await BlogLike.findOne({
+      where: { userId, postId: id }
+    });
 
     let isLiked = false;
     let newLikeCount = blogPost.likes;
 
-    if (existingLike.length > 0) {
+    if (existingLike) {
       // Unlike: Remove like and decrement count
-      await sequelize.query(
-        'DELETE FROM blog_likes WHERE userId = ? AND postId = ?',
-        {
-          replacements: [userId, id],
-          type: sequelize.QueryTypes.DELETE
-        }
-      );
+      await existingLike.destroy();
       await blogPost.decrement('likes');
       newLikeCount = blogPost.likes - 1;
       isLiked = false;
     } else {
       // Like: Add like and increment count
-      await sequelize.query(
-        'INSERT INTO blog_likes (userId, postId) VALUES (?, ?)',
-        {
-          replacements: [userId, id],
-          type: sequelize.QueryTypes.INSERT
-        }
-      );
+      await BlogLike.create({
+        userId,
+        postId: id
+      });
       await blogPost.increment('likes');
       newLikeCount = blogPost.likes + 1;
       isLiked = true;
@@ -376,18 +363,14 @@ const checkLikeStatus = async (req, res) => {
     const { id } = req.params;
     const userId = req.user.id;
 
-    const existingLike = await sequelize.query(
-      'SELECT * FROM blog_likes WHERE userId = ? AND postId = ?',
-      {
-        replacements: [userId, id],
-        type: sequelize.QueryTypes.SELECT
-      }
-    );
+    const existingLike = await BlogLike.findOne({
+      where: { userId, postId: id }
+    });
 
     res.json({
       success: true,
       data: {
-        isLiked: existingLike.length > 0
+        isLiked: !!existingLike
       }
     });
 

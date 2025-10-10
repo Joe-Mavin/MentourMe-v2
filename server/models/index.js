@@ -11,6 +11,7 @@ const Newsletter = require("./Newsletter")(sequelize);
 const BlogPost = require("./BlogPost")(sequelize);
 const MentorRanking = require('./MentorRanking')(sequelize);
 const BlogComment = require('./BlogComment')(sequelize);
+const BlogLike = require('./BlogLike');
 const MentorshipSession = require('./MentorshipSession')(sequelize);
 
 // User Relations
@@ -218,6 +219,27 @@ BlogComment.belongsTo(BlogComment, {
   as: "parentComment" 
 });
 
+// Blog Like Relations
+BlogPost.hasMany(BlogLike, { 
+  foreignKey: "postId", 
+  as: "blogLikes",
+  onDelete: "CASCADE" 
+});
+BlogLike.belongsTo(BlogPost, { 
+  foreignKey: "postId", 
+  as: "blogPost" 
+});
+
+User.hasMany(BlogLike, { 
+  foreignKey: "userId", 
+  as: "userLikes",
+  onDelete: "CASCADE" 
+});
+BlogLike.belongsTo(User, { 
+  foreignKey: "userId", 
+  as: "user" 
+});
+
 // Mentorship Session Relations
 MentorshipRequest.hasMany(MentorshipSession, { 
   foreignKey: "mentorshipId", 
@@ -263,5 +285,6 @@ module.exports = {
   BlogPost,
   MentorRanking,
   BlogComment,
+  BlogLike,
   MentorshipSession
 };
