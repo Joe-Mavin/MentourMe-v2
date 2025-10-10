@@ -285,7 +285,7 @@ const VideoCall = () => {
   };
 
   const setupSocketListeners = () => {
-    // WebRTC signaling events are handled by webrtcService
+    // WebRTC signaling events are handled by simpleWebRTC service
     // We only need to handle call management events here
     socketService.on('call_initiated', handleCallInitiated);
     socketService.on('call_ended', handleCallEnded);
