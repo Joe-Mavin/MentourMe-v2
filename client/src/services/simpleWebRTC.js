@@ -599,7 +599,12 @@ class SimpleWebRTC {
         return;
       }
       
+      console.log('📤 ========== CREATING ANSWER ==========');
       const answer = await this.peerConnection.createAnswer();
+      console.log('📤 Answer created successfully:', {
+        type: answer.type,
+        sdp: answer.sdp ? 'Present' : 'Missing'
+      });
       
       // Check state again before setting local description
       const currentState = this.peerConnection.signalingState;
@@ -632,12 +637,18 @@ class SimpleWebRTC {
       console.log('✅ Answer created and set as local description');
       
       // Send answer back
-      this.socket.emit('answer', {
-        answer: answer,
-        callId: this.callId
-      });
+      if (this.socket.socket && this.socket.socket.connected) {
+        this.socket.socket.emit('answer', {
+          answer: answer,
+          callId: this.callId
+        });
+        console.log('📤 Answer sent via socket');
+      } else {
+        console.error('❌ Socket not connected, cannot send answer');
+      }
       
-      console.log('✅ Offer processed and answer sent');
+      console.log('✅ ========== OFFER PROCESSING COMPLETE ==========');
+      this.logWebRTCStatus('After Answer Sent');
     } catch (error) {
       console.error('❌ Failed to handle offer:', error);
       this.onError?.(error);
