@@ -157,6 +157,7 @@ const Landing = () => {
           <div className="flex justify-between items-center h-16">
             <Logo size="sm" />
             
+            {/* Desktop Navigation */}
             <div className="hidden md:flex items-center space-x-8">
               <a href="#features" className="text-gray-300 hover:text-white transition-colors font-medium">Features</a>
               <Link to="/blog" className="text-gray-300 hover:text-white transition-colors font-medium">Battle Wisdom</Link>
@@ -166,6 +167,17 @@ const Landing = () => {
                 className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-2 rounded-lg hover:shadow-lg hover:from-orange-500 hover:to-red-500 transition-all duration-200 font-bold"
               >
                 FORGE AHEAD
+              </Link>
+            </div>
+
+            {/* Mobile Navigation */}
+            <div className="md:hidden flex items-center space-x-4">
+              <Link to="/login" className="text-gray-300 hover:text-white transition-colors font-medium text-sm">Sign In</Link>
+              <Link 
+                to="/register" 
+                className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-4 py-2 rounded-lg hover:shadow-lg hover:from-orange-500 hover:to-red-500 transition-all duration-200 font-bold text-sm"
+              >
+                JOIN
               </Link>
             </div>
           </div>
@@ -191,7 +203,7 @@ const Landing = () => {
             </div>
 
             {/* Main Heading */}
-            <h1 className="text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-8 leading-none">
+            <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-black tracking-tight mb-6 sm:mb-8 leading-none">
               <span className="bg-gradient-to-r from-orange-500 via-red-500 to-orange-600 bg-clip-text text-transparent">
                 FORGE
               </span>
@@ -200,54 +212,54 @@ const Landing = () => {
             </h1>
 
             {/* Subtitle */}
-            <p className="text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-12 leading-relaxed font-medium">
+            <p className="text-lg sm:text-xl md:text-2xl text-gray-300 max-w-3xl mx-auto mb-8 sm:mb-12 leading-relaxed font-medium px-4">
               Connect with battle-tested mentors who have conquered their fields. 
-              <br />
+              <br className="hidden sm:block" />
               <span className="text-orange-500 font-bold">No excuses. No shortcuts. Just results.</span>
             </p>
 
             {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-16">
+            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center mb-12 sm:mb-16">
               <Link
                 to="/register"
-                className="group bg-gradient-to-r from-orange-600 to-red-600 text-white px-10 py-5 rounded-lg font-black text-xl hover:shadow-2xl hover:shadow-orange-500/25 hover:scale-105 transition-all duration-300 flex items-center space-x-3 border-2 border-orange-500"
+                className="group bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 sm:px-10 py-4 sm:py-5 rounded-lg font-black text-lg sm:text-xl hover:shadow-2xl hover:shadow-orange-500/25 hover:scale-105 transition-all duration-300 flex items-center space-x-3 border-2 border-orange-500 w-full sm:w-auto justify-center"
               >
-                <FireIcon className="w-6 h-6" />
+                <FireIcon className="w-5 h-5 sm:w-6 sm:h-6" />
                 <span>BEGIN THE FORGE</span>
-                <ArrowRightIcon className="w-6 h-6 group-hover:translate-x-1 transition-transform" />
+                <ArrowRightIcon className="w-5 h-5 sm:w-6 sm:h-6 group-hover:translate-x-1 transition-transform" />
               </Link>
             </div>
 
             {/* Masculine Visual Element */}
-            <div className="relative max-w-4xl mx-auto">
-              <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-8 shadow-2xl border border-gray-800">
-                <div className="bg-black rounded-2xl shadow-lg overflow-hidden border border-gray-700">
-                  <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-4 py-3 border-b border-gray-700 flex items-center space-x-2">
-                    <div className="flex space-x-2">
-                      <div className="w-3 h-3 bg-red-500 rounded-full"></div>
-                      <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                      <div className="w-3 h-3 bg-green-500 rounded-full"></div>
+            <div className="relative max-w-4xl mx-auto px-4">
+              <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl sm:rounded-3xl p-4 sm:p-8 shadow-2xl border border-gray-800">
+                <div className="bg-black rounded-xl sm:rounded-2xl shadow-lg overflow-hidden border border-gray-700">
+                  <div className="bg-gradient-to-r from-gray-900 to-gray-800 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-700 flex items-center space-x-2">
+                    <div className="flex space-x-1 sm:space-x-2">
+                      <div className="w-2 h-2 sm:w-3 sm:h-3 bg-red-500 rounded-full"></div>
+                      <div className="w-2 h-2 sm:w-3 sm:h-3 bg-orange-500 rounded-full"></div>
+                      <div className="w-2 h-2 sm:w-3 sm:h-3 bg-green-500 rounded-full"></div>
                     </div>
                     <div className="flex-1 text-center">
-                      <span className="text-sm text-gray-300 font-bold">WARRIOR DASHBOARD</span>
+                      <span className="text-xs sm:text-sm text-gray-300 font-bold">WARRIOR DASHBOARD</span>
                     </div>
                   </div>
-                  <div className="p-6">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                      <div className="bg-gradient-to-br from-orange-600 to-red-600 text-white p-4 rounded-xl border border-orange-500">
-                        <FireIcon className="w-8 h-8 mb-2" />
-                        <h3 className="font-bold">5 Elite Mentors</h3>
-                        <p className="text-sm opacity-90">Battle-tested leaders</p>
+                  <div className="p-4 sm:p-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6">
+                      <div className="bg-gradient-to-br from-orange-600 to-red-600 text-white p-3 sm:p-4 rounded-lg sm:rounded-xl border border-orange-500">
+                        <FireIcon className="w-6 h-6 sm:w-8 sm:h-8 mb-2" />
+                        <h3 className="font-bold text-sm sm:text-base">5 Elite Mentors</h3>
+                        <p className="text-xs sm:text-sm opacity-90">Battle-tested leaders</p>
                       </div>
-                      <div className="bg-gradient-to-br from-red-600 to-orange-600 text-white p-4 rounded-xl border border-red-500">
-                        <TrophyIcon className="w-8 h-8 mb-2" />
-                        <h3 className="font-bold">12 Victories</h3>
-                        <p className="text-sm opacity-90">This quarter</p>
+                      <div className="bg-gradient-to-br from-red-600 to-orange-600 text-white p-3 sm:p-4 rounded-lg sm:rounded-xl border border-red-500">
+                        <TrophyIcon className="w-6 h-6 sm:w-8 sm:h-8 mb-2" />
+                        <h3 className="font-bold text-sm sm:text-base">12 Victories</h3>
+                        <p className="text-xs sm:text-sm opacity-90">This quarter</p>
                       </div>
-                      <div className="bg-gradient-to-br from-gray-700 to-gray-800 text-white p-4 rounded-xl border border-gray-600">
-                        <ShieldCheckIcon className="w-8 h-8 mb-2" />
-                        <h3 className="font-bold">8 Skills Forged</h3>
-                        <p className="text-sm opacity-90">Strength gained</p>
+                      <div className="bg-gradient-to-br from-gray-700 to-gray-800 text-white p-3 sm:p-4 rounded-lg sm:rounded-xl border border-gray-600 sm:col-span-2 md:col-span-1">
+                        <ShieldCheckIcon className="w-6 h-6 sm:w-8 sm:h-8 mb-2" />
+                        <h3 className="font-bold text-sm sm:text-base">8 Skills Forged</h3>
+                        <p className="text-xs sm:text-sm opacity-90">Strength gained</p>
                       </div>
                     </div>
                   </div>
@@ -259,15 +271,15 @@ const Landing = () => {
       </section>
 
       {/* Stats Section */}
-      <section className="py-16 bg-gradient-to-r from-gray-900 via-black to-gray-900 border-y border-gray-800">
+      <section className="py-12 sm:py-16 bg-gradient-to-r from-gray-900 via-black to-gray-900 border-y border-gray-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8">
             {stats.map((stat, index) => (
               <div key={index} className="text-center">
-                <div className="text-3xl md:text-4xl font-black bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent mb-2">
+                <div className="text-2xl sm:text-3xl md:text-4xl font-black bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent mb-2">
                   {stat.value}
                 </div>
-                <div className="text-gray-300 font-bold uppercase tracking-wider text-sm">{stat.label}</div>
+                <div className="text-gray-300 font-bold uppercase tracking-wider text-xs sm:text-sm">{stat.label}</div>
               </div>
             ))}
           </div>
@@ -275,28 +287,28 @@ const Landing = () => {
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-20 px-4 sm:px-6 lg:px-8 bg-black">
+      <section id="features" className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-black">
         <div className="max-w-7xl mx-auto">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl md:text-5xl font-black text-white mb-6">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-white mb-4 sm:mb-6">
               WEAPONS FOR <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">VICTORY</span>
             </h2>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium">
+            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto font-medium px-4">
               The arsenal you need to dominate your field and crush your competition.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8">
             {features.map((feature, index) => (
               <div 
                 key={index}
-                className="group bg-gradient-to-br from-gray-900 to-black p-8 rounded-2xl border border-gray-800 hover:border-orange-500 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300"
+                className="group bg-gradient-to-br from-gray-900 to-black p-6 sm:p-8 rounded-xl sm:rounded-2xl border border-gray-800 hover:border-orange-500 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300"
               >
-                <div className="bg-gradient-to-br from-orange-600 to-red-600 w-16 h-16 rounded-xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-200 border-2 border-orange-500">
-                  <feature.icon className="w-8 h-8 text-white" />
+                <div className="bg-gradient-to-br from-orange-600 to-red-600 w-12 h-12 sm:w-16 sm:h-16 rounded-lg sm:rounded-xl flex items-center justify-center mb-4 sm:mb-6 group-hover:scale-110 transition-transform duration-200 border-2 border-orange-500">
+                  <feature.icon className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
                 </div>
-                <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-wide">{feature.title}</h3>
-                <p className="text-gray-300 leading-relaxed font-medium">{feature.description}</p>
+                <h3 className="text-xl sm:text-2xl font-black text-white mb-3 sm:mb-4 uppercase tracking-wide">{feature.title}</h3>
+                <p className="text-gray-300 leading-relaxed font-medium text-sm sm:text-base">{feature.description}</p>
               </div>
             ))}
           </div>
