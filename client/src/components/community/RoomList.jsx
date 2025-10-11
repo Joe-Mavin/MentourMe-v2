@@ -487,88 +487,39 @@ const RoomItem = ({ room, isActive, isJoined, isCreator, onSelect, onJoin, onLea
   return (
     <div
       className={clsx(
-        'p-6 hover:bg-gray-800/50 cursor-pointer transition-all duration-200 border-l-4 bg-black',
+        'p-4 hover:bg-gray-800/50 cursor-pointer transition-all duration-200 border-l-4 bg-black',
         isActive 
           ? 'bg-gradient-to-r from-orange-900/30 to-red-900/30 border-l-orange-500 shadow-lg shadow-orange-500/10' 
           : 'border-l-transparent hover:border-l-orange-500/50'
       )}
       onClick={onSelect}
     >
-      <div className="flex items-start justify-between">
-        <div className="flex-1 min-w-0">
-          {/* Header with name and badges */}
-          <div className="flex items-start justify-between mb-3">
-            <div className="flex items-center space-x-3 flex-1">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center border-2 border-orange-500">
-                <span className="text-lg">{categoryInfo.icon}</span>
-              </div>
-              <div className="flex-1 min-w-0">
-                <h3 className="text-lg font-black text-white truncate uppercase tracking-wider">
-                  {room.name}
-                </h3>
-                <div className="flex items-center space-x-2 mt-1">
-                  {isCreator && (
-                    <span className="px-2 py-1 text-xs font-black bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full border border-blue-500 uppercase tracking-wider">
-                      Commander
-                    </span>
-                  )}
-                  {room.featured && (
-                    <StarIcon className="w-4 h-4 text-yellow-400 fill-current" />
-                  )}
-                  {room.isPrivate && (
-                    <LockClosedIcon className="w-4 h-4 text-gray-400" />
-                  )}
-                </div>
-              </div>
-            </div>
+      {/* Header Row - Icon, Name, and Action Button */}
+      <div className="flex items-start justify-between mb-3">
+        <div className="flex items-center space-x-3 flex-1 min-w-0">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center border border-orange-500 flex-shrink-0">
+            <span className="text-sm">{categoryInfo.icon}</span>
           </div>
-
-          {/* Category and member info */}
-          <div className="flex items-center space-x-4 mb-3">
-            <span className={clsx(
-              'inline-flex items-center space-x-2 px-3 py-1 text-xs font-black rounded-full uppercase tracking-wider',
-              getCategoryBadgeClasses(categoryInfo.color)
-            )}>
-              <span>{categoryInfo.icon}</span>
-              <span>{categoryInfo.label}</span>
-            </span>
-            <div className="flex items-center space-x-2 text-sm text-gray-300 font-medium">
-              <UserGroupIcon className="w-4 h-4 text-orange-500" />
-              <span>{room.memberCount || 0}/{room.maxMembers || '∞'} Warriors</span>
+          <div className="flex-1 min-w-0">
+            <h3 className="text-base font-bold text-white truncate">
+              {room.name}
+            </h3>
+            <div className="flex items-center space-x-2 mt-1">
+              {room.featured && (
+                <StarIcon className="w-3 h-3 text-yellow-400 fill-current" />
+              )}
+              {room.isPrivate && (
+                <LockClosedIcon className="w-3 h-3 text-gray-400" />
+              )}
             </div>
-          </div>
-          
-          {/* Description */}
-          {room.description && (
-            <p className="text-sm text-gray-300 line-clamp-2 mb-4 leading-relaxed font-medium">
-              {room.description}
-            </p>
-          )}
-          
-          {/* Footer with activity and created by */}
-          <div className="flex items-center justify-between text-sm text-gray-400">
-            <div className="flex items-center space-x-2">
-              <ClockIcon className="w-4 h-4 text-orange-500" />
-              <span className="font-medium">
-                {room.lastActivity ? 
-                  `Last battle: ${formatDistanceToNow(new Date(room.lastActivity))} ago` : 
-                  'Awaiting first battle'
-                }
-              </span>
-            </div>
-            {room.createdBy && (
-              <span className="text-sm text-gray-400 font-medium">
-                Forged by {room.createdBy}
-              </span>
-            )}
           </div>
         </div>
-
-        {/* Join/Leave Button */}
-        <div className="ml-6 flex-shrink-0">
+        
+        {/* Action Button - Right Side */}
+        <div className="flex-shrink-0 ml-4">
           {isCreator ? (
-            <span className="px-4 py-2 text-sm font-black text-blue-400 bg-blue-900/50 border border-blue-700 rounded-xl uppercase tracking-wider">
-              Commander
+            <span className="px-3 py-1 text-xs font-bold text-blue-400 bg-blue-900/50 border border-blue-700 rounded-lg">
+              OWNER
             </span>
           ) : isJoined ? (
             <button
@@ -576,9 +527,9 @@ const RoomItem = ({ room, isActive, isJoined, isCreator, onSelect, onJoin, onLea
                 e.stopPropagation();
                 onLeave();
               }}
-              className="px-4 py-2 text-sm font-black text-red-400 bg-red-900/50 border border-red-700 rounded-xl hover:bg-red-800/50 transition-all duration-200 uppercase tracking-wider"
+              className="px-3 py-1 text-xs font-bold text-red-400 bg-red-900/50 border border-red-700 rounded-lg hover:bg-red-800/50 transition-colors"
             >
-              Retreat
+              LEAVE
             </button>
           ) : (
             <button
@@ -586,12 +537,51 @@ const RoomItem = ({ room, isActive, isJoined, isCreator, onSelect, onJoin, onLea
                 e.stopPropagation();
                 onJoin();
               }}
-              className="px-4 py-2 text-sm font-black text-white bg-gradient-to-r from-orange-600 to-red-600 border border-orange-500 rounded-xl hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200 uppercase tracking-wider"
+              className="px-3 py-1 text-xs font-bold text-white bg-gradient-to-r from-orange-600 to-red-600 border border-orange-500 rounded-lg hover:shadow-md hover:shadow-orange-500/25 transition-all"
             >
-              Join Battle
+              JOIN
             </button>
           )}
         </div>
+      </div>
+
+      {/* Category and Stats Row */}
+      <div className="flex items-center justify-between mb-2">
+        <span className={clsx(
+          'inline-flex items-center space-x-1 px-2 py-1 text-xs font-bold rounded-md',
+          getCategoryBadgeClasses(categoryInfo.color)
+        )}>
+          <span className="text-xs">{categoryInfo.icon}</span>
+          <span>{categoryInfo.label}</span>
+        </span>
+        
+        <div className="flex items-center space-x-1 text-xs text-gray-400">
+          <UserGroupIcon className="w-3 h-3 text-orange-500" />
+          <span>{room.memberCount || 0}/{room.maxMembers || '∞'}</span>
+        </div>
+      </div>
+      
+      {/* Description */}
+      {room.description && (
+        <p className="text-xs text-gray-300 line-clamp-2 mb-2 leading-relaxed">
+          {room.description}
+        </p>
+      )}
+      
+      {/* Footer Row */}
+      <div className="flex items-center justify-between text-xs text-gray-400">
+        <div className="flex items-center space-x-1">
+          <ClockIcon className="w-3 h-3 text-orange-500" />
+          <span>
+            {room.lastActivity ? 
+              `${formatDistanceToNow(new Date(room.lastActivity))} ago` : 
+              'No activity'
+            }
+          </span>
+        </div>
+        {room.createdBy && (
+          <span>by {room.createdBy}</span>
+        )}
       </div>
     </div>
   );
