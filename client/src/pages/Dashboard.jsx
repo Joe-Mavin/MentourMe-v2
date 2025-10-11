@@ -240,73 +240,77 @@ const Dashboard = () => {
           </div>
         </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-        {/* Task Statistics */}
-        <div className="card">
-          <div className="card-header">
-            <h2 className="text-xl font-semibold text-gray-900">Task Progress</h2>
-          </div>
-          <div className="card-body">
-            {taskStats ? (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="bg-blue-50 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <ClockIcon className="h-5 w-5 text-blue-600" />
-                      <span className="ml-2 text-sm font-medium text-blue-900">
-                        In Progress
-                      </span>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+          {/* Task Statistics */}
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-gray-800 p-6 shadow-2xl">
+            <div className="mb-6">
+              <h2 className="text-xl font-black text-white uppercase tracking-wider">
+                <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+                  BATTLE
+                </span> PROGRESS
+              </h2>
+            </div>
+            <div>
+              {taskStats ? (
+                <div className="space-y-6">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-gradient-to-br from-orange-900/30 to-red-900/30 rounded-xl p-4 border border-orange-500/30">
+                      <div className="flex items-center">
+                        <ClockIcon className="h-6 w-6 text-orange-500" />
+                        <span className="ml-2 text-sm font-bold text-orange-400 uppercase tracking-wider">
+                          In Progress
+                        </span>
+                      </div>
+                      <p className="mt-2 text-3xl font-black text-white">
+                        {taskStats.in_progress || 0}
+                      </p>
                     </div>
-                    <p className="mt-1 text-2xl font-semibold text-blue-900">
-                      {taskStats.in_progress || 0}
-                    </p>
+                    <div className="bg-gradient-to-br from-green-900/30 to-emerald-900/30 rounded-xl p-4 border border-green-500/30">
+                      <div className="flex items-center">
+                        <CheckCircleIcon className="h-6 w-6 text-green-500" />
+                        <span className="ml-2 text-sm font-bold text-green-400 uppercase tracking-wider">
+                          Completed
+                        </span>
+                      </div>
+                      <p className="mt-2 text-3xl font-black text-white">
+                        {(taskStats.completed || 0) + (taskStats.verified || 0)}
+                      </p>
+                    </div>
                   </div>
-                  <div className="bg-green-50 rounded-lg p-4">
-                    <div className="flex items-center">
-                      <CheckCircleIcon className="h-5 w-5 text-green-600" />
-                      <span className="ml-2 text-sm font-medium text-green-900">
-                        Completed
-                      </span>
-                    </div>
-                    <p className="mt-1 text-2xl font-semibold text-green-900">
-                      {(taskStats.completed || 0) + (taskStats.verified || 0)}
-                    </p>
+                  <div className="pt-4 border-t border-orange-500/30">
+                    <Link
+                      to="/tasks"
+                      className="text-sm font-bold text-orange-500 hover:text-orange-400 transition-colors uppercase tracking-wider"
+                    >
+                      VIEW ALL MISSIONS →
+                    </Link>
                   </div>
                 </div>
-                <div className="pt-4 border-t border-gray-200">
-                  <Link
-                    to="/tasks"
-                    className="text-sm font-medium text-primary-600 hover:text-primary-500"
-                  >
-                    View all tasks →
-                  </Link>
+              ) : (
+                <div className="text-center py-8">
+                  <CheckCircleIcon className="mx-auto h-16 w-16 text-gray-600" />
+                  <h3 className="mt-4 text-lg font-black text-white uppercase tracking-wider">No Missions Yet</h3>
+                  <p className="mt-2 text-sm text-gray-300 font-medium">
+                    {hasRole('mentor') 
+                      ? 'Start by creating missions for your warriors'
+                      : 'Your commander will assign missions to track your progress'
+                    }
+                  </p>
                 </div>
-              </div>
-            ) : (
-              <div className="text-center py-6">
-                <CheckCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">No tasks yet</h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  {hasRole('mentor') 
-                    ? 'Start by creating tasks for your mentees'
-                    : 'Your mentor will assign tasks to track your progress'
-                  }
-                </p>
-              </div>
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        {/* Recent Tasks or Recommendations */}
-        <div className="card">
-          <div className="card-header">
-            <h2 className="text-xl font-semibold text-gray-900">
-              {hasRole('user') && recommendations.length > 0 
-                ? 'Recommended Mentors' 
-                : 'Recent Tasks'
-              }
-            </h2>
-          </div>
+          {/* Recent Tasks or Recommendations */}
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-gray-800 p-6 shadow-2xl">
+            <div className="mb-6">
+              <h2 className="text-xl font-black text-white uppercase tracking-wider">
+                {hasRole('user') && recommendations.length > 0 
+                  ? <><span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">ELITE</span> COMMANDERS</>
+                  : <><span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">RECENT</span> MISSIONS</>
+                }
+              </h2>
+            </div>
           <div className="card-body">
             {hasRole('user') && recommendations.length > 0 ? (
               <div className="space-y-4">
