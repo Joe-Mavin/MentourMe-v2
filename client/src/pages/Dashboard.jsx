@@ -311,156 +311,200 @@ const Dashboard = () => {
                 }
               </h2>
             </div>
-          <div className="card-body">
-            {hasRole('user') && recommendations.length > 0 ? (
-              <div className="space-y-4">
-                {recommendations.map((recommendation) => (
-                  <div key={recommendation.user.id} className="p-4 rounded-lg border border-gray-200 hover:border-primary-300 transition-colors">
-                    <div className="flex items-start space-x-4">
-                      <div className="flex-shrink-0">
-                        <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center">
-                          <span className="text-primary-600 font-medium">
-                            {recommendation.user?.name?.charAt(0)?.toUpperCase()}
-                          </span>
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center justify-between mb-2">
-                          <h3 className="text-sm font-medium text-gray-900">
-                            {recommendation.user?.name}
-                          </h3>
-                          <div className="flex items-center space-x-1">
-                            <SparklesIcon className="w-4 h-4 text-primary-500" />
-                            <span className="text-sm font-medium text-primary-600">
-                              {recommendation.compatibilityScore?.toFixed(1)}/10
+            <div>
+              {hasRole('user') && recommendations.length > 0 ? (
+                <div className="space-y-4">
+                  {recommendations.map((recommendation) => (
+                    <div key={recommendation.user.id} className="p-4 rounded-xl bg-gradient-to-r from-orange-900/20 to-red-900/20 border border-orange-500/30 hover:border-orange-500 transition-all duration-200">
+                      <div className="flex items-start space-x-4">
+                        <div className="flex-shrink-0">
+                          <div className="w-12 h-12 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center border-2 border-orange-500">
+                            <span className="text-white font-black text-lg">
+                              {recommendation.user?.name?.charAt(0)?.toUpperCase()}
                             </span>
                           </div>
                         </div>
-                        
-                        <p className="text-xs text-gray-600 mb-2">
-                          {recommendation.explanation || 'AI-matched mentor for your goals'}
-                        </p>
-                        
-                        {recommendation.matchingFactors && recommendation.matchingFactors.length > 0 && (
-                          <div className="flex flex-wrap gap-1 mb-3">
-                            {recommendation.matchingFactors.slice(0, 2).map((factor, index) => (
-                              <span
-                                key={index}
-                                className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-800"
-                              >
-                                {factor}
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between mb-2">
+                            <h3 className="text-lg font-black text-white uppercase tracking-wider">
+                              {recommendation.user?.name}
+                            </h3>
+                            <div className="flex items-center space-x-1">
+                              <SparklesIcon className="w-5 h-5 text-orange-500" />
+                              <span className="text-lg font-black text-orange-400">
+                                {recommendation.compatibilityScore?.toFixed(1)}/10
                               </span>
-                            ))}
+                            </div>
                           </div>
-                        )}
-                        
-                        <div className="flex space-x-2">
-                          <button 
-                            onClick={() => handleRequestMentorship(recommendation.user.id, recommendation.compatibilityScore)}
-                            className="btn btn-sm btn-primary text-xs"
-                          >
-                            Request Mentorship
-                          </button>
-                          <button 
-                            onClick={() => handleStartConversation(recommendation.user.id)}
-                            className="btn btn-sm btn-outline text-xs"
-                          >
-                            Message
-                          </button>
+                          
+                          <p className="text-sm text-gray-300 mb-3 font-medium">
+                            {recommendation.explanation || 'AI-matched commander for your battle journey'}
+                          </p>
+                          
+                          {recommendation.matchingFactors && recommendation.matchingFactors.length > 0 && (
+                            <div className="flex flex-wrap gap-2 mb-4">
+                              {recommendation.matchingFactors.slice(0, 2).map((factor, index) => (
+                                <span
+                                  key={index}
+                                  className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-orange-600 text-white border border-orange-500"
+                                >
+                                  {factor}
+                                </span>
+                              ))}
+                            </div>
+                          )}
+                          
+                          <div className="flex space-x-3">
+                            <button 
+                              onClick={() => handleRequestMentorship(recommendation.user.id, recommendation.compatibilityScore)}
+                              className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg font-bold hover:shadow-lg hover:shadow-orange-500/25 transition-all text-sm uppercase tracking-wider"
+                            >
+                              Request Command
+                            </button>
+                            <button 
+                              onClick={() => handleStartConversation(recommendation.user.id)}
+                              className="px-4 py-2 border border-orange-500 text-orange-400 rounded-lg font-bold hover:bg-orange-500 hover:text-white transition-all text-sm uppercase tracking-wider"
+                            >
+                              Message
+                            </button>
+                          </div>
                         </div>
                       </div>
                     </div>
+                  ))}
+                  <div className="pt-4 border-t border-orange-500/30">
+                    <Link
+                      to="/messages"
+                      className="text-sm font-bold text-orange-500 hover:text-orange-400 transition-colors uppercase tracking-wider"
+                    >
+                      START BATTLE COMMUNICATION →
+                    </Link>
                   </div>
-                ))}
-                <div className="pt-4 border-t border-gray-200">
-                  <Link
-                    to="/messages"
-                    className="text-sm font-medium text-primary-600 hover:text-primary-500"
-                  >
-                    Start a conversation →
-                  </Link>
                 </div>
-              </div>
-            ) : recentTasks.length > 0 ? (
-              <div className="space-y-4">
-                {recentTasks.map((task) => (
-                  <div key={task.id} className="flex items-center justify-between p-3 rounded-lg border border-gray-200">
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-gray-900 truncate">
-                        {task.title}
-                      </p>
-                      <p className="text-sm text-gray-500">
-                        {hasRole('mentor') 
-                          ? `Assigned to ${task.mentee?.name}`
-                          : `From ${task.mentor?.name}`
-                        }
-                      </p>
+              ) : recentTasks.length > 0 ? (
+                <div className="space-y-4">
+                  {recentTasks.map((task) => (
+                    <div key={task.id} className="flex items-center justify-between p-4 rounded-xl bg-gradient-to-r from-gray-800/50 to-gray-900/50 border border-gray-700 hover:border-orange-500/50 transition-all duration-200">
+                      <div className="flex-1 min-w-0">
+                        <p className="text-lg font-black text-white truncate uppercase tracking-wider">
+                          {task.title}
+                        </p>
+                        <p className="text-sm text-gray-300 font-medium">
+                          {hasRole('mentor') 
+                            ? `Assigned to Warrior ${task.mentee?.name}`
+                            : `From Commander ${task.mentor?.name}`
+                          }
+                        </p>
+                      </div>
+                      <span className={clsx(
+                        'inline-flex items-center px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
+                        task.status === 'completed' || task.status === 'verified'
+                          ? 'bg-green-600 text-white border border-green-500'
+                          : task.status === 'in_progress'
+                          ? 'bg-orange-600 text-white border border-orange-500'
+                          : task.status === 'pending'
+                          ? 'bg-yellow-600 text-white border border-yellow-500'
+                          : 'bg-red-600 text-white border border-red-500'
+                      )}>
+                        {task.status.replace('_', ' ')}
+                      </span>
                     </div>
-                    <span className={clsx(
-                      'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
-                      getTaskStatusColor(task.status)
-                    )}>
-                      {task.status.replace('_', ' ')}
-                    </span>
-                  </div>
-                ))}
-                <div className="pt-4 border-t border-gray-200">
-                  <Link
-                    to="/tasks"
-                    className="text-sm font-medium text-primary-600 hover:text-primary-500"
-                  >
-                    View all tasks →
-                  </Link>
+                  ))}
+                  <div className="pt-4 border-t border-orange-500/30">
+                    <Link
+                      to="/tasks"
+                      className="text-sm font-bold text-orange-500 hover:text-orange-400 transition-colors uppercase tracking-wider"
+                    >
+                      VIEW ALL MISSIONS →
+                    </Link>
                 </div>
               </div>
+              ) : (
+                <div className="text-center py-8">
+                  <CheckCircleIcon className="mx-auto h-16 w-16 text-gray-600" />
+                  <h3 className="mt-4 text-lg font-black text-white uppercase tracking-wider">
+                    {hasRole('user') ? 'No Commanders Found' : 'No Recent Missions'}
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-300 font-medium">
+                    {hasRole('user') 
+                      ? 'Complete your warrior training to get elite commander recommendations'
+                      : 'Recent mission activity will appear here'
+                    }
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Battle Strategy Tips */}
+        <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-gray-800 p-6 shadow-2xl">
+          <h3 className="text-xl font-black text-white mb-6 uppercase tracking-wider">
+            <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              BATTLE
+            </span> STRATEGY GUIDE
+          </h3>
+          <div className="space-y-4 text-sm text-gray-300">
+            {hasRole('user') ? (
+              <>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">⚔️</span>
+                  <p className="font-medium">Browse the warrior community to connect with others who share your battle goals</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">📨</span>
+                  <p className="font-medium">Check your messages for elite commander recommendations and strategic conversations</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">🎯</span>
+                  <p className="font-medium">Complete assigned missions to track your warrior progress and earn battle experience</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">⚙️</span>
+                  <p className="font-medium">Update your warrior profile and availability in the command center settings</p>
+                </div>
+              </>
+            ) : hasRole('mentor') ? (
+              <>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">👥</span>
+                  <p className="font-medium">Review and approve warrior requests in your command messages</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">📋</span>
+                  <p className="font-medium">Create strategic missions to guide your warriors' battle progress</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">🗣️</span>
+                  <p className="font-medium">Join community war councils to share your elite expertise</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">📅</span>
+                  <p className="font-medium">Keep your command availability updated for scheduling strategic sessions</p>
+                </div>
+              </>
             ) : (
-              <div className="text-center py-6">
-                <CheckCircleIcon className="mx-auto h-12 w-12 text-gray-400" />
-                <h3 className="mt-2 text-sm font-medium text-gray-900">
-                  {hasRole('user') ? 'No mentors found' : 'No recent tasks'}
-                </h3>
-                <p className="mt-1 text-sm text-gray-500">
-                  {hasRole('user') 
-                    ? 'Complete your onboarding to get mentor recommendations'
-                    : 'Recent task activity will appear here'
-                  }
-                </p>
-              </div>
+              <>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">👑</span>
+                  <p className="font-medium">Review pending commander applications in the elite council panel</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">📊</span>
+                  <p className="font-medium">Monitor warrior community activity and battle engagement metrics</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">🛡️</span>
+                  <p className="font-medium">Manage community war rooms and content moderation protocols</p>
+                </div>
+                <div className="flex items-start space-x-3">
+                  <span className="text-orange-500 font-black">📈</span>
+                  <p className="font-medium">View platform analytics and warrior performance statistics</p>
+                </div>
+              </>
             )}
           </div>
         </div>
-      </div>
-
-      {/* Welcome Tips */}
-      <div className="bg-primary-50 border border-primary-200 rounded-lg p-6">
-        <h3 className="text-lg font-medium text-primary-900 mb-3">
-          Getting Started Tips
-        </h3>
-        <div className="space-y-2 text-sm text-primary-800">
-          {hasRole('user') ? (
-            <>
-              <p>• Browse the community rooms to connect with others who share your goals</p>
-              <p>• Check your messages for mentor recommendations and conversations</p>
-              <p>• Complete assigned tasks to track your progress</p>
-              <p>• Update your profile and availability in settings</p>
-            </>
-          ) : hasRole('mentor') ? (
-            <>
-              <p>• Review and approve mentee requests in your messages</p>
-              <p>• Create tasks to help guide your mentees' progress</p>
-              <p>• Join community discussions to share your expertise</p>
-              <p>• Keep your availability updated for scheduling sessions</p>
-            </>
-          ) : (
-            <>
-              <p>• Review pending mentor applications in the admin panel</p>
-              <p>• Monitor community activity and user engagement</p>
-              <p>• Manage community rooms and content moderation</p>
-              <p>• View platform analytics and user statistics</p>
-            </>
-          )}
-        </div>
-      </div>
       </div>
     </div>
   );
