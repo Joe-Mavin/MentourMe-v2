@@ -171,11 +171,12 @@ const Landing = () => {
             </div>
 
             {/* Mobile Navigation */}
-            <div className="md:hidden flex items-center space-x-4">
-              <Link to="/login" className="text-gray-300 hover:text-white transition-colors font-medium text-sm">Sign In</Link>
+            <div className="md:hidden flex items-center space-x-2 sm:space-x-4">
+              <Link to="/blog" className="text-gray-300 hover:text-white transition-colors font-medium text-xs sm:text-sm">Battle Wisdom</Link>
+              <Link to="/login" className="text-gray-300 hover:text-white transition-colors font-medium text-xs sm:text-sm">Sign In</Link>
               <Link 
                 to="/register" 
-                className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-4 py-2 rounded-lg hover:shadow-lg hover:from-orange-500 hover:to-red-500 transition-all duration-200 font-bold text-sm"
+                className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-3 sm:px-4 py-2 rounded-lg hover:shadow-lg hover:from-orange-500 hover:to-red-500 transition-all duration-200 font-bold text-xs sm:text-sm"
               >
                 JOIN
               </Link>

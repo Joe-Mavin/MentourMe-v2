@@ -185,59 +185,60 @@ const Dashboard = () => {
             ? "Ready to guide and inspire today?" 
             : "Let's continue your growth journey together."
           }
-        </p>
-      </div>
-
-      {/* Mentor Approval Status */}
-      {hasRole('mentor') && !user?.approved && (
-        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <ExclamationTriangleIcon className="h-5 w-5 text-yellow-400" />
-            </div>
-            <div className="ml-3">
-              <h3 className="text-sm font-medium text-yellow-800">
-                Mentor Application Under Review
-              </h3>
-              <p className="mt-1 text-sm text-yellow-700">
-                Your mentor application is currently being reviewed by our admin team. 
-                You'll receive an email notification once approved.
-              </p>
-            </div>
-          </div>
+          </p>
         </div>
-      )}
 
-      {/* Quick Actions */}
-      <div>
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Quick Actions</h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {quickActions.map((action) => (
-            <Link
-              key={action.name}
-              to={action.href}
-              className="relative group bg-white p-6 focus-within:ring-2 focus-within:ring-inset focus-within:ring-primary-500 rounded-lg border border-gray-200 hover:shadow-md transition-shadow duration-200"
-            >
-              <div>
-                <span className={clsx(
-                  action.color,
-                  'rounded-lg inline-flex p-3 text-white'
-                )}>
-                  <action.icon className="h-6 w-6" />
-                </span>
+        {/* Mentor Approval Status */}
+        {hasRole('mentor') && !user?.approved && (
+          <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 border border-orange-500/30 rounded-lg p-4">
+            <div className="flex">
+              <div className="flex-shrink-0">
+                <ExclamationTriangleIcon className="h-5 w-5 text-orange-500" />
               </div>
-              <div className="mt-4">
-                <h3 className="text-lg font-medium text-gray-900">
-                  {action.name}
+              <div className="ml-3">
+                <h3 className="text-sm font-bold text-orange-500 uppercase tracking-wider">
+                  Commander Application Under Review
                 </h3>
-                <p className="mt-2 text-sm text-gray-500">
-                  {action.description}
+                <p className="mt-1 text-sm text-gray-300 font-medium">
+                  Your commander application is being reviewed by the elite council. 
+                  You'll receive notification once you've earned your rank.
                 </p>
               </div>
-            </Link>
-          ))}
+            </div>
+          </div>
+        )}
+
+        {/* Quick Actions */}
+        <div>
+          <h2 className="text-2xl font-black text-white mb-6 uppercase tracking-wider">
+            <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              BATTLE
+            </span> ARSENAL
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+            {quickActions.map((action) => (
+              <Link
+                key={action.name}
+                to={action.href}
+                className="relative group bg-gradient-to-br from-gray-900 to-black p-6 rounded-xl border border-gray-800 hover:border-orange-500 hover:shadow-2xl hover:shadow-orange-500/10 transition-all duration-300"
+              >
+                <div>
+                  <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-xl inline-flex p-3 text-white border-2 border-orange-500 group-hover:scale-110 transition-transform duration-200">
+                    <action.icon className="h-6 w-6" />
+                  </div>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-lg font-black text-white uppercase tracking-wider">
+                    {action.name}
+                  </h3>
+                  <p className="mt-2 text-sm text-gray-300 font-medium">
+                    {action.description}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
-      </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Task Statistics */}
@@ -455,6 +456,7 @@ const Dashboard = () => {
             </>
           )}
         </div>
+      </div>
       </div>
     </div>
   );
