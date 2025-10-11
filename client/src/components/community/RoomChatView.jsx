@@ -393,9 +393,9 @@ const RoomChatView = ({ room }) => {
   const categoryInfo = getCategoryInfo(room.category);
 
   return (
-    <div className="flex flex-col h-full bg-black overflow-hidden">
+    <div className="flex flex-col h-full bg-black relative">
       {/* Battle Room Header */}
-      <div className="flex items-center justify-between p-4 sm:p-6 border-b border-orange-500/30 bg-gradient-to-r from-gray-900 to-black flex-shrink-0">
+      <div className="flex items-center justify-between p-4 sm:p-6 border-b border-orange-500/30 bg-gradient-to-r from-gray-900 to-black flex-shrink-0 z-10">
         <div className="flex items-center space-x-3 flex-1 min-w-0">
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center border-2 border-orange-500 flex-shrink-0">
             <span className="text-lg sm:text-xl">{categoryInfo.icon}</span>
@@ -441,13 +441,13 @@ const RoomChatView = ({ room }) => {
 
       {/* Battle Room Description */}
       {room.description && (
-        <div className="p-4 bg-gradient-to-r from-gray-900 to-gray-800 border-b border-orange-500/20">
+        <div className="p-4 bg-gradient-to-r from-gray-900 to-gray-800 border-b border-orange-500/20 flex-shrink-0">
           <p className="text-sm text-gray-300 font-medium">{room.description}</p>
         </div>
       )}
 
       {/* Battle Messages Area */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gradient-to-b from-black to-gray-900 min-h-0">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gradient-to-b from-black to-gray-900">
         {messagesLoading ? (
           <div className="flex justify-center py-12">
             <div className="text-center">
@@ -550,8 +550,8 @@ const RoomChatView = ({ room }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Battle Message Input */}
-      <div className="border-t border-orange-500/30 p-3 sm:p-6 bg-gradient-to-r from-gray-900 to-black flex-shrink-0">
+      {/* Battle Message Input - Always Visible at Bottom */}
+      <div className="border-t border-orange-500/30 p-3 sm:p-6 bg-gradient-to-r from-gray-900 to-black flex-shrink-0 shadow-2xl shadow-black/20">
         {/* Reply Preview */}
         {replyingTo && (
           <div className="mb-4 p-4 bg-gray-800 border-l-4 border-orange-500 rounded-r-xl">
