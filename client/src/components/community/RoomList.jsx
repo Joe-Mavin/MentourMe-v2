@@ -277,8 +277,11 @@ const RoomList = ({ onSelectRoom, activeRoomId, onCreateRoom }) => {
 
   if (loading && rooms.length === 0) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text="Loading rooms..." />
+      <div className="flex items-center justify-center h-64 bg-black">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-gray-300 font-bold uppercase tracking-wider">Loading Battle Rooms...</p>
+        </div>
       </div>
     );
   }
@@ -327,59 +330,59 @@ const RoomList = ({ onSelectRoom, activeRoomId, onCreateRoom }) => {
           />
         </div>
 
-        {/* Filters */}
-        <div className="space-y-3">
+        {/* Battle Zone Filters */}
+        <div className="space-y-4">
           {/* Category Pills */}
           <div>
-            <label className="block text-xs font-medium text-gray-700 mb-2">Browse by Category</label>
-            <div className="flex flex-wrap gap-2 mb-3">
+            <label className="block text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Browse Battle Zones</label>
+            <div className="flex flex-wrap gap-3 mb-4">
               {CATEGORIES.slice(0, 4).map(category => (
                 <button
                   key={category.value}
                   onClick={() => setSelectedCategory(category.value)}
                   className={clsx(
-                    'flex items-center space-x-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
+                    'flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-black transition-all duration-200 uppercase tracking-wider',
                     getCategoryClasses(category.color, selectedCategory === category.value)
                   )}
                 >
-                  <span>{category.icon}</span>
+                  <span className="text-base">{category.icon}</span>
                   <span>{category.label}</span>
                 </button>
               ))}
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div className="flex flex-wrap gap-3">
               {CATEGORIES.slice(4).map(category => (
                 <button
                   key={category.value}
                   onClick={() => setSelectedCategory(category.value)}
                   className={clsx(
-                    'flex items-center space-x-1 px-3 py-1.5 rounded-full text-xs font-medium transition-colors',
+                    'flex items-center space-x-2 px-4 py-2 rounded-xl text-xs font-black transition-all duration-200 uppercase tracking-wider',
                     getCategoryClasses(category.color, selectedCategory === category.value)
                   )}
                 >
-                  <span>{category.icon}</span>
+                  <span className="text-base">{category.icon}</span>
                   <span>{category.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Quick Filters */}
-          <div className="flex items-center justify-between pt-2">
+          {/* Quick Battle Filters */}
+          <div className="flex items-center justify-between pt-4 border-t border-gray-700">
             <div className="flex items-center">
               <input
                 type="checkbox"
                 id="showOnlyJoined"
                 checked={showOnlyJoined}
                 onChange={(e) => setShowOnlyJoined(e.target.checked)}
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
+                className="h-4 w-4 text-orange-600 focus:ring-orange-500 bg-gray-800 border-gray-600 rounded"
               />
-              <label htmlFor="showOnlyJoined" className="ml-2 text-sm text-gray-700">
-                My Rooms Only
+              <label htmlFor="showOnlyJoined" className="ml-3 text-sm text-gray-300 font-medium">
+                My Battle Rooms Only
               </label>
             </div>
-            <span className="text-xs text-gray-500">
-              {filteredRooms.length} room{filteredRooms.length !== 1 ? 's' : ''}
+            <span className="text-xs text-gray-400 font-bold uppercase tracking-wider">
+              {filteredRooms.length} ROOM{filteredRooms.length !== 1 ? 'S' : ''}
             </span>
           </div>
         </div>
@@ -388,15 +391,20 @@ const RoomList = ({ onSelectRoom, activeRoomId, onCreateRoom }) => {
       {/* Community Stats */}
       <CommunityStats />
 
-      {/* Rooms List */}
-      <div className="flex-1 overflow-y-auto">
+      {/* Battle Rooms List */}
+      <div className="flex-1 overflow-y-auto bg-black">
         {filteredRooms.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full p-8">
-            <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <UserGroupIcon className="w-8 h-8 text-gray-400" />
+          <div className="flex flex-col items-center justify-center h-full p-12">
+            <div className="w-20 h-20 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mb-6 border-4 border-orange-500">
+              <UserGroupIcon className="w-10 h-10 text-white" />
             </div>
-            <p className="text-sm text-gray-500 text-center">
-              {searchTerm || selectedCategory !== 'all' ? 'No rooms found' : 'No rooms available'}
+            <h3 className="text-xl font-black text-white mb-4 uppercase tracking-wider">
+              {searchTerm || selectedCategory !== 'all' ? 'No Battle Rooms Found' : 'No Battle Rooms Available'}
+            </h3>
+            <p className="text-gray-300 text-center font-medium mb-6">
+              {searchTerm || selectedCategory !== 'all' 
+                ? 'Try adjusting your search or battle zone filters' 
+                : 'Be the first to forge a new battle room'}
             </p>
             {(searchTerm || selectedCategory !== 'all') && (
               <button
@@ -405,25 +413,25 @@ const RoomList = ({ onSelectRoom, activeRoomId, onCreateRoom }) => {
                   setSelectedCategory('all');
                   setShowOnlyJoined(false);
                 }}
-                className="mt-2 text-sm text-primary-600 hover:text-primary-700"
+                className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200 font-black uppercase tracking-wider border border-orange-500"
               >
-                Clear filters
+                Clear Battle Filters
               </button>
             )}
           </div>
         ) : (
           <div>
-            {/* Featured Rooms Section */}
+            {/* Featured Battle Rooms Section */}
             {selectedCategory === 'all' && !searchTerm && !showOnlyJoined && (
-              <div className="mb-4">
-                <div className="px-4 py-3 bg-gradient-to-r from-primary-50 to-purple-50 border-b border-gray-100">
-                  <div className="flex items-center space-x-2 mb-2">
-                    <StarIcon className="w-4 h-4 text-yellow-500 fill-current" />
-                    <h4 className="text-sm font-semibold text-gray-900">Featured Rooms</h4>
+              <div className="mb-6">
+                <div className="px-6 py-4 bg-gradient-to-r from-orange-900/50 to-red-900/50 border-b border-orange-500/30">
+                  <div className="flex items-center space-x-3 mb-2">
+                    <StarIcon className="w-5 h-5 text-yellow-400 fill-current" />
+                    <h4 className="text-lg font-black text-white uppercase tracking-wider">Elite Battle Rooms</h4>
                   </div>
-                  <p className="text-xs text-gray-600">Popular and recommended community spaces</p>
+                  <p className="text-sm text-gray-300 font-medium">Legendary spaces for warrior development</p>
                 </div>
-                <div className="divide-y divide-gray-100">
+                <div className="divide-y divide-gray-800">
                   {getFeaturedRooms().slice(0, 3).map((room) => (
                     <RoomItem
                       key={`featured-${room.id}`}
@@ -440,14 +448,14 @@ const RoomList = ({ onSelectRoom, activeRoomId, onCreateRoom }) => {
               </div>
             )}
             
-            {/* All Rooms Section */}
+            {/* All Battle Rooms Section */}
             <div>
               {selectedCategory === 'all' && !searchTerm && !showOnlyJoined && (
-                <div className="px-4 py-2 bg-gray-50 border-b border-gray-100">
-                  <h4 className="text-sm font-semibold text-gray-900">All Rooms</h4>
+                <div className="px-6 py-3 bg-gradient-to-r from-gray-900 to-gray-800 border-b border-gray-700">
+                  <h4 className="text-lg font-black text-white uppercase tracking-wider">All Battle Rooms</h4>
                 </div>
               )}
-              <div className="divide-y divide-gray-100">
+              <div className="divide-y divide-gray-800">
                 {filteredRooms.map((room) => (
                   <RoomItem
                     key={room.id}
@@ -479,83 +487,88 @@ const RoomItem = ({ room, isActive, isJoined, isCreator, onSelect, onJoin, onLea
   return (
     <div
       className={clsx(
-        'p-4 hover:bg-gray-50 cursor-pointer transition-all duration-200 border-l-4',
+        'p-6 hover:bg-gray-800/50 cursor-pointer transition-all duration-200 border-l-4 bg-black',
         isActive 
-          ? 'bg-primary-50 border-l-primary-500 shadow-sm' 
-          : 'border-l-transparent hover:border-l-gray-200'
+          ? 'bg-gradient-to-r from-orange-900/30 to-red-900/30 border-l-orange-500 shadow-lg shadow-orange-500/10' 
+          : 'border-l-transparent hover:border-l-orange-500/50'
       )}
       onClick={onSelect}
     >
       <div className="flex items-start justify-between">
         <div className="flex-1 min-w-0">
           {/* Header with name and badges */}
-          <div className="flex items-start justify-between mb-2">
-            <div className="flex items-center space-x-2 flex-1">
-              <h3 className="text-sm font-semibold text-gray-900 truncate">
-                {room.name}
-              </h3>
-              <div className="flex items-center space-x-1">
-                {isCreator && (
-                  <span className="px-1.5 py-0.5 text-xs font-medium bg-primary-100 text-primary-800 rounded">
-                    Creator
-                  </span>
-                )}
-                {room.featured && (
-                  <StarIcon className="w-3 h-3 text-yellow-500 fill-current" />
-                )}
-                {room.isPrivate && (
-                  <LockClosedIcon className="w-3 h-3 text-gray-400" />
-                )}
+          <div className="flex items-start justify-between mb-3">
+            <div className="flex items-center space-x-3 flex-1">
+              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center border-2 border-orange-500">
+                <span className="text-lg">{categoryInfo.icon}</span>
+              </div>
+              <div className="flex-1 min-w-0">
+                <h3 className="text-lg font-black text-white truncate uppercase tracking-wider">
+                  {room.name}
+                </h3>
+                <div className="flex items-center space-x-2 mt-1">
+                  {isCreator && (
+                    <span className="px-2 py-1 text-xs font-black bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-full border border-blue-500 uppercase tracking-wider">
+                      Commander
+                    </span>
+                  )}
+                  {room.featured && (
+                    <StarIcon className="w-4 h-4 text-yellow-400 fill-current" />
+                  )}
+                  {room.isPrivate && (
+                    <LockClosedIcon className="w-4 h-4 text-gray-400" />
+                  )}
+                </div>
               </div>
             </div>
           </div>
 
           {/* Category and member info */}
-          <div className="flex items-center space-x-3 mb-2">
+          <div className="flex items-center space-x-4 mb-3">
             <span className={clsx(
-              'inline-flex items-center space-x-1 px-2 py-1 text-xs font-medium rounded-full',
+              'inline-flex items-center space-x-2 px-3 py-1 text-xs font-black rounded-full uppercase tracking-wider',
               getCategoryBadgeClasses(categoryInfo.color)
             )}>
               <span>{categoryInfo.icon}</span>
               <span>{categoryInfo.label}</span>
             </span>
-            <div className="flex items-center space-x-1 text-xs text-gray-500">
-              <UserGroupIcon className="w-3 h-3" />
-              <span>{room.memberCount || 0}/{room.maxMembers || '∞'}</span>
+            <div className="flex items-center space-x-2 text-sm text-gray-300 font-medium">
+              <UserGroupIcon className="w-4 h-4 text-orange-500" />
+              <span>{room.memberCount || 0}/{room.maxMembers || '∞'} Warriors</span>
             </div>
           </div>
           
           {/* Description */}
           {room.description && (
-            <p className="text-xs text-gray-600 line-clamp-2 mb-2 leading-relaxed">
+            <p className="text-sm text-gray-300 line-clamp-2 mb-4 leading-relaxed font-medium">
               {room.description}
             </p>
           )}
           
           {/* Footer with activity and created by */}
-          <div className="flex items-center justify-between text-xs text-gray-500">
-            <div className="flex items-center space-x-1">
-              <ClockIcon className="w-3 h-3" />
-              <span>
+          <div className="flex items-center justify-between text-sm text-gray-400">
+            <div className="flex items-center space-x-2">
+              <ClockIcon className="w-4 h-4 text-orange-500" />
+              <span className="font-medium">
                 {room.lastActivity ? 
-                  `${formatDistanceToNow(new Date(room.lastActivity))} ago` : 
-                  'No activity'
+                  `Last battle: ${formatDistanceToNow(new Date(room.lastActivity))} ago` : 
+                  'Awaiting first battle'
                 }
               </span>
             </div>
             {room.createdBy && (
-              <span className="text-xs text-gray-400">
-                by {room.createdBy}
+              <span className="text-sm text-gray-400 font-medium">
+                Forged by {room.createdBy}
               </span>
             )}
           </div>
         </div>
 
         {/* Join/Leave Button */}
-        <div className="ml-4 flex-shrink-0">
+        <div className="ml-6 flex-shrink-0">
           {isCreator ? (
-            <span className="px-3 py-1.5 text-xs font-medium text-gray-600 bg-gray-100 border border-gray-200 rounded-lg">
-              Owner
+            <span className="px-4 py-2 text-sm font-black text-blue-400 bg-blue-900/50 border border-blue-700 rounded-xl uppercase tracking-wider">
+              Commander
             </span>
           ) : isJoined ? (
             <button
@@ -563,9 +576,9 @@ const RoomItem = ({ room, isActive, isJoined, isCreator, onSelect, onJoin, onLea
                 e.stopPropagation();
                 onLeave();
               }}
-              className="px-3 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-colors"
+              className="px-4 py-2 text-sm font-black text-red-400 bg-red-900/50 border border-red-700 rounded-xl hover:bg-red-800/50 transition-all duration-200 uppercase tracking-wider"
             >
-              Leave
+              Retreat
             </button>
           ) : (
             <button
@@ -573,9 +586,9 @@ const RoomItem = ({ room, isActive, isJoined, isCreator, onSelect, onJoin, onLea
                 e.stopPropagation();
                 onJoin();
               }}
-              className="px-3 py-1.5 text-xs font-medium text-primary-600 bg-primary-50 border border-primary-200 rounded-lg hover:bg-primary-100 transition-colors"
+              className="px-4 py-2 text-sm font-black text-white bg-gradient-to-r from-orange-600 to-red-600 border border-orange-500 rounded-xl hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200 uppercase tracking-wider"
             >
-              Join
+              Join Battle
             </button>
           )}
         </div>
