@@ -316,57 +316,57 @@ const Landing = () => {
       </section>
 
       {/* Call to Action Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-900 via-black to-gray-900 px-4 sm:px-6 lg:px-8 border-y border-gray-800">
+      <section className="py-16 sm:py-20 bg-gradient-to-br from-gray-900 via-black to-gray-900 px-4 sm:px-6 lg:px-8 border-y border-gray-800">
         <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl md:text-6xl font-black text-white mb-6">
+          <h2 className="text-3xl sm:text-4xl md:text-6xl font-black text-white mb-4 sm:mb-6">
             STOP MAKING <span className="bg-gradient-to-r from-red-500 to-orange-500 bg-clip-text text-transparent">EXCUSES</span>
           </h2>
-          <p className="text-xl md:text-2xl text-gray-300 mb-8 font-medium">
+          <p className="text-lg sm:text-xl md:text-2xl text-gray-300 mb-6 sm:mb-8 font-medium px-4">
             Every day you wait is another day your competition gets ahead.
-            <br />
+            <br className="hidden sm:block" />
             <span className="text-orange-500 font-black">The time is NOW.</span>
           </p>
           
           <Link
             to="/register"
-            className="inline-flex items-center space-x-4 bg-gradient-to-r from-orange-600 to-red-600 text-white px-12 py-6 rounded-lg font-black text-2xl hover:shadow-2xl hover:shadow-orange-500/25 hover:scale-105 transition-all duration-300 border-2 border-orange-500"
+            className="inline-flex items-center space-x-3 sm:space-x-4 bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 sm:px-12 py-4 sm:py-6 rounded-lg font-black text-lg sm:text-2xl hover:shadow-2xl hover:shadow-orange-500/25 hover:scale-105 transition-all duration-300 border-2 border-orange-500"
           >
-            <FireIcon className="w-8 h-8" />
+            <FireIcon className="w-6 h-6 sm:w-8 sm:h-8" />
             <span>CLAIM YOUR POWER</span>
-            <ArrowRightIcon className="w-8 h-8" />
+            <ArrowRightIcon className="w-6 h-6 sm:w-8 sm:h-8" />
           </Link>
         </div>
       </section>
 
       {/* Newsletter Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8 bg-black">
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-black">
         <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-3xl p-12 border-2 border-gray-800">
-            <h2 className="text-3xl md:text-4xl font-black text-white mb-4 uppercase tracking-wide">
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl sm:rounded-3xl p-6 sm:p-12 border-2 border-gray-800">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-3 sm:mb-4 uppercase tracking-wide">
               INTEL FOR <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">WARRIORS</span>
             </h2>
-            <p className="text-xl text-gray-300 mb-8 max-w-2xl mx-auto font-medium">
+            <p className="text-lg sm:text-xl text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto font-medium">
               Get battle-tested strategies and exclusive intel delivered to your inbox.
-              <br />
+              <br className="hidden sm:block" />
               <span className="text-orange-500 font-bold">No fluff. Just results.</span>
             </p>
             
-            <form onSubmit={handleNewsletterSignup} className="flex flex-col sm:flex-row gap-4 max-w-md mx-auto">
+            <form onSubmit={handleNewsletterSignup} className="flex flex-col sm:flex-row gap-3 sm:gap-4 max-w-lg mx-auto">
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Your email address"
-                className="flex-1 px-6 py-4 rounded-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
+                className="flex-1 px-4 sm:px-6 py-3 sm:py-4 rounded-lg bg-gray-800 text-white placeholder-gray-400 border border-gray-700 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium text-sm sm:text-base"
                 required
               />
               <button
                 type="submit"
-                className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 py-4 rounded-lg font-black hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200 border border-orange-500"
+                className="bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg font-black hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200 border border-orange-500 text-sm sm:text-base"
               >
                 {isSubscribed ? (
-                  <span className="flex items-center space-x-2">
-                    <CheckIcon className="w-5 h-5" />
+                  <span className="flex items-center justify-center space-x-2">
+                    <CheckIcon className="w-4 h-4 sm:w-5 sm:h-5" />
                     <span>LOCKED IN!</span>
                   </span>
                 ) : (
@@ -380,53 +380,53 @@ const Landing = () => {
 
       {/* Top Elite Mentors */}
       {topMentors.length > 0 && (
-        <section className="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-black to-gray-900">
+        <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-black to-gray-900">
           <div className="max-w-7xl mx-auto">
-            <div className="text-center mb-16">
-              <h2 className="text-4xl md:text-5xl font-black mb-6">
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 sm:mb-6">
                 <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
                   ELITE
                 </span>
                 <br />
                 <span className="text-white">BATTLE COMMANDERS</span>
               </h2>
-              <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium">
+              <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto font-medium px-4">
                 Learn from the highest-ranked mentors who have proven their worth through 
                 <span className="text-orange-500 font-bold"> battle-tested wisdom</span>
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4 sm:gap-6">
               {topMentors.map((mentorRanking, index) => (
                 <div
                   key={mentorRanking.mentor.id}
-                  className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-gray-800 p-6 hover:border-orange-500 transition-all duration-300 text-center"
+                  className="bg-gradient-to-br from-gray-900 to-black rounded-xl sm:rounded-2xl border border-gray-800 p-4 sm:p-6 hover:border-orange-500 transition-all duration-300 text-center"
                 >
-                  <div className="flex justify-center mb-4">
+                  <div className="flex justify-center mb-3 sm:mb-4">
                     <div className="relative">
-                      <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center">
-                        <span className="text-white font-black text-xl">
+                      <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center">
+                        <span className="text-white font-black text-lg sm:text-xl">
                           {mentorRanking.mentor.name.charAt(0)}
                         </span>
                       </div>
-                      <div className="absolute -top-2 -right-2 w-8 h-8 bg-orange-600 rounded-full flex items-center justify-center border-2 border-black">
-                        <span className="text-white font-black text-sm">#{index + 1}</span>
+                      <div className="absolute -top-1 -right-1 sm:-top-2 sm:-right-2 w-6 h-6 sm:w-8 sm:h-8 bg-orange-600 rounded-full flex items-center justify-center border-2 border-black">
+                        <span className="text-white font-black text-xs sm:text-sm">#{index + 1}</span>
                       </div>
                     </div>
                   </div>
 
-                  <h3 className="text-lg font-black text-white mb-2">
+                  <h3 className="text-sm sm:text-lg font-black text-white mb-2">
                     {mentorRanking.mentor.name}
                   </h3>
                   
-                  <div className="flex justify-center mb-3">
-                    <span className="px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider bg-orange-600 text-white">
+                  <div className="flex justify-center mb-2 sm:mb-3">
+                    <span className="px-2 sm:px-3 py-1 text-xs font-bold rounded-full uppercase tracking-wider bg-orange-600 text-white">
                       🔥 {mentorRanking.tier}
                     </span>
                   </div>
 
                   <div className="text-center">
-                    <div className="text-2xl font-black text-orange-500">
+                    <div className="text-lg sm:text-2xl font-black text-orange-500">
                       {mentorRanking.overallScore.toFixed(1)}
                     </div>
                     <div className="text-xs text-gray-400 font-medium uppercase tracking-wider">
@@ -437,13 +437,13 @@ const Landing = () => {
               ))}
             </div>
 
-            <div className="text-center mt-12">
+            <div className="text-center mt-8 sm:mt-12">
               <Link
                 to="/blog"
-                className="inline-flex items-center space-x-2 bg-gradient-to-r from-orange-600 to-red-600 text-white px-8 py-4 rounded-lg hover:shadow-lg hover:shadow-orange-500/25 transition-all font-bold text-lg"
+                className="inline-flex items-center space-x-2 bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-lg hover:shadow-lg hover:shadow-orange-500/25 transition-all font-bold text-base sm:text-lg"
               >
                 <span>Discover All Battle Wisdom</span>
-                <ArrowRightIcon className="w-5 h-5" />
+                <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
               </Link>
             </div>
           </div>
@@ -451,12 +451,12 @@ const Landing = () => {
       )}
 
       {/* Footer */}
-      <footer className="bg-black border-t border-gray-800 text-white py-16 px-4 sm:px-6 lg:px-8">
+      <footer className="bg-black border-t border-gray-800 text-white py-12 sm:py-16 px-4 sm:px-6 lg:px-8">
         <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
-            <div className="col-span-1 md:col-span-2">
-              <Logo size="lg" className="mb-4" />
-              <p className="text-gray-400 max-w-md leading-relaxed font-medium">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-6 sm:mb-8">
+            <div className="col-span-1 sm:col-span-2 md:col-span-2">
+              <Logo size="lg" className="mb-3 sm:mb-4" />
+              <p className="text-gray-400 max-w-md leading-relaxed font-medium text-sm sm:text-base">
                 Forging elite professionals through battle-tested mentorship. 
                 <br />
                 <span className="text-orange-500 font-bold">Where legends are made.</span>
@@ -464,31 +464,31 @@ const Landing = () => {
             </div>
             
             <div>
-              <h3 className="font-black mb-4 text-orange-500 uppercase tracking-wider">Arsenal</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium">Find Elite Mentors</a></li>
-                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium">Become a Mentor</a></li>
-                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium">Warrior Community</a></li>
-                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium">Battle Strategies</a></li>
+              <h3 className="font-black mb-3 sm:mb-4 text-orange-500 uppercase tracking-wider text-sm sm:text-base">Arsenal</h3>
+              <ul className="space-y-2 sm:space-y-3 text-gray-400">
+                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium text-sm sm:text-base">Find Elite Mentors</a></li>
+                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium text-sm sm:text-base">Become a Mentor</a></li>
+                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium text-sm sm:text-base">Warrior Community</a></li>
+                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium text-sm sm:text-base">Battle Strategies</a></li>
               </ul>
             </div>
             
             <div>
-              <h3 className="font-black mb-4 text-orange-500 uppercase tracking-wider">Command</h3>
-              <ul className="space-y-3 text-gray-400">
-                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium">About the Mission</a></li>
-                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium">Join the Elite</a></li>
-                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium">Privacy Shield</a></li>
-                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium">Terms of War</a></li>
+              <h3 className="font-black mb-3 sm:mb-4 text-orange-500 uppercase tracking-wider text-sm sm:text-base">Command</h3>
+              <ul className="space-y-2 sm:space-y-3 text-gray-400">
+                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium text-sm sm:text-base">About the Mission</a></li>
+                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium text-sm sm:text-base">Join the Elite</a></li>
+                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium text-sm sm:text-base">Privacy Shield</a></li>
+                <li><a href="#" className="hover:text-orange-500 transition-colors font-medium text-sm sm:text-base">Terms of War</a></li>
               </ul>
             </div>
           </div>
           
-          <div className="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center">
-            <p className="text-gray-400 font-medium">© 2024 MentourMe. <span className="text-orange-500">Forge your destiny.</span></p>
-            <div className="flex items-center space-x-6 mt-4 md:mt-0">
-              <ShieldCheckIcon className="w-6 h-6 text-orange-500" />
-              <span className="text-sm text-gray-400 font-bold uppercase tracking-wider">Battle-Tested & Secure</span>
+          <div className="border-t border-gray-800 pt-6 sm:pt-8 flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <p className="text-gray-400 font-medium text-sm sm:text-base text-center md:text-left">© 2024 MentourMe. <span className="text-orange-500">Forge your destiny.</span></p>
+            <div className="flex items-center space-x-3 sm:space-x-6">
+              <ShieldCheckIcon className="w-5 h-5 sm:w-6 sm:h-6 text-orange-500" />
+              <span className="text-xs sm:text-sm text-gray-400 font-bold uppercase tracking-wider">Battle-Tested & Secure</span>
             </div>
           </div>
         </div>
