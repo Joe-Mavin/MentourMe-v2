@@ -46,135 +46,148 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,69,0,0.1)_0%,transparent_50%)]"></div>
+      
+      <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Header */}
-        <div>
-          <div className="mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">M</span>
+        <div className="text-center">
+          <div className="mx-auto h-16 w-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center border-2 border-orange-500 shadow-lg shadow-orange-500/25">
+            <span className="text-white font-black text-2xl">M</span>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Welcome to MentourMe
+          <h2 className="mt-6 text-center text-3xl sm:text-4xl font-black text-white">
+            WELCOME BACK
+            <span className="block bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              WARRIOR
+            </span>
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to your account to continue your journey
+          <p className="mt-3 text-center text-base text-gray-300 font-medium">
+            Sign in to continue your battle for greatness
           </p>
         </div>
 
         {/* Login Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="form-label">
-                Email address
-              </label>
-              <input
-                {...register('email')}
-                type="email"
-                autoComplete="email"
-                className={`input ${errors.email ? 'input-error' : ''}`}
-                placeholder="Enter your email"
-              />
-              {errors.email && (
-                <p className="form-error">{errors.email.message}</p>
-              )}
-            </div>
-
-            {/* Password */}
-            <div>
-              <label htmlFor="password" className="form-label">
-                Password
-              </label>
-              <div className="relative">
+        <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-gray-800 p-8 shadow-2xl">
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-5">
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-bold text-orange-500 mb-2 uppercase tracking-wider">
+                  Email Address
+                </label>
                 <input
-                  {...register('password')}
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="current-password"
-                  className={`input pr-10 ${errors.password ? 'input-error' : ''}`}
-                  placeholder="Enter your password"
+                  {...register('email')}
+                  type="email"
+                  autoComplete="email"
+                  className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 border ${
+                    errors.email ? 'border-red-500' : 'border-gray-700'
+                  } focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium transition-all`}
+                  placeholder="Enter your email"
                 />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
+                {errors.email && (
+                  <p className="mt-2 text-sm text-red-400 font-medium">{errors.email.message}</p>
+                )}
               </div>
-              {errors.password && (
-                <p className="form-error">{errors.password.message}</p>
-              )}
-            </div>
-          </div>
 
-          {/* Remember me and Forgot password */}
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <input
-                id="remember-me"
-                name="remember-me"
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
-                Remember me
-              </label>
+              {/* Password */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-bold text-orange-500 mb-2 uppercase tracking-wider">
+                  Password
+                </label>
+                <div className="relative">
+                  <input
+                    {...register('password')}
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    className={`w-full px-4 py-3 pr-12 rounded-lg bg-gray-800 text-white placeholder-gray-400 border ${
+                      errors.password ? 'border-red-500' : 'border-gray-700'
+                    } focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium transition-all`}
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-orange-500 transition-colors"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="mt-2 text-sm text-red-400 font-medium">{errors.password.message}</p>
+                )}
+              </div>
             </div>
 
-            <div className="text-sm">
-              <Link
-                to="/forgot-password"
-                className="font-medium text-primary-600 hover:text-primary-500"
+            {/* Remember me and Forgot password */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center">
+                <input
+                  id="remember-me"
+                  name="remember-me"
+                  type="checkbox"
+                  className="h-4 w-4 text-orange-600 focus:ring-orange-500 bg-gray-800 border-gray-600 rounded"
+                />
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-300 font-medium">
+                  Remember me
+                </label>
+              </div>
+
+              <div className="text-sm">
+                <Link
+                  to="/forgot-password"
+                  className="font-bold text-orange-500 hover:text-orange-400 transition-colors uppercase tracking-wider"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+            </div>
+
+            {/* Submit button */}
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-4 rounded-lg font-black text-lg hover:shadow-2xl hover:shadow-orange-500/25 hover:scale-105 transition-all duration-300 border-2 border-orange-500 uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
               >
-                Forgot your password?
-              </Link>
+                {loading ? (
+                  <>
+                    <LoadingSpinner size="sm" color="white" className="mr-2" />
+                    ENTERING BATTLE...
+                  </>
+                ) : (
+                  'ENTER THE ARENA'
+                )}
+              </button>
             </div>
-          </div>
-
-          {/* Submit button */}
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary w-full btn-lg relative"
-            >
-              {loading ? (
-                <>
-                  <LoadingSpinner size="sm" color="white" className="mr-2" />
-                  Signing in...
-                </>
-              ) : (
-                'Sign in'
-              )}
-            </button>
-          </div>
+          </form>
 
           {/* Sign up link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+          <div className="text-center mt-6">
+            <p className="text-sm text-gray-300 font-medium">
+              New to the battlefield?{' '}
               <Link
                 to="/register"
-                className="font-medium text-primary-600 hover:text-primary-500"
+                className="font-black text-orange-500 hover:text-orange-400 transition-colors uppercase tracking-wider"
               >
-                Sign up here
+                JOIN THE ELITE
               </Link>
             </p>
           </div>
-        </form>
+        </div>
 
         {/* Demo credentials */}
-        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
-          <h3 className="text-sm font-medium text-blue-900 mb-2">Demo Credentials:</h3>
-          <div className="text-xs text-blue-800 space-y-1">
-            <p><strong>Admin:</strong> admin@mentourme.com / Admin123!</p>
-            <p><strong>Mentor:</strong> john.mentor@example.com / Mentor123!</p>
-            <p><strong>User:</strong> alice@example.com / User123!</p>
+        <div className="mt-6 p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700">
+          <h3 className="text-sm font-bold text-orange-500 mb-3 uppercase tracking-wider">⚔️ Demo Battle Access:</h3>
+          <div className="text-xs text-gray-300 space-y-2 font-medium">
+            <p><span className="text-orange-500 font-bold">COMMANDER:</span> admin@mentourme.com / Admin123!</p>
+            <p><span className="text-orange-500 font-bold">MENTOR:</span> john.mentor@example.com / Mentor123!</p>
+            <p><span className="text-orange-500 font-bold">WARRIOR:</span> alice@example.com / User123!</p>
           </div>
         </div>
       </div>
