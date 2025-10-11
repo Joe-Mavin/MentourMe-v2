@@ -362,15 +362,15 @@ const RoomChatView = ({ room }) => {
 
   const getCategoryInfo = (category) => {
     const categoryMap = {
-      mentorship: { icon: '🎯', bgClass: 'bg-blue-100', textClass: 'text-blue-800' },
-      goals: { icon: '🚀', bgClass: 'bg-purple-100', textClass: 'text-purple-800' },
-      accountability: { icon: '🤝', bgClass: 'bg-orange-100', textClass: 'text-orange-800' },
-      support: { icon: '💚', bgClass: 'bg-green-100', textClass: 'text-green-800' },
-      skills: { icon: '📚', bgClass: 'bg-indigo-100', textClass: 'text-indigo-800' },
-      networking: { icon: '🌐', bgClass: 'bg-pink-100', textClass: 'text-pink-800' },
-      wellness: { icon: '🌱', bgClass: 'bg-teal-100', textClass: 'text-teal-800' }
+      mentorship: { icon: '⚔️', bgClass: 'bg-blue-900/50', textClass: 'text-blue-400' },
+      goals: { icon: '🏆', bgClass: 'bg-purple-900/50', textClass: 'text-purple-400' },
+      accountability: { icon: '🛡️', bgClass: 'bg-orange-900/50', textClass: 'text-orange-400' },
+      support: { icon: '💚', bgClass: 'bg-green-900/50', textClass: 'text-green-400' },
+      skills: { icon: '⚡', bgClass: 'bg-indigo-900/50', textClass: 'text-indigo-400' },
+      networking: { icon: '🌐', bgClass: 'bg-pink-900/50', textClass: 'text-pink-400' },
+      wellness: { icon: '🌱', bgClass: 'bg-teal-900/50', textClass: 'text-teal-400' }
     };
-    return categoryMap[category] || { icon: '💬', bgClass: 'bg-gray-100', textClass: 'text-gray-800' };
+    return categoryMap[category] || { icon: '🏰', bgClass: 'bg-gray-700', textClass: 'text-gray-300' };
   };
 
   const canManageRoom = hasRole(['admin', 'mentor']) || 
@@ -378,11 +378,13 @@ const RoomChatView = ({ room }) => {
 
   if (!room) {
     return (
-      <div className="flex items-center justify-center h-full bg-gray-50">
+      <div className="flex items-center justify-center h-full bg-black">
         <div className="text-center">
-          <UserGroupIcon className="mx-auto h-12 w-12 text-gray-400" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">No room selected</h3>
-          <p className="mt-1 text-sm text-gray-500">Choose a room to start chatting</p>
+          <div className="w-20 h-20 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-orange-500">
+            <UserGroupIcon className="w-10 h-10 text-white" />
+          </div>
+          <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-wider">No Battle Room Selected</h3>
+          <p className="text-lg text-gray-300 font-medium">Choose a war council room to begin strategic discussions</p>
         </div>
       </div>
     );
@@ -391,69 +393,72 @@ const RoomChatView = ({ room }) => {
   const categoryInfo = getCategoryInfo(room.category);
 
   return (
-    <div className="flex flex-col h-full bg-white">
-      {/* Room Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-        <div className="flex items-center space-x-3">
-          <div className={`w-10 h-10 rounded-lg ${categoryInfo.bgClass} flex items-center justify-center`}>
-            <span className="text-lg">{categoryInfo.icon}</span>
+    <div className="flex flex-col h-full bg-black">
+      {/* Battle Room Header */}
+      <div className="flex items-center justify-between p-6 border-b border-orange-500/30 bg-gradient-to-r from-gray-900 to-black">
+        <div className="flex items-center space-x-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center border-2 border-orange-500">
+            <span className="text-xl">{categoryInfo.icon}</span>
           </div>
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">{room.name}</h2>
-            <div className="flex items-center space-x-2 text-sm text-gray-500">
-              <span>{roomMembers.length} members</span>
+            <h2 className="text-xl font-black text-white uppercase tracking-wider">{room.name}</h2>
+            <div className="flex items-center space-x-3 text-sm text-gray-300">
+              <span className="font-medium">{roomMembers.length} Warriors</span>
               <span>•</span>
-              <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${categoryInfo.bgClass} ${categoryInfo.textClass}`}>
+              <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-orange-600 to-red-600 text-white border border-orange-500 uppercase tracking-wider">
                 {room.category}
               </span>
             </div>
           </div>
         </div>
         
-        <div className="flex items-center space-x-2">
+        <div className="flex items-center space-x-3">
           <button
             onClick={() => setShowMembersModal(true)}
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            title="View members"
+            className="p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
+            title="View battle allies"
           >
             <UserGroupIcon className="w-5 h-5" />
           </button>
           
           {canManageRoom && (
             <button
-              className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-              title="Room settings"
+              className="p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
+              title="Battle room settings"
             >
               <Cog6ToothIcon className="w-5 h-5" />
             </button>
           )}
           
           <button
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Room info"
+            className="p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
+            title="Battle room intel"
           >
             <InformationCircleIcon className="w-5 h-5" />
           </button>
         </div>
       </div>
 
-      {/* Room Description */}
+      {/* Battle Room Description */}
       {room.description && (
-        <div className="p-3 bg-gray-50 border-b border-gray-200">
-          <p className="text-sm text-gray-600">{room.description}</p>
+        <div className="p-4 bg-gradient-to-r from-gray-900 to-gray-800 border-b border-orange-500/20">
+          <p className="text-sm text-gray-300 font-medium">{room.description}</p>
         </div>
       )}
 
-      {/* Messages Area */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      {/* Battle Messages Area */}
+      <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-black to-gray-900">
         {messagesLoading ? (
-          <div className="flex justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+          <div className="flex justify-center py-12">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-orange-500 mx-auto mb-4"></div>
+              <p className="text-gray-300 font-bold uppercase tracking-wider">Loading Battle Communications...</p>
+            </div>
           </div>
         ) : roomMessages.length === 0 ? (
-          <div className="text-center py-8">
-            <div className="w-16 h-16 mx-auto bg-gray-100 rounded-full flex items-center justify-center mb-4">
-              <span className="text-2xl">{categoryInfo.icon}</span>
+          <div className="text-center py-16">
+            <div className="w-20 h-20 mx-auto bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mb-6 border-4 border-orange-500">
+              <span className="text-3xl">{categoryInfo.icon}</span>
             </div>
             <div className="flex-1 min-w-0">
               <h2 className="text-lg font-semibold text-gray-900 truncate">
@@ -545,39 +550,39 @@ const RoomChatView = ({ room }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Message Input */}
-      <div className="border-t border-gray-200 p-4">
+      {/* Battle Message Input */}
+      <div className="border-t border-orange-500/30 p-6 bg-gradient-to-r from-gray-900 to-black">
         {/* Reply Preview */}
         {replyingTo && (
-          <div className="mb-3 p-3 bg-gray-50 border-l-4 border-primary-500 rounded-r-lg">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs font-medium text-gray-600">
+          <div className="mb-4 p-4 bg-gray-800 border-l-4 border-orange-500 rounded-r-xl">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-xs font-bold text-orange-400 uppercase tracking-wider">
                 Replying to {replyingTo.sender?.name}
               </span>
               <button
                 onClick={cancelReply}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-gray-400 hover:text-orange-400 transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <p className="text-sm text-gray-700 truncate">{replyingTo.content}</p>
+            <p className="text-sm text-gray-300 truncate font-medium">{replyingTo.content}</p>
           </div>
         )}
         
-        <form onSubmit={handleSendMessage} className="flex items-end space-x-3">
+        <form onSubmit={handleSendMessage} className="flex items-end space-x-4">
           <div className="flex-1">
             <div className="relative">
               <textarea
                 ref={inputRef}
                 value={newMessage}
                 onChange={handleInputChange}
-                placeholder={replyingTo ? `Reply to ${replyingTo.sender?.name}...` : `Message ${room.name}...`}
-                className="w-full px-4 py-3 pr-12 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                placeholder={replyingTo ? `Reply to ${replyingTo.sender?.name}...` : `Send battle message to ${room.name}...`}
+                className="w-full px-4 py-3 pr-16 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none font-medium"
                 rows="1"
-                style={{ minHeight: '44px', maxHeight: '120px' }}
+                style={{ minHeight: '48px', maxHeight: '120px' }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -588,18 +593,18 @@ const RoomChatView = ({ room }) => {
                   }
                 }}
               />
-              <div className="absolute right-2 bottom-2 flex items-center space-x-1">
+              <div className="absolute right-3 bottom-3 flex items-center space-x-2">
                 <button
                   type="button"
-                  className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                  className="p-2 text-gray-400 hover:text-orange-400 hover:bg-gray-700 rounded-lg transition-all duration-200"
                   title="Add emoji"
                 >
                   <FaceSmileIcon className="w-5 h-5" />
                 </button>
                 <button
                   type="button"
-                  className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                  title="Attach file"
+                  className="p-2 text-gray-400 hover:text-orange-400 hover:bg-gray-700 rounded-lg transition-all duration-200"
+                  title="Attach battle intel"
                 >
                   <PaperClipIcon className="w-5 h-5" />
                 </button>
@@ -611,11 +616,12 @@ const RoomChatView = ({ room }) => {
             type="submit"
             disabled={!newMessage.trim()}
             className={clsx(
-              'p-3 rounded-lg transition-colors',
+              'p-4 rounded-xl transition-all duration-200 font-black',
               newMessage.trim()
-                ? 'bg-primary-600 text-white hover:bg-primary-700'
-                : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500'
+                : 'bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-600'
             )}
+            title="Send battle message"
           >
             <PaperAirplaneIcon className="w-5 h-5" />
           </button>

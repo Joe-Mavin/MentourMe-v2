@@ -284,42 +284,46 @@ const RoomList = ({ onSelectRoom, activeRoomId, onCreateRoom }) => {
   }
 
   return (
-    <div className="h-full flex flex-col bg-white">
+    <div className="h-full flex flex-col bg-gradient-to-b from-gray-900 to-black">
       {/* Header */}
-      <div className="p-4 border-b border-gray-200">
-        <div className="flex items-center justify-between mb-4">
+      <div className="p-6 border-b border-orange-500/30">
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h2 className="text-lg font-semibold text-gray-900">Community Rooms</h2>
-            <p className="text-xs text-gray-500 mt-1">Connect, learn, and grow together</p>
+            <h2 className="text-xl font-black text-white uppercase tracking-wider">
+              <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+                WAR COUNCIL
+              </span> ROOMS
+            </h2>
+            <p className="text-sm text-gray-300 mt-2 font-medium">Unite, strategize, and conquer challenges together</p>
           </div>
           
           {hasRole(['admin', 'mentor']) && (
             <button
               onClick={onCreateRoom}
-              className="flex items-center space-x-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors shadow-sm font-medium"
-              title="Create a new community room"
+              className="flex items-center space-x-3 px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200 font-black uppercase tracking-wider border border-orange-500"
+              title="Forge a new battle room"
             >
               <PlusIcon className="w-5 h-5" />
-              <span>Create Room</span>
+              <span>FORGE ROOM</span>
             </button>
           )}
           
           {!hasRole(['admin', 'mentor']) && (
-            <div className="text-xs text-gray-500 text-center px-3">
-              🌟 Become a mentor to create rooms
+            <div className="text-xs text-gray-400 text-center px-4 py-2 bg-gray-800 rounded-xl border border-gray-700 font-medium">
+              ⚔️ Become a commander to forge rooms
             </div>
           )}
         </div>
 
         {/* Search */}
-        <div className="relative mb-4">
-          <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+        <div className="relative mb-6">
+          <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-orange-500" />
           <input
             type="text"
-            placeholder="Search for mentorship rooms, goals, skills..."
+            placeholder="Search battle rooms, objectives, skills..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent text-sm"
+            className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
           />
         </div>
 
