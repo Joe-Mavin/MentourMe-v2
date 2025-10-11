@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { yupResolver } from '@hookform/resolvers/yup';
 import * as yup from 'yup';
 import { useAuth } from '../context/AuthContext';
-import { EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
+import { EyeIcon, EyeSlashIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 
 const schema = yup.object({
@@ -66,258 +66,275 @@ const Register = () => {
     
     const result = await registerUser(userData);
     if (result.success) {
-      // ✅ FIX: Always go to onboarding after registration, regardless of role
       navigate('/onboarding', { replace: true });
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center bg-black py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-gradient-to-br from-gray-900 via-black to-gray-900"></div>
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,69,0,0.1)_0%,transparent_50%)]"></div>
+      
+      <div className="max-w-md w-full space-y-8 relative z-10">
         {/* Header */}
-        <div>
-          <div className="mx-auto h-12 w-12 bg-primary-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-xl">M</span>
+        <div className="text-center">
+          <div className="mx-auto h-16 w-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center border-2 border-orange-500 shadow-lg shadow-orange-500/25">
+            <span className="text-white font-black text-2xl">M</span>
           </div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Join MentourMe
+          <h2 className="mt-6 text-center text-3xl sm:text-4xl font-black text-white">
+            JOIN THE
+            <span className="block bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              ELITE RANKS
+            </span>
           </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Create your account and start your mentorship journey
+          <p className="mt-3 text-center text-base text-gray-300 font-medium">
+            Forge your path to greatness. Choose your battle role.
           </p>
         </div>
 
         {/* Registration Form */}
-        <form className="mt-8 space-y-6" onSubmit={handleSubmit(onSubmit)}>
-          <div className="space-y-4">
-            {/* Name */}
-            <div>
-              <label htmlFor="name" className="form-label">
-                Full Name
-              </label>
-              <input
-                {...register('name')}
-                type="text"
-                autoComplete="name"
-                className={`input ${errors.name ? 'input-error' : ''}`}
-                placeholder="Enter your full name"
-              />
-              {errors.name && (
-                <p className="form-error">{errors.name.message}</p>
-              )}
-            </div>
-
-            {/* Email */}
-            <div>
-              <label htmlFor="email" className="form-label">
-                Email address
-              </label>
-              <input
-                {...register('email')}
-                type="email"
-                autoComplete="email"
-                className={`input ${errors.email ? 'input-error' : ''}`}
-                placeholder="Enter your email"
-              />
-              {errors.email && (
-                <p className="form-error">{errors.email.message}</p>
-              )}
-            </div>
-
-            {/* Phone */}
-            <div>
-              <label htmlFor="phone" className="form-label">
-                Phone Number <span className="text-gray-400">(optional)</span>
-              </label>
-              <input
-                {...register('phone')}
-                type="tel"
-                autoComplete="tel"
-                className={`input ${errors.phone ? 'input-error' : ''}`}
-                placeholder="Enter your phone number"
-              />
-              {errors.phone && (
-                <p className="form-error">{errors.phone.message}</p>
-              )}
-            </div>
-
-            {/* Role Selection */}
-            <div>
-              <label className="form-label">I want to join as a</label>
-              <div className="mt-2 space-y-3">
-                <div className="flex items-center">
-                  <input
-                    {...register('role')}
-                    id="user"
-                    value="user"
-                    type="radio"
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
-                  />
-                  <label htmlFor="user" className="ml-3 block text-sm font-medium text-gray-700">
-                    <div>
-                      <span className="font-medium">Mentee</span>
-                      <p className="text-gray-500 text-xs">Seeking guidance and support</p>
-                    </div>
-                  </label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    {...register('role')}
-                    id="mentor"
-                    value="mentor"
-                    type="radio"
-                    className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300"
-                  />
-                  <label htmlFor="mentor" className="ml-3 block text-sm font-medium text-gray-700">
-                    <div>
-                      <span className="font-medium">Mentor</span>
-                      <p className="text-gray-500 text-xs">Ready to guide and support others</p>
-                    </div>
-                  </label>
-                </div>
+        <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-gray-800 p-8 shadow-2xl">
+          <form className="space-y-6" onSubmit={handleSubmit(onSubmit)}>
+            <div className="space-y-5">
+              {/* Name */}
+              <div>
+                <label htmlFor="name" className="block text-sm font-bold text-orange-500 mb-2 uppercase tracking-wider">
+                  Warrior Name
+                </label>
+                <input
+                  {...register('name')}
+                  type="text"
+                  autoComplete="name"
+                  className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 border ${
+                    errors.name ? 'border-red-500' : 'border-gray-700'
+                  } focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium transition-all`}
+                  placeholder="Enter your full name"
+                />
+                {errors.name && (
+                  <p className="mt-2 text-sm text-red-400 font-medium">{errors.name.message}</p>
+                )}
               </div>
-              {errors.role && (
-                <p className="form-error">{errors.role.message}</p>
-              )}
-            </div>
 
-            {/* Mentor Notice */}
-            {selectedRole === 'mentor' && (
-              <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-                <div className="flex">
-                  <div className="flex-shrink-0">
-                    <svg className="h-5 w-5 text-blue-400" fill="currentColor" viewBox="0 0 20 20">
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-                    </svg>
+              {/* Email */}
+              <div>
+                <label htmlFor="email" className="block text-sm font-bold text-orange-500 mb-2 uppercase tracking-wider">
+                  Email Address
+                </label>
+                <input
+                  {...register('email')}
+                  type="email"
+                  autoComplete="email"
+                  className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 border ${
+                    errors.email ? 'border-red-500' : 'border-gray-700'
+                  } focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium transition-all`}
+                  placeholder="Enter your email"
+                />
+                {errors.email && (
+                  <p className="mt-2 text-sm text-red-400 font-medium">{errors.email.message}</p>
+                )}
+              </div>
+
+              {/* Phone */}
+              <div>
+                <label htmlFor="phone" className="block text-sm font-bold text-orange-500 mb-2 uppercase tracking-wider">
+                  Phone Number <span className="text-gray-400 normal-case">(optional)</span>
+                </label>
+                <input
+                  {...register('phone')}
+                  type="tel"
+                  autoComplete="tel"
+                  className={`w-full px-4 py-3 rounded-lg bg-gray-800 text-white placeholder-gray-400 border ${
+                    errors.phone ? 'border-red-500' : 'border-gray-700'
+                  } focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium transition-all`}
+                  placeholder="Enter your phone number"
+                />
+                {errors.phone && (
+                  <p className="mt-2 text-sm text-red-400 font-medium">{errors.phone.message}</p>
+                )}
+              </div>
+
+              {/* Role Selection */}
+              <div>
+                <label className="block text-sm font-bold text-orange-500 mb-3 uppercase tracking-wider">Choose Your Path</label>
+                <div className="space-y-3">
+                  <div className="flex items-start">
+                    <input
+                      {...register('role')}
+                      id="user"
+                      value="user"
+                      type="radio"
+                      className="h-4 w-4 text-orange-600 focus:ring-orange-500 bg-gray-800 border-gray-600 mt-1"
+                    />
+                    <label htmlFor="user" className="ml-3 block text-sm font-medium text-gray-300">
+                      <div>
+                        <span className="font-bold text-white">🗡️ WARRIOR (Mentee)</span>
+                        <p className="text-gray-400 text-xs mt-1">Seeking guidance to forge your path to greatness</p>
+                      </div>
+                    </label>
                   </div>
-                  <div className="ml-3">
-                    <p className="text-sm text-blue-700">
-                      <strong>Mentor applications require approval.</strong> Our admin team will review your application and notify you via email once approved.
-                    </p>
+                  <div className="flex items-start">
+                    <input
+                      {...register('role')}
+                      id="mentor"
+                      value="mentor"
+                      type="radio"
+                      className="h-4 w-4 text-orange-600 focus:ring-orange-500 bg-gray-800 border-gray-600 mt-1"
+                    />
+                    <label htmlFor="mentor" className="ml-3 block text-sm font-medium text-gray-300">
+                      <div>
+                        <span className="font-bold text-white">⚔️ COMMANDER (Mentor)</span>
+                        <p className="text-gray-400 text-xs mt-1">Ready to lead and guide others to victory</p>
+                      </div>
+                    </label>
                   </div>
                 </div>
+                {errors.role && (
+                  <p className="mt-2 text-sm text-red-400 font-medium">{errors.role.message}</p>
+                )}
               </div>
-            )}
 
-            {/* Password */}
+              {/* Mentor Notice */}
+              {selectedRole === 'mentor' && (
+                <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 border border-orange-500/30 rounded-lg p-4">
+                  <div className="flex">
+                    <div className="flex-shrink-0">
+                      <ShieldCheckIcon className="h-5 w-5 text-orange-500" />
+                    </div>
+                    <div className="ml-3">
+                      <p className="text-sm text-orange-300 font-medium">
+                        <strong className="text-orange-500">Commander applications require approval.</strong> Our elite council will review your qualifications and notify you via email once you've earned your rank.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Password */}
+              <div>
+                <label htmlFor="password" className="block text-sm font-bold text-orange-500 mb-2 uppercase tracking-wider">
+                  Battle Password
+                </label>
+                <div className="relative">
+                  <input
+                    {...register('password')}
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    className={`w-full px-4 py-3 pr-12 rounded-lg bg-gray-800 text-white placeholder-gray-400 border ${
+                      errors.password ? 'border-red-500' : 'border-gray-700'
+                    } focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium transition-all`}
+                    placeholder="Create a strong password"
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-orange-500 transition-colors"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                {errors.password && (
+                  <p className="mt-2 text-sm text-red-400 font-medium">{errors.password.message}</p>
+                )}
+              </div>
+
+              {/* Confirm Password */}
+              <div>
+                <label htmlFor="confirmPassword" className="block text-sm font-bold text-orange-500 mb-2 uppercase tracking-wider">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <input
+                    {...register('confirmPassword')}
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    autoComplete="new-password"
+                    className={`w-full px-4 py-3 pr-12 rounded-lg bg-gray-800 text-white placeholder-gray-400 border ${
+                      errors.confirmPassword ? 'border-red-500' : 'border-gray-700'
+                    } focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium transition-all`}
+                    placeholder="Confirm your password"
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-4 flex items-center text-gray-400 hover:text-orange-500 transition-colors"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  >
+                    {showConfirmPassword ? (
+                      <EyeSlashIcon className="h-5 w-5" />
+                    ) : (
+                      <EyeIcon className="h-5 w-5" />
+                    )}
+                  </button>
+                </div>
+                {errors.confirmPassword && (
+                  <p className="mt-2 text-sm text-red-400 font-medium">{errors.confirmPassword.message}</p>
+                )}
+              </div>
+
+              {/* Terms Agreement */}
+              <div>
+                <div className="flex items-start">
+                  <input
+                    {...register('agreeToTerms')}
+                    id="agreeToTerms"
+                    type="checkbox"
+                    className="h-4 w-4 text-orange-600 focus:ring-orange-500 bg-gray-800 border-gray-600 rounded mt-1"
+                  />
+                  <label htmlFor="agreeToTerms" className="ml-3 block text-sm text-gray-300 font-medium">
+                    I agree to the{' '}
+                    <Link to="/terms" className="text-orange-500 hover:text-orange-400 font-bold">
+                      Terms of Battle
+                    </Link>{' '}
+                    and{' '}
+                    <Link to="/privacy" className="text-orange-500 hover:text-orange-400 font-bold">
+                      Privacy Shield
+                    </Link>
+                  </label>
+                </div>
+                {errors.agreeToTerms && (
+                  <p className="mt-2 text-sm text-red-400 font-medium">{errors.agreeToTerms.message}</p>
+                )}
+              </div>
+            </div>
+
+            {/* Submit button */}
             <div>
-              <label htmlFor="password" className="form-label">
-                Password
-              </label>
-              <div className="relative">
-                <input
-                  {...register('password')}
-                  type={showPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  className={`input pr-10 ${errors.password ? 'input-error' : ''}`}
-                  placeholder="Create a password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
-              </div>
-              {errors.password && (
-                <p className="form-error">{errors.password.message}</p>
-              )}
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-gradient-to-r from-orange-600 to-red-600 text-white px-6 py-4 rounded-lg font-black text-lg hover:shadow-2xl hover:shadow-orange-500/25 hover:scale-105 transition-all duration-300 border-2 border-orange-500 uppercase tracking-wider disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+              >
+                {loading ? (
+                  <>
+                    <LoadingSpinner size="sm" color="white" className="mr-2" />
+                    FORGING WARRIOR...
+                  </>
+                ) : (
+                  'JOIN THE ELITE'
+                )}
+              </button>
             </div>
-
-            {/* Confirm Password */}
-            <div>
-              <label htmlFor="confirmPassword" className="form-label">
-                Confirm Password
-              </label>
-              <div className="relative">
-                <input
-                  {...register('confirmPassword')}
-                  type={showConfirmPassword ? 'text' : 'password'}
-                  autoComplete="new-password"
-                  className={`input pr-10 ${errors.confirmPassword ? 'input-error' : ''}`}
-                  placeholder="Confirm your password"
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 pr-3 flex items-center"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                >
-                  {showConfirmPassword ? (
-                    <EyeSlashIcon className="h-5 w-5 text-gray-400" />
-                  ) : (
-                    <EyeIcon className="h-5 w-5 text-gray-400" />
-                  )}
-                </button>
-              </div>
-              {errors.confirmPassword && (
-                <p className="form-error">{errors.confirmPassword.message}</p>
-              )}
-            </div>
-
-            {/* Terms and Conditions */}
-            <div className="flex items-center">
-              <input
-                {...register('agreeToTerms')}
-                id="agreeToTerms"
-                type="checkbox"
-                className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded"
-              />
-              <label htmlFor="agreeToTerms" className="ml-2 block text-sm text-gray-900">
-                I agree to the{' '}
-                <Link to="/terms" className="text-primary-600 hover:text-primary-500">
-                  Terms and Conditions
-                </Link>{' '}
-                and{' '}
-                <Link to="/privacy" className="text-primary-600 hover:text-primary-500">
-                  Privacy Policy
-                </Link>
-              </label>
-            </div>
-            {errors.agreeToTerms && (
-              <p className="form-error">{errors.agreeToTerms.message}</p>
-            )}
-          </div>
-
-          {/* Submit button */}
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="btn btn-primary w-full btn-lg relative"
-            >
-              {loading ? (
-                <>
-                  <LoadingSpinner size="sm" color="white" className="mr-2" />
-                  Creating account...
-                </>
-              ) : (
-                'Create account'
-              )}
-            </button>
-          </div>
+          </form>
 
           {/* Sign in link */}
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Already have an account?{' '}
+          <div className="text-center mt-6">
+            <p className="text-sm text-gray-300 font-medium">
+              Already a warrior?{' '}
               <Link
                 to="/login"
-                className="font-medium text-primary-600 hover:text-primary-500"
+                className="font-black text-orange-500 hover:text-orange-400 transition-colors uppercase tracking-wider"
               >
-                Sign in here
+                ENTER THE ARENA
               </Link>
             </p>
           </div>
-        </form>
+        </div>
       </div>
     </div>
   );
 };
 
 export default Register;
-
