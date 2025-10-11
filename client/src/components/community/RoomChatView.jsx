@@ -393,48 +393,48 @@ const RoomChatView = ({ room }) => {
   const categoryInfo = getCategoryInfo(room.category);
 
   return (
-    <div className="flex flex-col h-full bg-black">
+    <div className="flex flex-col h-full bg-black overflow-hidden">
       {/* Battle Room Header */}
-      <div className="flex items-center justify-between p-6 border-b border-orange-500/30 bg-gradient-to-r from-gray-900 to-black">
-        <div className="flex items-center space-x-4">
-          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center border-2 border-orange-500">
-            <span className="text-xl">{categoryInfo.icon}</span>
+      <div className="flex items-center justify-between p-4 sm:p-6 border-b border-orange-500/30 bg-gradient-to-r from-gray-900 to-black flex-shrink-0">
+        <div className="flex items-center space-x-3 flex-1 min-w-0">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-gradient-to-br from-orange-600 to-red-600 flex items-center justify-center border-2 border-orange-500 flex-shrink-0">
+            <span className="text-lg sm:text-xl">{categoryInfo.icon}</span>
           </div>
-          <div>
-            <h2 className="text-xl font-black text-white uppercase tracking-wider">{room.name}</h2>
-            <div className="flex items-center space-x-3 text-sm text-gray-300">
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider truncate">{room.name}</h2>
+            <div className="flex items-center space-x-2 sm:space-x-3 text-xs sm:text-sm text-gray-300">
               <span className="font-medium">{roomMembers.length} Warriors</span>
-              <span>•</span>
-              <span className="px-3 py-1 rounded-full text-xs font-black bg-gradient-to-r from-orange-600 to-red-600 text-white border border-orange-500 uppercase tracking-wider">
+              <span className="hidden sm:inline">•</span>
+              <span className="px-2 py-1 sm:px-3 sm:py-1 rounded-full text-xs font-black bg-gradient-to-r from-orange-600 to-red-600 text-white border border-orange-500 uppercase tracking-wider truncate">
                 {room.category}
               </span>
             </div>
           </div>
         </div>
         
-        <div className="flex items-center space-x-3">
+        <div className="flex items-center space-x-2">
           <button
             onClick={() => setShowMembersModal(true)}
-            className="p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
+            className="p-2 sm:p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
             title="View battle allies"
           >
-            <UserGroupIcon className="w-5 h-5" />
+            <UserGroupIcon className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           
           {canManageRoom && (
             <button
-              className="p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
+              className="p-2 sm:p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
               title="Battle room settings"
             >
-              <Cog6ToothIcon className="w-5 h-5" />
+              <Cog6ToothIcon className="w-4 h-4 sm:w-5 sm:h-5" />
             </button>
           )}
           
           <button
-            className="p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
+            className="p-2 sm:p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
             title="Battle room intel"
           >
-            <InformationCircleIcon className="w-5 h-5" />
+            <InformationCircleIcon className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </div>
@@ -447,7 +447,7 @@ const RoomChatView = ({ room }) => {
       )}
 
       {/* Battle Messages Area */}
-      <div className="flex-1 overflow-y-auto p-6 space-y-4 bg-gradient-to-b from-black to-gray-900">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gradient-to-b from-black to-gray-900 min-h-0">
         {messagesLoading ? (
           <div className="flex justify-center py-12">
             <div className="text-center">
@@ -551,7 +551,7 @@ const RoomChatView = ({ room }) => {
       </div>
 
       {/* Battle Message Input */}
-      <div className="border-t border-orange-500/30 p-6 bg-gradient-to-r from-gray-900 to-black">
+      <div className="border-t border-orange-500/30 p-3 sm:p-6 bg-gradient-to-r from-gray-900 to-black flex-shrink-0">
         {/* Reply Preview */}
         {replyingTo && (
           <div className="mb-4 p-4 bg-gray-800 border-l-4 border-orange-500 rounded-r-xl">
@@ -572,17 +572,26 @@ const RoomChatView = ({ room }) => {
           </div>
         )}
         
-        <form onSubmit={handleSendMessage} className="flex items-end space-x-4">
-          <div className="flex-1">
-            <div className="relative">
+        {/* Mobile-Optimized Message Input */}
+        <div className="space-y-3">
+          {/* Message Input Row */}
+          <div className="flex items-center space-x-3">
+            <div className="flex-1">
               <textarea
                 ref={inputRef}
                 value={newMessage}
                 onChange={handleInputChange}
-                placeholder={replyingTo ? `Reply to ${replyingTo.sender?.name}...` : `Send battle message to ${room.name}...`}
-                className="w-full px-4 py-3 pr-16 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none font-medium"
+                placeholder={replyingTo ? `Reply to ${replyingTo.sender?.name}...` : `Type your message...`}
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 resize-none font-medium text-base"
                 rows="1"
-                style={{ minHeight: '48px', maxHeight: '120px' }}
+                style={{ 
+                  minHeight: '44px', 
+                  maxHeight: '100px',
+                  fontSize: '16px', // Prevents zoom on iOS
+                  WebkitAppearance: 'none', // Remove iOS styling
+                  borderRadius: '12px', // Consistent border radius
+                  touchAction: 'manipulation' // Improve touch responsiveness
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
                     e.preventDefault();
@@ -593,39 +602,49 @@ const RoomChatView = ({ room }) => {
                   }
                 }}
               />
-              <div className="absolute right-3 bottom-3 flex items-center space-x-2">
-                <button
-                  type="button"
-                  className="p-2 text-gray-400 hover:text-orange-400 hover:bg-gray-700 rounded-lg transition-all duration-200"
-                  title="Add emoji"
-                >
-                  <FaceSmileIcon className="w-5 h-5" />
-                </button>
-                <button
-                  type="button"
-                  className="p-2 text-gray-400 hover:text-orange-400 hover:bg-gray-700 rounded-lg transition-all duration-200"
-                  title="Attach battle intel"
-                >
-                  <PaperClipIcon className="w-5 h-5" />
-                </button>
-              </div>
             </div>
+            
+            <button
+              type="submit"
+              disabled={!newMessage.trim()}
+              onClick={handleSendMessage}
+              className={clsx(
+                'p-3 rounded-xl transition-all duration-200 font-black flex-shrink-0',
+                newMessage.trim()
+                  ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500'
+                  : 'bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-600'
+              )}
+              title="Send message"
+            >
+              <PaperAirplaneIcon className="w-5 h-5" />
+            </button>
           </div>
           
-          <button
-            type="submit"
-            disabled={!newMessage.trim()}
-            className={clsx(
-              'p-4 rounded-xl transition-all duration-200 font-black',
-              newMessage.trim()
-                ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500'
-                : 'bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-600'
-            )}
-            title="Send battle message"
-          >
-            <PaperAirplaneIcon className="w-5 h-5" />
-          </button>
-        </form>
+          {/* Action Buttons Row - Mobile Friendly */}
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <button
+                type="button"
+                className="p-2 text-gray-400 hover:text-orange-400 hover:bg-gray-700 rounded-lg transition-all duration-200"
+                title="Add emoji"
+              >
+                <FaceSmileIcon className="w-5 h-5" />
+              </button>
+              <button
+                type="button"
+                className="p-2 text-gray-400 hover:text-orange-400 hover:bg-gray-700 rounded-lg transition-all duration-200"
+                title="Attach file"
+              >
+                <PaperClipIcon className="w-5 h-5" />
+              </button>
+            </div>
+            
+            {/* Character count for mobile */}
+            <div className="text-xs text-gray-500">
+              {newMessage.length}/500
+            </div>
+          </div>
+        </div>
       </div>
 
       {/* Members Modal */}
