@@ -166,18 +166,18 @@ const Blog = () => {
     <div className="min-h-screen bg-black text-white">
       {/* Header */}
       <div className="bg-gradient-to-r from-gray-900 via-black to-gray-900 border-b border-gray-800">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
           <div className="text-center">
-            <h1 className="text-4xl md:text-6xl font-black mb-4">
+            <h1 className="text-3xl sm:text-4xl md:text-6xl font-black mb-3 sm:mb-4">
               <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
                 BATTLE-TESTED
               </span>
               <br />
               <span className="text-white">WISDOM</span>
             </h1>
-            <p className="text-xl text-gray-300 max-w-3xl mx-auto font-medium">
+            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto font-medium px-4">
               Learn from elite mentors who have conquered their fields.
-              <br />
+              <br className="hidden sm:block" />
               <span className="text-orange-500 font-bold">Real strategies. Real results.</span>
             </p>
           </div>
@@ -188,30 +188,30 @@ const Blog = () => {
       {!isLoggedIn && (
         <div className="bg-gradient-to-r from-orange-900/20 to-red-900/20 border-y border-orange-500/30">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center">
+            <div className="flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+              <div className="flex items-center space-x-3 text-center sm:text-left">
+                <div className="w-10 h-10 bg-orange-600 rounded-full flex items-center justify-center flex-shrink-0">
                   <BoltIcon className="w-6 h-6 text-white" />
                 </div>
                 <div>
-                  <p className="text-white font-bold">
+                  <p className="text-white font-bold text-sm sm:text-base">
                     Join the Elite Warriors! 🗡️
                   </p>
-                  <p className="text-gray-300 text-sm">
+                  <p className="text-gray-300 text-xs sm:text-sm">
                     Login to like, share, and interact with battle-tested wisdom
                   </p>
                 </div>
               </div>
-              <div className="flex space-x-3">
+              <div className="flex space-x-2 sm:space-x-3">
                 <button
                   onClick={() => window.location.href = '/login'}
-                  className="px-4 py-2 bg-orange-600 text-white rounded-lg font-bold hover:bg-orange-700 transition-colors"
+                  className="px-3 sm:px-4 py-2 bg-orange-600 text-white rounded-lg font-bold hover:bg-orange-700 transition-colors text-sm sm:text-base"
                 >
                   Login
                 </button>
                 <button
                   onClick={() => window.location.href = '/register'}
-                  className="px-4 py-2 border border-orange-500 text-orange-500 rounded-lg font-bold hover:bg-orange-500 hover:text-white transition-colors"
+                  className="px-3 sm:px-4 py-2 border border-orange-500 text-orange-500 rounded-lg font-bold hover:bg-orange-500 hover:text-white transition-colors text-sm sm:text-base"
                 >
                   Join Battle
                 </button>
@@ -223,43 +223,44 @@ const Blog = () => {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Filters */}
-        <div className="mb-8">
-          <div className="flex flex-wrap gap-4 mb-6">
+        <div className="mb-6 sm:mb-8">
+          <div className="flex flex-wrap gap-2 sm:gap-4 mb-4 sm:mb-6">
             {categories.map((category) => (
               <button
                 key={category.id}
                 onClick={() => setSelectedCategory(category.id)}
                 className={clsx(
-                  'flex items-center space-x-2 px-4 py-2 rounded-lg font-bold transition-all duration-200',
+                  'flex items-center space-x-1 sm:space-x-2 px-3 sm:px-4 py-2 rounded-lg font-bold transition-all duration-200 text-sm sm:text-base',
                   selectedCategory === category.id
                     ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white border-2 border-orange-500'
                     : 'bg-gray-800 text-gray-300 border border-gray-700 hover:border-orange-500 hover:text-orange-500'
                 )}
               >
-                <category.icon className="w-5 h-5" />
-                <span>{category.name}</span>
+                <category.icon className="w-4 h-4 sm:w-5 sm:h-5" />
+                <span className="hidden sm:inline">{category.name}</span>
+                <span className="sm:hidden">{category.name.split(' ')[0]}</span>
               </button>
             ))}
           </div>
 
-          <div className="max-w-md">
+          <div className="max-w-full sm:max-w-md">
             <input
               type="text"
               placeholder="Search battle-tested wisdom..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500"
+              className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm sm:text-base"
             />
           </div>
         </div>
 
         {/* Blog Posts Grid */}
         {loading ? (
-          <div className="flex justify-center items-center py-20">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500"></div>
+          <div className="flex justify-center items-center py-12 sm:py-20">
+            <div className="animate-spin rounded-full h-8 w-8 sm:h-12 sm:w-12 border-b-2 border-orange-500"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
             {blogPosts.map((post) => (
               <article
                 key={post.id}
