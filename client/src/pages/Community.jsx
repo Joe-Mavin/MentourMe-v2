@@ -165,44 +165,89 @@ const CommunityWelcome = ({ onCreateRoom }) => {
           Join elite battle rooms where warriors and commanders unite to share strategies, forge alliances, and conquer challenges together in the ultimate mentorship arena.
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 border border-orange-500/30 hover:border-orange-500 transition-all duration-200">
-            <div className="text-3xl mb-4">⚔️</div>
-            <h4 className="font-black text-white mb-3 uppercase tracking-wider">Command Rooms</h4>
-            <p className="text-sm text-gray-300 font-medium">Connect with elite commanders and fellow warriors to accelerate your battle prowess.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 border border-orange-500/30 hover:border-orange-500 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 hover:scale-105 group">
+            <div className="text-5xl mb-6 group-hover:scale-110 transition-transform duration-300">⚔️</div>
+            <h4 className="font-black text-white mb-4 uppercase tracking-wider text-lg">Command Rooms</h4>
+            <p className="text-sm text-gray-300 font-medium leading-relaxed">Connect with elite commanders and fellow warriors to accelerate your battle prowess and strategic thinking.</p>
+            <div className="mt-4 flex items-center text-orange-400 text-xs font-bold uppercase tracking-wider">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+              Active Battle Zones
+            </div>
           </div>
           
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 border border-orange-500/30 hover:border-orange-500 transition-all duration-200">
-            <div className="text-3xl mb-4">🏆</div>
-            <h4 className="font-black text-white mb-3 uppercase tracking-wider">Victory Pursuit</h4>
-            <p className="text-sm text-gray-300 font-medium">Share your conquest goals, track battle progress, and celebrate victories with your legion.</p>
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 border border-orange-500/30 hover:border-orange-500 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 hover:scale-105 group">
+            <div className="text-5xl mb-6 group-hover:scale-110 transition-transform duration-300">🏆</div>
+            <h4 className="font-black text-white mb-4 uppercase tracking-wider text-lg">Victory Pursuit</h4>
+            <p className="text-sm text-gray-300 font-medium leading-relaxed">Share your conquest goals, track battle progress, and celebrate victories with your warrior legion.</p>
+            <div className="mt-4 flex items-center text-orange-400 text-xs font-bold uppercase tracking-wider">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+              Achievement Tracking
+            </div>
           </div>
           
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 border border-orange-500/30 hover:border-orange-500 transition-all duration-200">
-            <div className="text-3xl mb-4">🛡️</div>
-            <h4 className="font-black text-white mb-3 uppercase tracking-wider">Battle Allies</h4>
-            <p className="text-sm text-gray-300 font-medium">Find loyal battle partners to stay motivated and committed to your warrior journey.</p>
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 border border-orange-500/30 hover:border-orange-500 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 hover:scale-105 group">
+            <div className="text-5xl mb-6 group-hover:scale-110 transition-transform duration-300">🛡️</div>
+            <h4 className="font-black text-white mb-4 uppercase tracking-wider text-lg">Battle Allies</h4>
+            <p className="text-sm text-gray-300 font-medium leading-relaxed">Find loyal battle partners to stay motivated and committed to your warrior journey and growth.</p>
+            <div className="mt-4 flex items-center text-orange-400 text-xs font-bold uppercase tracking-wider">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+              Alliance Network
+            </div>
           </div>
           
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 border border-orange-500/30 hover:border-orange-500 transition-all duration-200">
-            <div className="text-3xl mb-4">⚡</div>
-            <h4 className="font-black text-white mb-3 uppercase tracking-wider">Skill Mastery</h4>
-            <p className="text-sm text-gray-300 font-medium">Master new combat skills, share battle wisdom, and evolve professionally with elite peers.</p>
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl p-8 border border-orange-500/30 hover:border-orange-500 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/10 hover:scale-105 group">
+            <div className="text-5xl mb-6 group-hover:scale-110 transition-transform duration-300">⚡</div>
+            <h4 className="font-black text-white mb-4 uppercase tracking-wider text-lg">Skill Mastery</h4>
+            <p className="text-sm text-gray-300 font-medium leading-relaxed">Master new combat skills, share battle wisdom, and evolve professionally with elite warrior peers.</p>
+            <div className="mt-4 flex items-center text-orange-400 text-xs font-bold uppercase tracking-wider">
+              <span className="w-2 h-2 bg-orange-500 rounded-full mr-2"></span>
+              Skill Development
+            </div>
           </div>
         </div>
         
-        <div className="space-y-6">
-          <p className="text-base text-gray-300 font-medium">
-            Select a battle room from the war council sidebar to join the strategic discussions, or forge your own warrior sanctuary.
-          </p>
+        {/* Battle Statistics */}
+        <div className="bg-gradient-to-r from-gray-900/50 to-black/50 rounded-2xl p-6 mb-8 border border-orange-500/20">
+          <div className="grid grid-cols-3 gap-6">
+            <div className="text-center">
+              <div className="text-3xl font-black text-orange-400 mb-2">24/7</div>
+              <div className="text-sm text-gray-400 font-bold uppercase tracking-wider">Battle Ready</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-green-400 mb-2">∞</div>
+              <div className="text-sm text-gray-400 font-bold uppercase tracking-wider">Active Warriors</div>
+            </div>
+            <div className="text-center">
+              <div className="text-3xl font-black text-blue-400 mb-2">∞</div>
+              <div className="text-sm text-gray-400 font-bold uppercase tracking-wider">Victory Missions</div>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-8">
+          <div className="text-center">
+            <p className="text-lg text-gray-300 font-medium mb-6">
+              Select a battle room from the war council sidebar to join the strategic discussions, or forge your own warrior sanctuary.
+            </p>
+            
+            <div className="flex items-center justify-center space-x-2 mb-8">
+              <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+              <span className="text-sm text-green-400 font-bold uppercase tracking-wider">Battle Network Online</span>
+            </div>
+          </div>
           
           {hasRole(['admin', 'moderator', 'mentor']) && (
-            <button
-              onClick={onCreateRoom}
-              className="px-8 py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-black hover:shadow-2xl hover:shadow-orange-500/25 transition-all duration-200 text-lg uppercase tracking-wider border-2 border-orange-500 hover:scale-105"
-            >
-              🏰 FORGE YOUR BATTLE ROOM
-            </button>
+            <div className="text-center">
+              <button
+                onClick={onCreateRoom}
+                className="px-12 py-5 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-2xl font-black hover:shadow-2xl hover:shadow-orange-500/25 transition-all duration-300 text-xl uppercase tracking-wider border-2 border-orange-500 hover:scale-110 relative overflow-hidden group"
+              >
+                <span className="absolute inset-0 bg-gradient-to-r from-red-600 to-orange-600 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></span>
+                <span className="relative z-10">🏰 FORGE YOUR BATTLE ROOM</span>
+              </button>
+              <p className="text-xs text-gray-500 mt-3 font-medium">Elite commanders can create strategic battle rooms</p>
+            </div>
           )}
         </div>
       </div>
