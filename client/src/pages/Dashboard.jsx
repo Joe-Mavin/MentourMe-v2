@@ -170,13 +170,17 @@ const Dashboard = () => {
   };
 
   return (
-    <div className="space-y-8">
-      {/* Welcome Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">
-          Welcome back, {user?.name}! 👋
-        </h1>
-        <p className="mt-2 text-lg text-gray-600">
+    <div className="min-h-screen bg-black text-white">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Welcome Header */}
+        <div className="text-center sm:text-left">
+          <h1 className="text-3xl sm:text-4xl font-black text-white">
+            WELCOME BACK,
+            <span className="block bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              {user?.name?.toUpperCase()}! ⚔️
+            </span>
+          </h1>
+          <p className="mt-3 text-lg text-gray-300 font-medium">
           {hasRole('mentor') 
             ? "Ready to guide and inspire today?" 
             : "Let's continue your growth journey together."
