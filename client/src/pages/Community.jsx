@@ -83,13 +83,13 @@ const Community = () => {
       <div className="h-full flex">
         {/* Connection status indicator */}
         {!isConnected && (
-          <div className="absolute top-0 left-0 right-0 bg-yellow-500 text-white text-center py-2 text-sm z-10">
-            Connection lost. Trying to reconnect...
+          <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-red-600 to-orange-600 text-white text-center py-3 text-sm font-bold z-10 border-b border-red-500">
+            ⚠️ BATTLE NETWORK DISCONNECTED - RECONNECTING...
           </div>
         )}
 
         {/* Sidebar - Room List */}
-        <div className="w-80 border-r border-gray-200 bg-white flex-shrink-0">
+        <div className="w-80 border-r border-orange-500/30 bg-gradient-to-b from-gray-900 to-black flex-shrink-0">
           <RoomList
             activeRoomId={activeRoom?.id}
             onSelectRoom={handleSelectRoom}
@@ -98,7 +98,7 @@ const Community = () => {
         </div>
 
         {/* Main chat area */}
-        <div className="flex-1 bg-gray-50">
+        <div className="flex-1 bg-black">
           <Routes>
             <Route 
               path="/" 
@@ -142,59 +142,66 @@ const CommunityWelcome = ({ onCreateRoom }) => {
   const { user, hasRole } = useAuth();
   
   return (
-    <div className="flex items-center justify-center h-full bg-gradient-to-br from-blue-50 to-purple-50">
-      <div className="text-center max-w-2xl px-8">
-        <div className="w-24 h-24 bg-gradient-to-br from-primary-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-lg">
-          <svg className="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-900 via-black to-gray-900 relative overflow-hidden">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,69,0,0.1)_0%,transparent_50%)]"></div>
+      
+      <div className="text-center max-w-2xl px-8 relative z-10">
+        <div className="w-32 h-32 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-8 shadow-2xl shadow-orange-500/25 border-4 border-orange-500">
+          <svg className="w-16 h-16 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
           </svg>
         </div>
         
-        <h3 className="text-2xl font-bold text-gray-900 mb-3">
-          Welcome to the MentourMe Community Hub! 🌟
+        <h3 className="text-4xl font-black text-white mb-6 uppercase tracking-wider">
+          WELCOME TO THE
+          <span className="block bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+            WARRIOR COUNCIL
+          </span>
+          ⚔️
         </h3>
         
-        <p className="text-lg text-gray-600 mb-8 leading-relaxed">
-          Connect with like-minded individuals, share your journey, and grow together in supportive community rooms designed for mentorship and personal development.
+        <p className="text-xl text-gray-300 mb-8 leading-relaxed font-medium">
+          Join elite battle rooms where warriors and commanders unite to share strategies, forge alliances, and conquer challenges together in the ultimate mentorship arena.
         </p>
         
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-            <div className="text-2xl mb-3">🎯</div>
-            <h4 className="font-semibold text-gray-900 mb-2">Mentorship Rooms</h4>
-            <p className="text-sm text-gray-600">Connect with experienced mentors and fellow mentees to accelerate your growth.</p>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 border border-orange-500/30 hover:border-orange-500 transition-all duration-200">
+            <div className="text-3xl mb-4">⚔️</div>
+            <h4 className="font-black text-white mb-3 uppercase tracking-wider">Command Rooms</h4>
+            <p className="text-sm text-gray-300 font-medium">Connect with elite commanders and fellow warriors to accelerate your battle prowess.</p>
           </div>
           
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-            <div className="text-2xl mb-3">🚀</div>
-            <h4 className="font-semibold text-gray-900 mb-2">Goal Achievement</h4>
-            <p className="text-sm text-gray-600">Share your goals, track progress, and celebrate milestones with your community.</p>
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 border border-orange-500/30 hover:border-orange-500 transition-all duration-200">
+            <div className="text-3xl mb-4">🏆</div>
+            <h4 className="font-black text-white mb-3 uppercase tracking-wider">Victory Pursuit</h4>
+            <p className="text-sm text-gray-300 font-medium">Share your conquest goals, track battle progress, and celebrate victories with your legion.</p>
           </div>
           
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-            <div className="text-2xl mb-3">🤝</div>
-            <h4 className="font-semibold text-gray-900 mb-2">Accountability Partners</h4>
-            <p className="text-sm text-gray-600">Find accountability partners to stay motivated and committed to your journey.</p>
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 border border-orange-500/30 hover:border-orange-500 transition-all duration-200">
+            <div className="text-3xl mb-4">🛡️</div>
+            <h4 className="font-black text-white mb-3 uppercase tracking-wider">Battle Allies</h4>
+            <p className="text-sm text-gray-300 font-medium">Find loyal battle partners to stay motivated and committed to your warrior journey.</p>
           </div>
           
-          <div className="bg-white rounded-lg p-6 shadow-sm border border-gray-100">
-            <div className="text-2xl mb-3">📚</div>
-            <h4 className="font-semibold text-gray-900 mb-2">Skill Development</h4>
-            <p className="text-sm text-gray-600">Learn new skills, share knowledge, and grow professionally with peers.</p>
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl p-6 border border-orange-500/30 hover:border-orange-500 transition-all duration-200">
+            <div className="text-3xl mb-4">⚡</div>
+            <h4 className="font-black text-white mb-3 uppercase tracking-wider">Skill Mastery</h4>
+            <p className="text-sm text-gray-300 font-medium">Master new combat skills, share battle wisdom, and evolve professionally with elite peers.</p>
           </div>
         </div>
         
-        <div className="space-y-4">
-          <p className="text-sm text-gray-500">
-            Select a room from the sidebar to join the conversation, or create your own community space.
+        <div className="space-y-6">
+          <p className="text-base text-gray-300 font-medium">
+            Select a battle room from the war council sidebar to join the strategic discussions, or forge your own warrior sanctuary.
           </p>
           
           {hasRole(['admin', 'moderator', 'mentor']) && (
             <button
               onClick={onCreateRoom}
-              className="btn btn-primary btn-lg shadow-lg hover:shadow-xl transition-shadow"
+              className="px-8 py-4 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-black hover:shadow-2xl hover:shadow-orange-500/25 transition-all duration-200 text-lg uppercase tracking-wider border-2 border-orange-500 hover:scale-105"
             >
-              🏠 Create Your Community Room
+              🏰 FORGE YOUR BATTLE ROOM
             </button>
           )}
         </div>
@@ -245,8 +252,11 @@ const RoomChatWrapper = ({ onStartCall, onSelectRoom }) => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary-600"></div>
+      <div className="flex items-center justify-center h-full bg-black">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-4 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-gray-300 font-bold uppercase tracking-wider">Loading Battle Room...</p>
+        </div>
       </div>
     );
   }

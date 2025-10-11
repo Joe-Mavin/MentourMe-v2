@@ -78,63 +78,67 @@ const Profile = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="min-h-screen bg-black text-white space-y-8">
       {/* Header */}
       <div className="flex justify-between items-start">
         <div>
-          <h1 className="page-title">Profile</h1>
-          <p className="page-subtitle">Manage your personal information and preferences</p>
+          <h1 className="text-4xl font-black text-white uppercase tracking-wider">
+            <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+              WARRIOR
+            </span> PROFILE
+          </h1>
+          <p className="mt-3 text-lg text-gray-300 font-medium">Command your personal battle information and combat preferences</p>
         </div>
         
         {!editing && (
           <button
             onClick={() => setEditing(true)}
-            className="btn btn-outline"
+            className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-black hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200 uppercase tracking-wider border border-orange-500 hover:scale-105"
           >
-            <PencilIcon className="h-4 w-4 mr-2" />
-            Edit Profile
+            <PencilIcon className="h-5 w-5 mr-2" />
+            MODIFY PROFILE
           </button>
         )}
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Profile Card */}
         <div className="lg:col-span-1">
-          <div className="card">
-            <div className="card-body text-center">
+          <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border border-gray-800 p-6 shadow-2xl">
+            <div className="text-center">
               {/* Avatar */}
-              <div className="relative mb-4">
-                <div className="w-32 h-32 mx-auto bg-gray-200 rounded-full flex items-center justify-center">
+              <div className="relative mb-6">
+                <div className="w-40 h-40 mx-auto bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center border-4 border-orange-500 shadow-2xl shadow-orange-500/25">
                   {user?.avatar ? (
                     <img
                       src={user.avatar}
                       alt={user.name}
-                      className="w-32 h-32 rounded-full object-cover"
+                      className="w-40 h-40 rounded-full object-cover"
                     />
                   ) : (
-                    <UserCircleIcon className="w-20 h-20 text-gray-400" />
+                    <UserCircleIcon className="w-24 h-24 text-white" />
                   )}
                 </div>
                 
                 {editing && (
-                  <button className="absolute bottom-0 right-1/2 transform translate-x-1/2 translate-y-1/2 bg-primary-600 text-white p-2 rounded-full hover:bg-primary-700">
-                    <CameraIcon className="h-4 w-4" />
+                  <button className="absolute bottom-2 right-1/2 transform translate-x-1/2 translate-y-1/2 bg-gradient-to-r from-orange-600 to-red-600 text-white p-3 rounded-full hover:shadow-lg hover:shadow-orange-500/25 border-2 border-orange-500">
+                    <CameraIcon className="h-5 w-5" />
                   </button>
                 )}
               </div>
 
               {/* Basic Info */}
-              <h2 className="text-xl font-semibold text-gray-900 mb-1">
+              <h2 className="text-2xl font-black text-white mb-2 uppercase tracking-wider">
                 {user?.name}
               </h2>
-              <p className="text-sm text-gray-600 capitalize mb-2">
-                {user?.role}
+              <p className="text-lg text-orange-400 capitalize mb-4 font-bold">
+                {user?.role === 'mentor' ? '⚔️ COMMANDER' : user?.role === 'admin' ? '👑 ELITE' : '🗡️ WARRIOR'}
               </p>
               
               {user?.verified && (
-                <div className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 mb-4">
-                  <CheckCircleIcon className="w-3 h-3 mr-1" />
-                  Verified
+                <div className="inline-flex items-center px-4 py-2 rounded-full text-sm font-black bg-green-600 text-white mb-6 border border-green-500 uppercase tracking-wider">
+                  <CheckCircleIcon className="w-4 h-4 mr-2" />
+                  BATTLE VERIFIED
                 </div>
               )}
 
