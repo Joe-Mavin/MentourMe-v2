@@ -293,34 +293,37 @@ const MessagesSimple = () => {
             <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">BATTLE</span> COMMS
           </h2>
           
-          {/* Search for users */}
+          {/* Search for Warriors */}
           <div className="relative">
+            <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-orange-500" />
             <input
               type="text"
-              placeholder="Search users to message..."
+              placeholder="Search warriors to message..."
               value={searchQuery}
               onChange={(e) => {
                 setSearchQuery(e.target.value);
                 searchUsers(e.target.value);
               }}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+              className="w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 text-sm font-medium"
             />
             
-            {/* Search results dropdown */}
+            {/* Battle Search Results */}
             {searchResults.length > 0 && (
-              <div className="absolute top-full left-0 right-0 bg-white border border-gray-200 rounded-lg shadow-lg z-10 mt-1 max-h-48 overflow-y-auto">
+              <div className="absolute top-full left-0 right-0 bg-gray-800 border border-orange-500/30 rounded-xl shadow-2xl z-10 mt-2 max-h-48 overflow-y-auto">
                 {searchResults.map((user) => (
                   <button
                     key={user.id}
                     onClick={() => startNewConversation(user)}
-                    className="w-full p-3 text-left hover:bg-gray-50 flex items-center space-x-3 border-b border-gray-100 last:border-b-0"
+                    className="w-full p-3 text-left hover:bg-gray-700 flex items-center space-x-3 border-b border-gray-700 last:border-b-0 transition-all duration-200"
                   >
-                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
-                      <UserIcon className="w-5 h-5 text-gray-500" />
+                    <div className="w-10 h-10 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center border-2 border-orange-500">
+                      <UserIcon className="w-5 h-5 text-white" />
                     </div>
                     <div>
-                      <p className="font-medium text-gray-900 text-sm">{user.name}</p>
-                      <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+                      <p className="font-black text-white text-sm uppercase tracking-wider">{user.name}</p>
+                      <p className="text-xs text-orange-400 capitalize font-bold">
+                        {user.role === 'mentor' ? 'ELITE COMMANDER' : user.role}
+                      </p>
                     </div>
                   </button>
                 ))}
@@ -331,32 +334,34 @@ const MessagesSimple = () => {
         
         <div className="overflow-y-auto h-full">
           {conversations.length === 0 && !getUserIdFromPath() ? (
-            <div className="p-4 text-center text-gray-500">
-              <ChatBubbleLeftRightIcon className="w-12 h-12 mx-auto text-gray-300 mb-2" />
-              <p>No conversations yet</p>
-              <p className="text-sm">Search for users above or use "Message" buttons from your mentorship dashboard!</p>
+            <div className="p-6 text-center">
+              <div className="w-20 h-20 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-orange-500">
+                <ChatBubbleLeftRightIcon className="w-10 h-10 text-white" />
+              </div>
+              <p className="text-gray-300 font-bold mb-2 uppercase tracking-wider">No Battle Communications</p>
+              <p className="text-sm text-gray-400 font-medium">Search for warriors above or use "Battle Comms" buttons from your dashboard!</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-gray-800">
               {conversations.map((conversation, index) => (
                 <button
                   key={conversation.id || `conversation-${index}`}
                   onClick={() => selectConversation(conversation)}
                   className={clsx(
-                    'w-full p-4 text-left hover:bg-gray-50 transition-colors',
-                    activeConversation?.id === conversation.id && 'bg-primary-50 border-r-2 border-primary-500'
+                    'w-full p-4 text-left hover:bg-gray-800 transition-all duration-200',
+                    activeConversation?.id === conversation.id && 'bg-gradient-to-r from-orange-900/30 to-red-900/30 border-r-4 border-orange-500'
                   )}
                 >
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
-                      <UserIcon className="w-6 h-6 text-gray-500" />
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center border-2 border-orange-500">
+                      <UserIcon className="w-6 h-6 text-white" />
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="font-medium text-gray-900 truncate">
-                        {conversation.partner?.name || conversation.name || 'Unknown User'}
+                      <p className="font-black text-white truncate uppercase tracking-wider text-sm">
+                        {conversation.partner?.name || conversation.name || 'Unknown Warrior'}
                       </p>
-                      <p className="text-sm text-gray-500 truncate">
-                        {conversation.lastMessage?.content || conversation.lastMessage || 'No messages yet'}
+                      <p className="text-sm text-gray-400 truncate font-medium">
+                        {conversation.lastMessage?.content || conversation.lastMessage || 'No battle messages yet'}
                       </p>
                     </div>
                   </div>
