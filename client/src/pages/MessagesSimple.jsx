@@ -372,40 +372,42 @@ const MessagesSimple = () => {
         </div>
       </div>
 
-      {/* Main Chat Area */}
-      <div className="flex-1 flex flex-col">
+      {/* Main Battle Communication Area */}
+      <div className="flex-1 flex flex-col bg-black">
         {activeConversation ? (
           <>
-            {/* Chat Header */}
-            <div className="p-4 border-b border-gray-200 bg-white">
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+            {/* Battle Communication Header */}
+            <div className="p-4 sm:p-6 border-b border-orange-500/30 bg-gradient-to-r from-gray-900 to-black flex-shrink-0">
+              <div className="flex items-center space-x-4">
+                <div className="w-12 h-12 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center border-2 border-orange-500">
                   {activeConversation.avatar ? (
                     <img 
                       src={activeConversation.avatar} 
                       alt={activeConversation.name}
-                      className="w-8 h-8 rounded-full object-cover"
+                      className="w-12 h-12 rounded-xl object-cover"
                     />
                   ) : (
-                    <UserIcon className="w-5 h-5 text-gray-500" />
+                    <UserIcon className="w-6 h-6 text-white" />
                   )}
                 </div>
                 <div>
-                  <h3 className="font-medium text-gray-900">
-                    {activeConversation.name || `User ${activeConversation.otherUserId}`}
+                  <h3 className="font-black text-white uppercase tracking-wider text-lg">
+                    {activeConversation.name || `Warrior ${activeConversation.otherUserId}`}
                   </h3>
-                  <p className="text-sm text-gray-500">Click to start messaging</p>
+                  <p className="text-sm text-orange-400 font-bold uppercase tracking-wider">⚔️ Battle Communication Active</p>
                 </div>
               </div>
             </div>
 
-            {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4">
+            {/* Battle Messages */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 bg-gradient-to-b from-black to-gray-900">
               {messages.length === 0 ? (
-                <div className="text-center text-gray-500 py-8">
-                  <ChatBubbleLeftRightIcon className="w-12 h-12 mx-auto text-gray-300 mb-2" />
-                  <p>No messages yet</p>
-                  <p className="text-sm">Send the first message!</p>
+                <div className="text-center py-16">
+                  <div className="w-20 h-20 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-orange-500">
+                    <ChatBubbleLeftRightIcon className="w-10 h-10 text-white" />
+                  </div>
+                  <p className="text-gray-300 font-bold mb-2 uppercase tracking-wider">No Battle Messages</p>
+                  <p className="text-sm text-gray-400 font-medium">Send the first battle communication!</p>
                 </div>
               ) : (
                 messages.map((message, index) => (
@@ -418,16 +420,16 @@ const MessagesSimple = () => {
                   >
                     <div
                       className={clsx(
-                        'max-w-xs lg:max-w-md px-4 py-2 rounded-lg',
+                        'max-w-xs lg:max-w-md px-4 py-3 rounded-xl font-medium',
                         message.senderId === user.id
-                          ? 'bg-primary-500 text-white'
-                          : 'bg-white border border-gray-200 text-gray-900'
+                          ? 'bg-gradient-to-r from-orange-600 to-red-600 text-white border border-orange-500'
+                          : 'bg-gray-800 border border-gray-700 text-gray-200'
                       )}
                     >
                       <p>{message.content}</p>
                       <p className={clsx(
-                        'text-xs mt-1',
-                        message.senderId === user.id ? 'text-primary-100' : 'text-gray-500'
+                        'text-xs mt-2 font-medium',
+                        message.senderId === user.id ? 'text-orange-100' : 'text-gray-400'
                       )}>
                         {new Date(message.createdAt).toLocaleTimeString()}
                       </p>
@@ -437,22 +439,27 @@ const MessagesSimple = () => {
               )}
             </div>
 
-            {/* Message Input */}
-            <div className="p-4 border-t border-gray-200 bg-white">
-              <div className="flex space-x-2">
+            {/* Battle Message Input */}
+            <div className="p-4 sm:p-6 border-t border-orange-500/30 bg-gradient-to-r from-gray-900 to-black flex-shrink-0">
+              <div className="flex space-x-3">
                 <input
                   type="text"
                   value={newMessage}
                   onChange={(e) => setNewMessage(e.target.value)}
                   onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
-                  placeholder="Type a message..."
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                  placeholder="Send battle message..."
+                  className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
                   disabled={sending}
                 />
                 <button
                   onClick={sendMessage}
                   disabled={!newMessage.trim() || sending}
-                  className="px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 disabled:opacity-50 disabled:cursor-not-allowed"
+                  className={clsx(
+                    'px-4 py-3 rounded-xl font-black transition-all duration-200 flex-shrink-0',
+                    !newMessage.trim() || sending
+                      ? 'bg-gray-700 text-gray-500 cursor-not-allowed border border-gray-600'
+                      : 'bg-gradient-to-r from-orange-600 to-red-600 text-white hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500'
+                  )}
                 >
                   <PaperAirplaneIcon className="w-5 h-5" />
                 </button>
@@ -460,11 +467,15 @@ const MessagesSimple = () => {
             </div>
           </>
         ) : (
-          <div className="flex-1 flex items-center justify-center text-gray-500">
-            <div className="text-center">
-              <ChatBubbleLeftRightIcon className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-              <h3 className="text-lg font-medium mb-2">Select a conversation</h3>
-              <p>Choose a conversation from the sidebar to start messaging</p>
+          <div className="flex-1 flex items-center justify-center bg-gradient-to-br from-black via-gray-900 to-black">
+            <div className="text-center max-w-md px-8">
+              <div className="w-24 h-24 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-orange-500">
+                <ChatBubbleLeftRightIcon className="w-12 h-12 text-white" />
+              </div>
+              <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-wider">
+                Select <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">Battle</span> Communication
+              </h3>
+              <p className="text-gray-300 font-medium">Choose a warrior from the sidebar to begin strategic communications</p>
             </div>
           </div>
         )}
