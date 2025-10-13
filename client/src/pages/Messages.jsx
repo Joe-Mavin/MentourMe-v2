@@ -23,18 +23,21 @@ class MessagesErrorBoundary extends React.Component {
   render() {
     if (this.state.hasError) {
       return (
-        <div className="flex items-center justify-center h-full">
-          <div className="text-center">
-            <h2 className="text-lg font-semibold text-gray-900 mb-2">Something went wrong</h2>
-            <p className="text-gray-600 mb-4">There was an error loading the messaging interface.</p>
+        <div className="flex items-center justify-center h-full bg-gradient-to-br from-gray-900 via-black to-gray-900">
+          <div className="text-center max-w-md px-8">
+            <div className="w-20 h-20 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-orange-500">
+              <span className="text-3xl">⚠️</span>
+            </div>
+            <h2 className="text-xl font-black text-white mb-4 uppercase tracking-wider">Battle Communications Down</h2>
+            <p className="text-gray-300 mb-6 font-medium">There was an error loading the warrior messaging interface.</p>
             <button 
               onClick={() => {
                 this.setState({ hasError: false, error: null });
                 window.location.reload();
               }}
-              className="px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700"
+              className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-black uppercase tracking-wider hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200 border border-orange-500"
             >
-              Reload Page
+              Restart Battle Comms
             </button>
           </div>
         </div>

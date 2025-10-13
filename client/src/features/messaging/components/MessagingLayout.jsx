@@ -42,14 +42,14 @@ const MessagingLayoutInner = ({ className }) => {
   }, [id, location.pathname, user, conversations, setActiveConversation]);
 
   return (
-    <div className={clsx('h-full flex bg-gray-50', className)}>
-      {/* Sidebar - Conversation List */}
-      <div className="w-80 border-r border-gray-200 bg-white flex-shrink-0">
+    <div className={clsx('h-full flex bg-gradient-to-br from-gray-900 via-black to-gray-900', className)}>
+      {/* Sidebar - Battle Communications List */}
+      <div className="w-80 border-r border-orange-500/30 bg-gradient-to-b from-gray-900 to-black flex-shrink-0">
         <ConversationList />
       </div>
 
-      {/* Main chat area */}
-      <div className="flex-1 bg-white">
+      {/* Main battle communications area */}
+      <div className="flex-1 bg-black">
         <ChatView />
       </div>
     </div>
