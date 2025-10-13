@@ -354,16 +354,16 @@ const Dashboard = () => {
                             </div>
                           )}
                           
-                          <div className="flex space-x-3">
+                          <div className="flex flex-col sm:flex-row gap-2 sm:gap-3">
                             <button 
                               onClick={() => handleRequestMentorship(recommendation.user.id, recommendation.compatibilityScore)}
-                              className="px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg font-bold hover:shadow-lg hover:shadow-orange-500/25 transition-all text-sm uppercase tracking-wider"
+                              className="flex-1 px-3 sm:px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-lg font-bold hover:shadow-lg hover:shadow-orange-500/25 transition-all text-xs sm:text-sm uppercase tracking-wider text-center"
                             >
                               Request Command
                             </button>
                             <button 
                               onClick={() => handleStartConversation(recommendation.user.id)}
-                              className="px-4 py-2 border border-orange-500 text-orange-400 rounded-lg font-bold hover:bg-orange-500 hover:text-white transition-all text-sm uppercase tracking-wider"
+                              className="flex-1 px-3 sm:px-4 py-2 border border-orange-500 text-orange-400 rounded-lg font-bold hover:bg-orange-500 hover:text-white transition-all text-xs sm:text-sm uppercase tracking-wider text-center"
                             >
                               Message
                             </button>

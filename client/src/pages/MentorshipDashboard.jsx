@@ -343,7 +343,7 @@ const MentorshipDashboard = () => {
 
         {/* Battle Stats Overview */}
         {stats && (
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
             <StatCard
               title="Active Alliances"
               value={activeMentorships.length}
@@ -371,27 +371,28 @@ const MentorshipDashboard = () => {
 
         {/* Battle Command Navigation */}
         <div className="border-b border-orange-500/30 mb-8">
-          <nav className="-mb-px flex space-x-8">
+          <nav className="-mb-px flex flex-wrap gap-2 sm:gap-0 sm:space-x-4 lg:space-x-8">
             {[
-              { id: 'overview', name: 'Command Overview', icon: AcademicCapIcon },
-              { id: 'mentorships', name: 'Active Alliances', icon: UserGroupIcon },
-              { id: 'sessions', name: 'Battle Sessions', icon: CalendarIcon },
-              { id: 'requests', name: 'Alliance Requests', icon: ExclamationCircleIcon }
+              { id: 'overview', name: 'Overview', shortName: 'Overview', icon: AcademicCapIcon },
+              { id: 'mentorships', name: 'Active Alliances', shortName: 'Alliances', icon: UserGroupIcon },
+              { id: 'sessions', name: 'Battle Sessions', shortName: 'Sessions', icon: CalendarIcon },
+              { id: 'requests', name: 'Alliance Requests', shortName: 'Requests', icon: ExclamationCircleIcon }
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={clsx(
-                  'flex items-center py-3 px-2 border-b-2 font-black text-sm uppercase tracking-wider transition-all duration-200',
+                  'flex items-center py-2 sm:py-3 px-2 sm:px-3 border-b-2 font-black text-xs sm:text-sm uppercase tracking-wider transition-all duration-200 whitespace-nowrap',
                   activeTab === tab.id
                     ? 'border-orange-500 text-orange-400'
                     : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-orange-500/50'
                 )}
               >
-                <tab.icon className="w-5 h-5 mr-2" />
-                {tab.name}
+                <tab.icon className="w-4 h-4 sm:w-5 sm:h-5 mr-1 sm:mr-2" />
+                <span className="hidden sm:inline">{tab.name}</span>
+                <span className="sm:hidden">{tab.shortName}</span>
                 {tab.id === 'requests' && pendingRequests.length > 0 && (
-                  <span className="ml-2 bg-gradient-to-r from-red-600 to-red-700 text-white py-1 px-2 rounded-xl text-xs font-black">
+                  <span className="ml-1 sm:ml-2 bg-gradient-to-r from-red-600 to-red-700 text-white py-0.5 sm:py-1 px-1 sm:px-2 rounded-lg sm:rounded-xl text-xs font-black">
                     {pendingRequests.length}
                   </span>
                 )}
