@@ -3,7 +3,7 @@ import clsx from 'clsx';
 
 const LoadingSpinner = ({ 
   size = 'md', 
-  color = 'primary', 
+  color = 'orange', 
   className = '',
   text = null 
 }) => {
@@ -15,22 +15,23 @@ const LoadingSpinner = ({
   };
 
   const colorClasses = {
-    primary: 'border-primary-600',
+    orange: 'border-orange-500',
     white: 'border-white',
-    gray: 'border-gray-600'
+    gray: 'border-gray-600',
+    primary: 'border-orange-500' // Fallback to orange for legacy usage
   };
 
   return (
     <div className={clsx('flex flex-col items-center justify-center', className)}>
       <div 
         className={clsx(
-          'loading-spinner',
+          'animate-spin rounded-full border-b-2',
           sizeClasses[size],
           colorClasses[color]
         )}
       />
       {text && (
-        <p className="mt-2 text-sm text-gray-600">{text}</p>
+        <p className="mt-2 text-sm text-gray-300 font-medium">{text}</p>
       )}
     </div>
   );

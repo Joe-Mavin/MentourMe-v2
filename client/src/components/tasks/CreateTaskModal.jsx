@@ -234,16 +234,21 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated, editingTask = null })
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-8 mx-auto p-5 border w-full max-w-2xl shadow-lg rounded-md bg-white">
-        {/* Header */}
+    <div className="fixed inset-0 bg-black bg-opacity-75 overflow-y-auto h-full w-full z-50 p-4">
+      <div className="relative top-8 mx-auto p-6 border w-full max-w-2xl shadow-2xl rounded-xl bg-gradient-to-br from-gray-900 to-black border-orange-500/30">
+        {/* Battle Header */}
         <div className="flex items-center justify-between mb-6">
-          <h3 className="text-lg font-medium text-gray-900">
-            {editingTask ? 'Edit Task' : 'Create New Task'}
-          </h3>
+          <div>
+            <h3 className="text-xl font-black text-white uppercase tracking-wider">
+              ⚔️ {editingTask ? 'Modify Battle Mission' : 'Forge New Battle Mission'}
+            </h3>
+            <p className="text-gray-300 text-sm mt-1 font-medium">
+              {editingTask ? 'Update mission parameters for your warrior' : 'Create a strategic mission to challenge and develop your warrior'}
+            </p>
+          </div>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-orange-400 p-2 rounded-xl hover:bg-gray-800 border border-gray-700 hover:border-orange-500/50 transition-all duration-200"
           >
             <XMarkIcon className="h-6 w-6" />
           </button>
@@ -253,7 +258,7 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated, editingTask = null })
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Mentee Selection */}
           <div>
-            <label className="form-label">Assign to Mentee *</label>
+            <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Assign to Battle Apprentice *</label>
             <Controller
               name="menteeId"
               control={control}
@@ -271,10 +276,43 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated, editingTask = null })
                       field.onChange(selected?.value);
                     }
                   }}
-                  placeholder="Select a mentee..."
+                  placeholder="Select a battle apprentice..."
                   isLoading={loadingMentees}
                   className="react-select-container"
                   classNamePrefix="react-select"
+                  styles={{
+                    control: (base) => ({
+                      ...base,
+                      backgroundColor: '#1f2937',
+                      borderColor: '#374151',
+                      color: '#d1d5db',
+                      '&:hover': {
+                        borderColor: '#f97316'
+                      }
+                    }),
+                    menu: (base) => ({
+                      ...base,
+                      backgroundColor: '#1f2937',
+                      border: '1px solid #374151'
+                    }),
+                    option: (base, state) => ({
+                      ...base,
+                      backgroundColor: state.isFocused ? '#374151' : '#1f2937',
+                      color: '#d1d5db',
+                      '&:hover': {
+                        backgroundColor: '#374151',
+                        color: '#f97316'
+                      }
+                    }),
+                    singleValue: (base) => ({
+                      ...base,
+                      color: '#d1d5db'
+                    }),
+                    placeholder: (base) => ({
+                      ...base,
+                      color: '#9ca3af'
+                    })
+                  }}
                   formatOptionLabel={(option) => (
                     <div className="flex items-center justify-between">
                       <span>{option.label}</span>
@@ -297,115 +335,125 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated, editingTask = null })
             {/* Manual Mentee ID Input */}
             {showManualInput && (
               <div className="mt-3">
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Enter Mentee ID
+                <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">
+                  Enter Battle Apprentice ID
                 </label>
                 <input
                   type="number"
                   value={manualMenteeId}
                   onChange={(e) => setManualMenteeId(e.target.value)}
-                  placeholder="Enter mentee user ID"
-                  className="input"
+                  placeholder="Enter warrior user ID"
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
                 />
-                <p className="text-xs text-gray-500 mt-1">
-                  Enter the numeric user ID of the mentee you want to assign this task to.
+                <p className="text-xs text-gray-400 mt-2 font-medium">
+                  Enter the numeric user ID of the battle apprentice you want to assign this mission to.
                 </p>
               </div>
             )}
             
             {errors.menteeId && (
-              <p className="form-error">{errors.menteeId.message}</p>
+              <p className="text-red-400 text-sm mt-2 font-medium">{errors.menteeId.message}</p>
             )}
           </div>
 
           {/* Task Title */}
           <div>
-            <label className="form-label">Task Title *</label>
+            <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Mission Title *</label>
             <input
               {...register('title')}
               type="text"
-              className={`input ${errors.title ? 'input-error' : ''}`}
-              placeholder="Enter a clear, specific task title"
+              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium ${
+                errors.title ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-orange-500'
+              }`}
+              placeholder="Enter a clear, strategic mission title"
             />
             {errors.title && (
-              <p className="form-error">{errors.title.message}</p>
+              <p className="text-red-400 text-sm mt-2 font-medium">{errors.title.message}</p>
             )}
           </div>
 
           {/* Task Description */}
           <div>
-            <label className="form-label">Task Description *</label>
+            <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Mission Description *</label>
             <textarea
               {...register('description')}
               rows={4}
-              className={`input ${errors.description ? 'input-error' : ''}`}
-              placeholder="Describe what needs to be accomplished, including any specific requirements or steps..."
+              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium resize-none ${
+                errors.description ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-orange-500'
+              }`}
+              placeholder="Describe the battle objectives, strategic requirements, and victory conditions..."
             />
             {errors.description && (
-              <p className="form-error">{errors.description.message}</p>
+              <p className="text-red-400 text-sm mt-2 font-medium">{errors.description.message}</p>
             )}
           </div>
 
           {/* Priority and Due Date */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="form-label">Priority *</label>
+              <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Battle Priority *</label>
               <select
                 {...register('priority')}
-                className={`input ${errors.priority ? 'input-error' : ''}`}
+                className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium ${
+                  errors.priority ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-orange-500'
+                }`}
               >
                 {PRIORITY_OPTIONS.map(option => (
-                  <option key={option.value} value={option.value}>
+                  <option key={option.value} value={option.value} className="bg-gray-800 text-gray-300">
                     {option.label}
                   </option>
                 ))}
               </select>
               {errors.priority && (
-                <p className="form-error">{errors.priority.message}</p>
+                <p className="text-red-400 text-sm mt-2 font-medium">{errors.priority.message}</p>
               )}
             </div>
 
             <div>
-              <label className="form-label">Due Date</label>
+              <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Battle Deadline</label>
               <input
                 {...register('dueDate')}
                 type="date"
                 min={new Date().toISOString().split('T')[0]}
-                className={`input ${errors.dueDate ? 'input-error' : ''}`}
+                className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium ${
+                  errors.dueDate ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-orange-500'
+                }`}
               />
               {errors.dueDate && (
-                <p className="form-error">{errors.dueDate.message}</p>
+                <p className="text-red-400 text-sm mt-2 font-medium">{errors.dueDate.message}</p>
               )}
             </div>
           </div>
 
           {/* Estimated Hours */}
           <div>
-            <label className="form-label">Estimated Hours</label>
+            <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Estimated Battle Hours</label>
             <input
               {...register('estimatedHours')}
               type="number"
               step="0.5"
               min="0.5"
               max="100"
-              className={`input ${errors.estimatedHours ? 'input-error' : ''}`}
+              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium ${
+                errors.estimatedHours ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-orange-500'
+              }`}
               placeholder="e.g., 2.5"
             />
             {errors.estimatedHours && (
-              <p className="form-error">{errors.estimatedHours.message}</p>
+              <p className="text-red-400 text-sm mt-2 font-medium">{errors.estimatedHours.message}</p>
             )}
-            <p className="form-help">
-              How many hours do you estimate this task will take?
+            <p className="text-gray-400 text-sm mt-2 font-medium">
+              How many battle hours do you estimate this mission will require?
             </p>
           </div>
 
           {/* Tags */}
           <div>
-            <label className="form-label">Tags</label>
+            <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Battle Tags</label>
             
             {/* Common tags */}
             <div className="mb-3">
-              <p className="text-sm text-gray-600 mb-2">Quick add:</p>
+              <p className="text-sm text-gray-300 mb-2 font-medium">Quick Battle Categories:</p>
               <div className="flex flex-wrap gap-2">
                 {COMMON_TAGS.map(tag => (
                   <button
@@ -413,10 +461,10 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated, editingTask = null })
                     type="button"
                     onClick={() => addTag(tag)}
                     disabled={selectedTags.includes(tag)}
-                    className={`px-3 py-1 text-xs rounded-full border transition-colors ${
+                    className={`px-3 py-1 text-xs rounded-xl border transition-all duration-200 font-medium ${
                       selectedTags.includes(tag)
-                        ? 'bg-primary-100 text-primary-700 border-primary-300 cursor-not-allowed'
-                        : 'bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200'
+                        ? 'bg-orange-600/20 text-orange-400 border-orange-500/30 cursor-not-allowed'
+                        : 'bg-gray-800 text-gray-300 border-gray-700 hover:bg-gray-700 hover:text-orange-400 hover:border-orange-500/50'
                     }`}
                   >
                     {tag}
@@ -428,18 +476,18 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated, editingTask = null })
             {/* Selected tags */}
             {selectedTags.length > 0 && (
               <div className="mb-3">
-                <p className="text-sm text-gray-600 mb-2">Selected tags:</p>
+                <p className="text-sm text-gray-300 mb-2 font-medium">Selected Battle Tags:</p>
                 <div className="flex flex-wrap gap-2">
                   {selectedTags.map(tag => (
                     <span
                       key={tag}
-                      className="inline-flex items-center px-3 py-1 text-sm bg-primary-100 text-primary-800 rounded-full"
+                      className="inline-flex items-center px-3 py-1 text-sm bg-orange-600/20 text-orange-400 rounded-xl border border-orange-500/30 font-medium"
                     >
                       {tag}
                       <button
                         type="button"
                         onClick={() => removeTag(tag)}
-                        className="ml-2 text-primary-600 hover:text-primary-800"
+                        className="ml-2 text-orange-400 hover:text-orange-300 transition-colors duration-200"
                       >
                         ×
                       </button>
@@ -451,27 +499,27 @@ const CreateTaskModal = ({ isOpen, onClose, onTaskCreated, editingTask = null })
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4 border-t">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-700">
             <button
               type="button"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="btn btn-outline"
+              className="px-6 py-3 bg-gray-800 text-gray-300 rounded-xl font-black text-sm uppercase tracking-wider hover:bg-gray-700 border border-gray-700 hover:border-orange-500/50 transition-all duration-200 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn btn-primary"
+              className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-black text-sm uppercase tracking-wider hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500 transition-all duration-200 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
                   <LoadingSpinner size="sm" color="white" className="mr-2" />
-                  {editingTask ? 'Updating...' : 'Creating...'}
+                  {editingTask ? 'Updating Mission...' : 'Forging Mission...'}
                 </>
               ) : (
-                editingTask ? 'Update Task' : 'Create Task'
+                editingTask ? '⚔️ Update Mission' : '🔥 Forge Mission'
               )}
             </button>
           </div>

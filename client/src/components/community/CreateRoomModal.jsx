@@ -31,13 +31,13 @@ const schema = yup.object({
 });
 
 const CATEGORIES = [
-  { value: 'mentorship', label: '🎯 Mentorship', description: 'Connect mentors with mentees' },
-  { value: 'goals', label: '🚀 Goal Achievement', description: 'Share and track personal goals' },
-  { value: 'accountability', label: '🤝 Accountability', description: 'Stay accountable with peers' },
-  { value: 'support', label: '💚 Support & Help', description: 'Get help and support others' },
-  { value: 'skills', label: '📚 Skill Development', description: 'Learn and share skills' },
-  { value: 'networking', label: '🌐 Networking', description: 'Build professional connections' },
-  { value: 'wellness', label: '🌱 Wellness & Growth', description: 'Personal development and wellness' }
+  { value: 'mentorship', label: '⚔️ Elite Command', description: 'Connect battle commanders with apprentices' },
+  { value: 'goals', label: '🏆 Victory Quests', description: 'Share and conquer strategic objectives' },
+  { value: 'accountability', label: '🛡️ Battle Bonds', description: 'Stay accountable with fellow warriors' },
+  { value: 'support', label: '💚 Warrior Support', description: 'Rally aid and support battle comrades' },
+  { value: 'skills', label: '📚 Combat Training', description: 'Master and share battle skills' },
+  { value: 'networking', label: '🌐 Alliance Network', description: 'Forge strategic warrior connections' },
+  { value: 'wellness', label: '🌱 Warrior Wellness', description: 'Personal growth and battle readiness' }
 ];
 
 const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }) => {
@@ -160,17 +160,21 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }) => {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-      <div className="relative top-10 mx-auto p-6 border w-full max-w-2xl shadow-lg rounded-lg bg-white my-8">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-4">
+    <div className="fixed inset-0 bg-black bg-opacity-75 overflow-y-auto h-full w-full z-50 p-4">
+      <div className="relative top-10 mx-auto p-6 border w-full max-w-2xl shadow-2xl rounded-xl bg-gradient-to-br from-gray-900 to-black border-orange-500/30 my-8">
+        {/* Battle Header */}
+        <div className="flex items-center justify-between mb-6">
           <div>
-            <h3 className="text-lg font-medium text-gray-900">Create Community Room</h3>
-            <p className="text-sm text-gray-500 mt-1">Build a space for mentorship and growth</p>
+            <h3 className="text-xl font-black text-white uppercase tracking-wider">
+              🏰 Forge Battle Chamber
+            </h3>
+            <p className="text-gray-300 text-sm mt-1 font-medium">
+              Create a strategic war room for elite warriors and battle training
+            </p>
           </div>
           <button
             onClick={handleClose}
-            className="text-gray-400 hover:text-gray-600"
+            className="text-gray-400 hover:text-orange-400 p-2 rounded-xl hover:bg-gray-800 border border-gray-700 hover:border-orange-500/50 transition-all duration-200"
           >
             <XMarkIcon className="h-6 w-6" />
           </button>
@@ -180,63 +184,71 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }) => {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
           {/* Room Name */}
           <div>
-            <label className="form-label">Room Name *</label>
+            <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Battle Chamber Name *</label>
             <input
               {...register('name')}
               type="text"
-              className={`input ${errors.name ? 'input-error' : ''}`}
-              placeholder="Enter room name"
+              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium ${
+                errors.name ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-orange-500'
+              }`}
+              placeholder="Enter battle chamber name"
             />
             {errors.name && (
-              <p className="form-error">{errors.name.message}</p>
+              <p className="text-red-400 text-sm mt-2 font-medium">{errors.name.message}</p>
             )}
           </div>
 
           {/* Description */}
           <div>
-            <label className="form-label">Description</label>
+            <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Battle Objectives</label>
             <textarea
               {...register('description')}
               rows={3}
-              className={`input ${errors.description ? 'input-error' : ''}`}
-              placeholder="Describe the purpose of this room and what members can expect to learn or achieve together..."
+              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium resize-none ${
+                errors.description ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-orange-500'
+              }`}
+              placeholder="Describe the strategic purpose of this battle chamber and what warriors can expect to achieve together..."
             />
             {errors.description && (
-              <p className="form-error">{errors.description.message}</p>
+              <p className="text-red-400 text-sm mt-2 font-medium">{errors.description.message}</p>
             )}
           </div>
 
           {/* Category */}
           <div>
-            <label className="form-label">Category *</label>
+            <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Battle Category *</label>
             <select
               {...register('category')}
-              className={`input ${errors.category ? 'input-error' : ''}`}
+              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium ${
+                errors.category ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-orange-500'
+              }`}
             >
               {CATEGORIES.map(category => (
-                <option key={category.value} value={category.value}>
+                <option key={category.value} value={category.value} className="bg-gray-800 text-gray-300">
                   {category.label}
                 </option>
               ))}
             </select>
             {errors.category && (
-              <p className="form-error">{errors.category.message}</p>
+              <p className="text-red-400 text-sm mt-2 font-medium">{errors.category.message}</p>
             )}
           </div>
 
           {/* Privacy and Max Members */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="form-label">Max Members</label>
+              <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Max Warriors</label>
               <input
                 {...register('maxMembers')}
                 type="number"
                 min="2"
                 max="1000"
-                className={`input ${errors.maxMembers ? 'input-error' : ''}`}
+                className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium ${
+                  errors.maxMembers ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-orange-500'
+                }`}
               />
               {errors.maxMembers && (
-                <p className="form-error">{errors.maxMembers.message}</p>
+                <p className="text-red-400 text-sm mt-2 font-medium">{errors.maxMembers.message}</p>
               )}
             </div>
 
@@ -245,44 +257,46 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }) => {
                 <input
                   {...register('isPrivate')}
                   type="checkbox"
-                  className="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                  className="rounded border-gray-600 bg-gray-800 text-orange-600 focus:ring-orange-500 focus:ring-offset-gray-900"
                 />
-                <span className="ml-2 text-sm text-gray-700">Private Room</span>
+                <span className="ml-2 text-sm text-gray-300 font-medium">Secret Battle Chamber</span>
               </label>
             </div>
           </div>
 
           {/* Private room info */}
           {isPrivate && (
-            <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-              <p className="text-sm text-blue-800">
-                <strong>Private rooms</strong> are only visible to members. Users need to be invited to join.
+            <div className="bg-orange-600/10 border border-orange-500/30 rounded-xl p-4">
+              <p className="text-sm text-orange-400 font-medium">
+                <strong className="font-black uppercase tracking-wider">🔒 Secret Battle Chambers</strong> are only visible to elite warriors. Apprentices need special invitations to join.
               </p>
             </div>
           )}
 
           {/* Room Rules */}
           <div>
-            <label className="form-label">Room Rules</label>
+            <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">Battle Code of Honor</label>
             <textarea
               {...register('rules')}
               rows={3}
-              className={`input ${errors.rules ? 'input-error' : ''}`}
-              placeholder="Set guidelines for this room..."
+              className={`w-full px-4 py-3 bg-gray-800 border rounded-xl text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium resize-none ${
+                errors.rules ? 'border-red-500 focus:border-red-500' : 'border-gray-700 focus:border-orange-500'
+              }`}
+              placeholder="Set the warrior code and battle guidelines for this chamber..."
             />
             {errors.rules && (
-              <p className="form-error">{errors.rules.message}</p>
+              <p className="text-red-400 text-sm mt-2 font-medium">{errors.rules.message}</p>
             )}
           </div>
 
           {/* Invite Members */}
           <div>
-            <label className="form-label">
+            <label className="block text-sm font-black text-orange-400 uppercase tracking-wider mb-2">
               <UserPlusIcon className="w-4 h-4 inline mr-1" />
-              Invite Mentees (Optional)
+              Recruit Battle Apprentices (Optional)
             </label>
-            <p className="text-xs text-gray-500 mb-2">
-              Search and add mentees to your room. You can also invite members later.
+            <p className="text-xs text-gray-400 mb-2 font-medium">
+              Search and recruit battle apprentices to your chamber. You can also invite warriors later.
             </p>
             
             {/* Search Input */}
@@ -291,8 +305,8 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }) => {
                 type="text"
                 value={searchTerm}
                 onChange={handleSearchChange}
-                className="input pr-10"
-                placeholder="Search mentees by name or email..."
+                className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium pr-10"
+                placeholder="Search battle apprentices by name or email..."
               />
               {isSearching && (
                 <div className="absolute right-3 top-2.5">
@@ -303,19 +317,19 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }) => {
             
             {/* Search Results */}
             {searchResults.length > 0 && (
-              <div className="mt-2 border border-gray-200 rounded-md max-h-40 overflow-y-auto">
+              <div className="mt-2 border border-gray-700 rounded-xl max-h-40 overflow-y-auto bg-gray-800">
                 {searchResults.map(user => (
                   <div
                     key={user.id}
                     onClick={() => addMember(user)}
-                    className="p-2 hover:bg-gray-50 cursor-pointer border-b border-gray-100 last:border-b-0"
+                    className="p-3 hover:bg-gray-700 cursor-pointer border-b border-gray-700 last:border-b-0 transition-all duration-200"
                   >
                     <div className="flex items-center justify-between">
                       <div>
-                        <p className="text-sm font-medium text-gray-900">{user.name}</p>
-                        <p className="text-xs text-gray-500">{user.email}</p>
+                        <p className="text-sm font-medium text-gray-300">{user.name}</p>
+                        <p className="text-xs text-gray-400">{user.email}</p>
                       </div>
-                      <UserPlusIcon className="w-4 h-4 text-gray-400" />
+                      <UserPlusIcon className="w-4 h-4 text-orange-400" />
                     </div>
                   </div>
                 ))}
@@ -325,20 +339,20 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }) => {
             {/* Selected Members */}
             {selectedMembers.length > 0 && (
               <div className="mt-3">
-                <p className="text-sm font-medium text-gray-700 mb-2">
-                  Selected Members ({selectedMembers.length})
+                <p className="text-sm font-black text-orange-400 uppercase tracking-wider mb-2">
+                  ⚔️ Recruited Warriors ({selectedMembers.length})
                 </p>
                 <div className="flex flex-wrap gap-2">
                   {selectedMembers.map(member => (
                     <div
                       key={member.id}
-                      className="flex items-center bg-primary-100 text-primary-800 px-2 py-1 rounded-full text-sm"
+                      className="flex items-center bg-orange-600/20 text-orange-400 px-3 py-1 rounded-xl text-sm border border-orange-500/30 font-medium"
                     >
                       <span>{member.name}</span>
                       <button
                         type="button"
                         onClick={() => removeMember(member.id)}
-                        className="ml-1 text-primary-600 hover:text-primary-800"
+                        className="ml-2 text-orange-400 hover:text-orange-300 transition-colors duration-200"
                       >
                         <XCircleIcon className="w-4 h-4" />
                       </button>
@@ -350,27 +364,27 @@ const CreateRoomModal = ({ isOpen, onClose, onRoomCreated }) => {
           </div>
 
           {/* Actions */}
-          <div className="flex justify-end space-x-3 pt-4">
+          <div className="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t border-gray-700">
             <button
               type="button"
               onClick={handleClose}
               disabled={isSubmitting}
-              className="btn btn-outline"
+              className="px-6 py-3 bg-gray-800 text-gray-300 rounded-xl font-black text-sm uppercase tracking-wider hover:bg-gray-700 border border-gray-700 hover:border-orange-500/50 transition-all duration-200 disabled:opacity-50"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={isSubmitting}
-              className="btn btn-primary"
+              className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-black text-sm uppercase tracking-wider hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500 transition-all duration-200 disabled:opacity-50"
             >
               {isSubmitting ? (
                 <>
                   <LoadingSpinner size="sm" color="white" className="mr-2" />
-                  Creating...
+                  Forging Chamber...
                 </>
               ) : (
-                'Create Room'
+                '🏰 Forge Battle Chamber'
               )}
             </button>
           </div>
