@@ -141,43 +141,43 @@ const NotificationsPage = () => {
     
     switch (type) {
       case 'mentor_approved':
-        return <CheckIcon className={clsx(iconClass, "text-green-500")} />;
+        return <CheckIcon className={clsx(iconClass, "text-green-400")} />;
       case 'mentor_rejected':
-        return <XMarkIcon className={clsx(iconClass, "text-red-500")} />;
+        return <XMarkIcon className={clsx(iconClass, "text-red-400")} />;
       case 'task_assigned':
       case 'task_completed':
       case 'task_verified':
       case 'task_rejected':
-        return <ClipboardDocumentListIcon className={clsx(iconClass, "text-blue-500")} />;
+        return <ClipboardDocumentListIcon className={clsx(iconClass, "text-orange-400")} />;
       case 'new_message':
-        return <ChatBubbleLeftRightIcon className={clsx(iconClass, "text-green-500")} />;
+        return <ChatBubbleLeftRightIcon className={clsx(iconClass, "text-green-400")} />;
       case 'room_invitation':
       case 'room_joined':
-        return <UserGroupIcon className={clsx(iconClass, "text-purple-500")} />;
+        return <UserGroupIcon className={clsx(iconClass, "text-orange-400")} />;
       case 'call_incoming':
       case 'call_missed':
-        return <PhoneIcon className={clsx(iconClass, "text-blue-500")} />;
+        return <PhoneIcon className={clsx(iconClass, "text-orange-400")} />;
       case 'system_announcement':
-        return <InformationCircleIcon className={clsx(iconClass, "text-indigo-500")} />;
+        return <InformationCircleIcon className={clsx(iconClass, "text-orange-400")} />;
       case 'profile_update_required':
-        return <ExclamationTriangleIcon className={clsx(iconClass, "text-orange-500")} />;
+        return <ExclamationTriangleIcon className={clsx(iconClass, "text-red-400")} />;
       default:
-        return <BellIcon className={clsx(iconClass, "text-gray-500")} />;
+        return <BellIcon className={clsx(iconClass, "text-gray-400")} />;
     }
   };
 
   const getPriorityColor = (priority) => {
     switch (priority) {
       case 'urgent':
-        return 'border-l-red-500 bg-red-50';
+        return 'border-l-red-500 bg-gradient-to-r from-red-900/20 to-red-800/10';
       case 'high':
-        return 'border-l-orange-500 bg-orange-50';
+        return 'border-l-orange-500 bg-gradient-to-r from-orange-900/20 to-orange-800/10';
       case 'medium':
-        return 'border-l-blue-500 bg-blue-50';
+        return 'border-l-orange-400 bg-gradient-to-r from-orange-900/10 to-orange-800/5';
       case 'low':
-        return 'border-l-gray-500 bg-gray-50';
+        return 'border-l-gray-500 bg-gradient-to-r from-gray-900/10 to-gray-800/5';
       default:
-        return 'border-l-gray-300 bg-white';
+        return 'border-l-gray-600 bg-gradient-to-br from-gray-900 to-black';
     }
   };
 
@@ -193,65 +193,67 @@ const NotificationsPage = () => {
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
       <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-        {/* Header */}
+        {/* Battle Alert Center Header */}
         <div className="mb-8">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900">Notifications</h1>
-              <p className="mt-2 text-sm text-gray-600">
-                {totalCount} total notifications • {unreadCount} unread
+              <h1 className="text-4xl font-black text-white uppercase tracking-wider mb-4">
+                <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">BATTLE</span> ALERT CENTER
+              </h1>
+              <p className="text-gray-300 font-medium">
+                {totalCount} total battle alerts • {unreadCount} unread tactical updates
               </p>
             </div>
             {unreadCount > 0 && (
               <button
                 onClick={markAllAsRead}
-                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-black uppercase tracking-wider hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500 transition-all duration-200"
               >
-                <CheckIcon className="w-4 h-4 mr-2" />
+                <CheckIcon className="w-5 h-5 mr-2" />
                 Mark All Read
               </button>
             )}
           </div>
         </div>
 
-        {/* Filters */}
-        <div className="bg-white rounded-lg shadow mb-6 p-6">
+        {/* Battle Alert Filters */}
+        <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-2xl border border-orange-500/30 mb-8 p-6">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {/* Search */}
+            {/* Battle Alert Search */}
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <MagnifyingGlassIcon className="h-5 w-5 text-gray-400" />
+              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                <MagnifyingGlassIcon className="h-5 w-5 text-orange-500" />
               </div>
               <input
                 type="text"
-                placeholder="Search notifications..."
+                placeholder="Search battle alerts..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="block w-full pl-10 pr-3 py-2 border border-gray-300 rounded-md leading-5 bg-white placeholder-gray-500 focus:outline-none focus:placeholder-gray-400 focus:ring-1 focus:ring-primary-500 focus:border-primary-500"
+                className="block w-full pl-12 pr-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
               />
             </div>
 
-            {/* Read Status Filter */}
+            {/* Alert Status Filter */}
             <div>
               <select
                 value={filter}
                 onChange={(e) => setFilter(e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
               >
-                <option value="all">All Notifications</option>
+                <option value="all">All Battle Alerts</option>
                 <option value="unread">Unread Only</option>
                 <option value="read">Read Only</option>
               </select>
             </div>
 
-            {/* Type Filter */}
+            {/* Alert Type Filter */}
             <div>
               <select
                 value={typeFilter}
                 onChange={(e) => setTypeFilter(e.target.value)}
-                className="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                className="block w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
               >
                 {notificationTypes.map(type => (
                   <option key={type.value} value={type.value}>
@@ -263,30 +265,32 @@ const NotificationsPage = () => {
           </div>
         </div>
 
-        {/* Notifications List */}
-        <div className="bg-white shadow rounded-lg overflow-hidden">
+        {/* Battle Alerts List */}
+        <div className="bg-gradient-to-br from-gray-900 to-black shadow-2xl rounded-xl border border-orange-500/30 overflow-hidden">
           {loading && notifications.length === 0 ? (
-            <div className="p-8 text-center">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600 mx-auto"></div>
-              <p className="mt-4 text-gray-500">Loading notifications...</p>
+            <div className="p-12 text-center">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mx-auto mb-6"></div>
+              <p className="text-gray-300 font-bold uppercase tracking-wider">Loading Battle Alerts...</p>
             </div>
           ) : filteredNotifications.length === 0 ? (
-            <div className="p-8 text-center">
-              <BellIcon className="mx-auto h-12 w-12 text-gray-400" />
-              <h3 className="mt-2 text-sm font-medium text-gray-900">No notifications</h3>
-              <p className="mt-1 text-sm text-gray-500">
-                {searchTerm ? 'No notifications match your search.' : "You're all caught up!"}
+            <div className="p-12 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-orange-500">
+                <BellIcon className="h-8 w-8 text-white" />
+              </div>
+              <h3 className="text-lg font-black text-white uppercase tracking-wider mb-2">No Battle Alerts</h3>
+              <p className="text-gray-400 font-medium">
+                {searchTerm ? 'No alerts match your search criteria.' : "All clear on the battlefield!"}
               </p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-200">
+            <div className="divide-y divide-orange-500/20">
               {filteredNotifications.map((notification) => (
                 <div
                   key={notification.id}
                   className={clsx(
-                    'relative p-6 hover:bg-gray-50 transition-colors duration-200 border-l-4',
+                    'relative p-6 hover:bg-gray-800/50 transition-colors duration-200 border-l-4',
                     getPriorityColor(notification.priority),
-                    !notification.isRead && 'bg-blue-50'
+                    !notification.isRead && 'bg-orange-900/10'
                   )}
                 >
                   <div className="flex items-start justify-between">
@@ -299,41 +303,41 @@ const NotificationsPage = () => {
                           {getNotificationIcon(notification.type)}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <div className="flex items-center space-x-2 mb-1">
+                          <div className="flex items-center space-x-2 mb-2">
                             <h3 className={clsx(
-                              'text-lg font-medium',
-                              notification.isRead ? 'text-gray-700' : 'text-gray-900'
+                              'text-lg font-black uppercase tracking-wider',
+                              notification.isRead ? 'text-gray-300' : 'text-white'
                             )}>
                               {notification.title}
                             </h3>
                             {!notification.isRead && (
-                              <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              <span className="inline-flex items-center px-2 py-1 rounded-xl text-xs font-black uppercase tracking-wider bg-gradient-to-r from-orange-600 to-red-600 text-white border border-orange-500">
                                 New
                               </span>
                             )}
                             <span className={clsx(
-                              'inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium',
-                              notification.priority === 'urgent' ? 'bg-red-100 text-red-800' :
-                              notification.priority === 'high' ? 'bg-orange-100 text-orange-800' :
-                              notification.priority === 'medium' ? 'bg-blue-100 text-blue-800' :
-                              'bg-gray-100 text-gray-800'
+                              'inline-flex items-center px-2 py-1 rounded-xl text-xs font-black uppercase tracking-wider border',
+                              notification.priority === 'urgent' ? 'bg-gradient-to-r from-red-600/20 to-red-500/20 text-red-400 border-red-500/30' :
+                              notification.priority === 'high' ? 'bg-gradient-to-r from-orange-600/20 to-orange-500/20 text-orange-400 border-orange-500/30' :
+                              notification.priority === 'medium' ? 'bg-gradient-to-r from-orange-600/10 to-orange-500/10 text-orange-300 border-orange-500/20' :
+                              'bg-gradient-to-r from-gray-600/20 to-gray-500/20 text-gray-400 border-gray-500/30'
                             )}>
                               {notification.priority}
                             </span>
                           </div>
                           <p className={clsx(
-                            'text-sm mb-2',
-                            notification.isRead ? 'text-gray-500' : 'text-gray-700'
+                            'text-sm mb-3 font-medium',
+                            notification.isRead ? 'text-gray-400' : 'text-gray-300'
                           )}>
                             {notification.message}
                           </p>
-                          <div className="flex items-center space-x-4 text-xs text-gray-400">
+                          <div className="flex items-center space-x-4 text-xs text-gray-500 font-medium">
                             <span>
-                              {formatDistanceToNow(new Date(notification.createdAt))} ago
+                              ⚔️ {formatDistanceToNow(new Date(notification.createdAt))} ago
                             </span>
                             {notification.readAt && (
                               <span>
-                                Read {formatDistanceToNow(new Date(notification.readAt))} ago
+                                📖 Read {formatDistanceToNow(new Date(notification.readAt))} ago
                               </span>
                             )}
                           </div>
@@ -341,7 +345,7 @@ const NotificationsPage = () => {
                       </div>
                     </div>
                     
-                    {/* Action Buttons */}
+                    {/* Battle Action Buttons */}
                     <div className="flex items-center space-x-2 ml-4">
                       {!notification.isRead && (
                         <button
@@ -349,7 +353,7 @@ const NotificationsPage = () => {
                             e.stopPropagation();
                             markAsRead(notification.id);
                           }}
-                          className="p-2 text-gray-400 hover:text-blue-600 rounded-full hover:bg-blue-100 transition-colors"
+                          className="p-2 text-gray-400 hover:text-green-400 rounded-xl hover:bg-green-900/20 border border-gray-700 hover:border-green-500/50 transition-all duration-200"
                           title="Mark as read"
                         >
                           <CheckIcon className="w-5 h-5" />
@@ -358,11 +362,11 @@ const NotificationsPage = () => {
                       <button
                         onClick={(e) => {
                           e.stopPropagation();
-                          if (window.confirm('Are you sure you want to delete this notification?')) {
+                          if (window.confirm('Are you sure you want to delete this battle alert?')) {
                             deleteNotification(notification.id);
                           }
                         }}
-                        className="p-2 text-gray-400 hover:text-red-600 rounded-full hover:bg-red-100 transition-colors"
+                        className="p-2 text-gray-400 hover:text-red-400 rounded-xl hover:bg-red-900/20 border border-gray-700 hover:border-red-500/50 transition-all duration-200"
                         title="Delete"
                       >
                         <TrashIcon className="w-5 h-5" />
@@ -374,21 +378,21 @@ const NotificationsPage = () => {
             </div>
           )}
 
-          {/* Load More Button */}
+          {/* Load More Battle Alerts */}
           {hasMore && filteredNotifications.length > 0 && (
-            <div className="p-4 border-t border-gray-200 text-center">
+            <div className="p-6 border-t border-orange-500/30 text-center">
               <button
                 onClick={() => loadNotifications(false)}
                 disabled={loading}
-                className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                className="inline-flex items-center px-6 py-3 bg-gray-800 border border-gray-700 text-gray-300 rounded-xl font-black uppercase tracking-wider hover:bg-gray-700 hover:border-orange-500/50 focus:outline-none focus:ring-2 focus:ring-orange-500 disabled:opacity-50 transition-all duration-200"
               >
                 {loading ? (
                   <>
-                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
-                    Loading...
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-orange-500 mr-2"></div>
+                    Loading More Alerts...
                   </>
                 ) : (
-                  'Load More'
+                  'Load More Battle Alerts'
                 )}
               </button>
             </div>
