@@ -393,7 +393,7 @@ const RoomChatView = ({ room }) => {
   const categoryInfo = getCategoryInfo(room.category);
 
   return (
-    <div className="flex flex-col h-full bg-black relative">
+    <div className="flex flex-col h-full bg-black">
       {/* Battle Room Header */}
       <div className="flex items-center justify-between p-4 sm:p-6 border-b border-orange-500/30 bg-gradient-to-r from-gray-900 to-black flex-shrink-0 z-10">
         <div className="flex items-center space-x-3 flex-1 min-w-0">
@@ -447,7 +447,7 @@ const RoomChatView = ({ room }) => {
       )}
 
       {/* Battle Messages Area */}
-      <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gradient-to-b from-black to-gray-900">
+      <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-gradient-to-b from-black to-gray-900 min-h-0">
         {messagesLoading ? (
           <div className="flex justify-center py-12">
             <div className="text-center">

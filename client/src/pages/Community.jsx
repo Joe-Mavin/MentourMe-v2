@@ -80,7 +80,7 @@ const Community = () => {
   // Community layout wrapper
   const CommunityLayout = () => {
     return (
-      <div className="h-full flex">
+      <div className="h-full flex overflow-hidden">
         {/* Connection status indicator */}
         {!isConnected && (
           <div className="absolute top-0 left-0 right-0 bg-gradient-to-r from-red-600 to-orange-600 text-white text-center py-3 text-sm font-bold z-10 border-b border-red-500">
@@ -98,7 +98,7 @@ const Community = () => {
         </div>
 
         {/* Main chat area */}
-        <div className="flex-1 bg-black">
+        <div className="flex-1 bg-black h-full overflow-hidden">
           <Routes>
             <Route 
               path="/" 
@@ -130,7 +130,7 @@ const Community = () => {
 
   return (
     <ErrorBoundary>
-      <div className="h-full -m-6"> {/* Remove default padding for full-height layout */}
+      <div className="h-screen -m-6 -mt-12"> {/* Use viewport height to ensure proper sizing */}
         <CommunityLayout />
       </div>
     </ErrorBoundary>
@@ -308,7 +308,7 @@ const RoomChatWrapper = ({ onStartCall, onSelectRoom }) => {
 
   return (
     <MessagingProvider>
-      <div className="h-full">
+      <div className="h-full overflow-hidden">
         <RoomChatView room={room} />
       </div>
     </MessagingProvider>
