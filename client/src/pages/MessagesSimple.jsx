@@ -274,20 +274,23 @@ const MessagesSimple = () => {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <LoadingSpinner size="lg" text="Loading messages..." />
+      <div className="flex items-center justify-center h-64 bg-gradient-to-br from-gray-900 via-black to-gray-900">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mx-auto mb-4"></div>
+          <p className="text-gray-300 font-bold uppercase tracking-wider">Loading Battle Communications...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="h-full flex bg-gray-50 -m-6">
-      {/* Sidebar - Conversations */}
-      <div className="w-80 border-r border-gray-200 bg-white flex-shrink-0">
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900 flex items-center mb-3">
-            <ChatBubbleLeftRightIcon className="w-5 h-5 mr-2" />
-            Messages
+    <div className="h-full flex bg-gradient-to-br from-gray-900 via-black to-gray-900 -m-6">
+      {/* Sidebar - Battle Communications */}
+      <div className="w-80 border-r border-orange-500/30 bg-gradient-to-b from-gray-900 to-black flex-shrink-0">
+        <div className="p-4 sm:p-6 border-b border-orange-500/30">
+          <h2 className="text-lg sm:text-xl font-black text-white flex items-center mb-4 uppercase tracking-wider">
+            <ChatBubbleLeftRightIcon className="w-5 h-5 mr-3 text-orange-500" />
+            <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">BATTLE</span> COMMS
           </h2>
           
           {/* Search for users */}

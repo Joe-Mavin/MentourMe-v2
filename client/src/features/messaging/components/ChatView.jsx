@@ -81,13 +81,15 @@ const ChatView = ({ className }) => {
 
   if (!activeConversation) {
     return (
-      <div className={clsx('flex flex-col items-center justify-center h-full bg-gray-50', className)}>
-        <div className="text-center">
-          <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center mb-4">
-            <UserIcon className="w-8 h-8 text-gray-400" />
+      <div className={clsx('flex flex-col items-center justify-center h-full bg-gradient-to-br from-black via-gray-900 to-black', className)}>
+        <div className="text-center max-w-md px-8">
+          <div className="w-24 h-24 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mb-8 border-4 border-orange-500 mx-auto">
+            <UserIcon className="w-12 h-12 text-white" />
           </div>
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Select a conversation</h3>
-          <p className="text-sm text-gray-500">Choose a conversation from the sidebar to start messaging</p>
+          <h3 className="text-2xl font-black text-white mb-4 uppercase tracking-wider">
+            Select <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">Battle</span> Communication
+          </h3>
+          <p className="text-gray-300 font-medium">Choose a warrior from the sidebar to begin strategic communications</p>
         </div>
       </div>
     );
@@ -101,58 +103,58 @@ const ChatView = ({ className }) => {
   const isOnline = otherParticipant ? isUserOnline(otherParticipant.id, onlineUsers) : false;
 
   return (
-    <div className={clsx('flex flex-col h-full bg-white', className)}>
-      {/* Header */}
-      <div className="flex items-center justify-between p-4 border-b border-gray-200 bg-white">
-        <div className="flex items-center">
-          {/* Avatar */}
-          <div className="relative flex-shrink-0 mr-3">
+    <div className={clsx('flex flex-col h-full bg-black', className)}>
+      {/* Battle Communication Header */}
+      <div className="flex items-center justify-between p-4 sm:p-6 border-b border-orange-500/30 bg-gradient-to-r from-gray-900 to-black flex-shrink-0">
+        <div className="flex items-center flex-1 min-w-0">
+          {/* Battle Avatar */}
+          <div className="relative flex-shrink-0 mr-4">
             {conversationAvatar ? (
               <img
                 src={conversationAvatar}
                 alt={conversationName}
-                className="w-10 h-10 rounded-full object-cover"
+                className="w-12 h-12 rounded-xl object-cover border-2 border-orange-500"
               />
             ) : (
-              <div className="w-10 h-10 bg-gray-300 rounded-full flex items-center justify-center">
-                <UserIcon className="w-5 h-5 text-gray-600" />
+              <div className="w-12 h-12 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center border-2 border-orange-500">
+                <UserIcon className="w-6 h-6 text-white" />
               </div>
             )}
             
-            {/* Online indicator */}
+            {/* Battle Status Indicator */}
             {isOnline && (
-              <div className="absolute -bottom-0.5 -right-0.5 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>
+              <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 border-2 border-black rounded-full shadow-lg"></div>
             )}
           </div>
 
-          {/* Name and status */}
-          <div>
-            <h2 className="text-lg font-semibold text-gray-900">{conversationName}</h2>
+          {/* Warrior Name and Status */}
+          <div className="flex-1 min-w-0">
+            <h2 className="text-lg sm:text-xl font-black text-white uppercase tracking-wider truncate">{conversationName}</h2>
             {isOnline && (
-              <p className="text-sm text-green-600">Online</p>
+              <p className="text-sm text-green-400 font-bold uppercase tracking-wider">⚔️ Battle Ready</p>
             )}
           </div>
         </div>
 
-        {/* Actions */}
+        {/* Battle Actions */}
         <div className="flex items-center space-x-2">
           <button
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Voice call"
+            className="p-2 sm:p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
+            title="Battle voice call"
           >
-            <PhoneIcon className="w-5 h-5" />
+            <PhoneIcon className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Video call"
+            className="p-2 sm:p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
+            title="Battle video call"
           >
-            <VideoCameraIcon className="w-5 h-5" />
+            <VideoCameraIcon className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
           <button
-            className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
-            title="Conversation info"
+            className="p-2 sm:p-3 text-gray-300 hover:text-orange-400 hover:bg-gray-800 rounded-xl transition-all duration-200 border border-gray-700 hover:border-orange-500/50"
+            title="Battle intel"
           >
-            <InformationCircleIcon className="w-5 h-5" />
+            <InformationCircleIcon className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </div>
       </div>
@@ -170,21 +172,21 @@ const ChatView = ({ className }) => {
           className="flex-1"
         />
 
-        {/* Typing Indicator */}
+        {/* Battle Typing Indicator */}
         {typingUsers.length > 0 && (
-          <div className="px-4 py-2">
+          <div className="px-4 sm:px-6 py-3">
             <TypingIndicator users={typingUsers} />
           </div>
         )}
 
-        {/* Message Input */}
-        <div className="border-t border-gray-200 bg-white">
+        {/* Battle Message Input */}
+        <div className="border-t border-orange-500/30 bg-gradient-to-r from-gray-900 to-black flex-shrink-0">
           <MessageInput
             onSendMessage={handleSendMessage}
             onTypingStart={handleTypingStart}
             onTypingStop={handleTypingStop}
             disabled={loading.sending}
-            placeholder={`Message ${conversationName}...`}
+            placeholder={`Send battle message to ${conversationName}...`}
           />
         </div>
       </div>
