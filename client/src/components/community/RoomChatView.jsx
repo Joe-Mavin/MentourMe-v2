@@ -550,8 +550,8 @@ const RoomChatView = ({ room }) => {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Battle Message Input - Always Visible at Bottom */}
-      <div className="border-t border-orange-500/30 p-3 sm:p-6 bg-gradient-to-r from-gray-900 to-black flex-shrink-0 shadow-2xl shadow-black/20">
+      {/* Battle Message Input - Sticky at Bottom */}
+      <div className="sticky bottom-0 border-t border-orange-500/30 p-3 sm:p-6 bg-gradient-to-r from-gray-900 to-black flex-shrink-0 shadow-2xl shadow-black/20 z-10">
         {/* Reply Preview */}
         {replyingTo && (
           <div className="mb-4 p-4 bg-gray-800 border-l-4 border-orange-500 rounded-r-xl">
