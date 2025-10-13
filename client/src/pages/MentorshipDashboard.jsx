@@ -93,22 +93,25 @@ const MentorshipDashboard = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <LoadingSpinner size="lg" />
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-orange-500 mx-auto mb-6"></div>
+          <p className="text-gray-300 font-bold uppercase tracking-wider">Loading Battle Command Center...</p>
+        </div>
       </div>
     );
   }
 
-  const StatCard = ({ title, value, subtitle, icon: Icon, color = 'blue' }) => (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+  const StatCard = ({ title, value, subtitle, icon: Icon, color = 'orange' }) => (
+    <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-2xl border border-orange-500/30 p-6 hover:shadow-orange-500/10 transition-all duration-300">
       <div className="flex items-center">
-        <div className={`p-3 rounded-lg bg-${color}-100`}>
-          <Icon className={`w-6 h-6 text-${color}-600`} />
+        <div className="p-4 rounded-xl bg-gradient-to-br from-orange-600 to-red-600 border-2 border-orange-500">
+          <Icon className="w-6 h-6 text-white" />
         </div>
         <div className="ml-4">
-          <p className="text-2xl font-semibold text-gray-900">{value}</p>
-          <p className="text-sm font-medium text-gray-600">{title}</p>
-          {subtitle && <p className="text-xs text-gray-500">{subtitle}</p>}
+          <p className="text-3xl font-black text-orange-400">{value}</p>
+          <p className="text-sm font-bold text-gray-300 uppercase tracking-wider">{title}</p>
+          {subtitle && <p className="text-xs text-gray-400 font-medium">{subtitle}</p>}
         </div>
       </div>
     </div>
@@ -119,55 +122,55 @@ const MentorshipDashboard = () => {
     const myRole = isMentor ? 'mentor' : 'mentee';
     
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3">
-            <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center">
+      <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-2xl border border-orange-500/30 p-6 hover:shadow-orange-500/10 transition-all duration-300">
+        <div className="flex items-start justify-between mb-6">
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center border-2 border-orange-500">
               {otherUser.avatar ? (
                 <img 
                   src={otherUser.avatar} 
                   alt={otherUser.name}
-                  className="w-12 h-12 rounded-full object-cover"
+                  className="w-16 h-16 rounded-xl object-cover"
                 />
               ) : (
-                <UserGroupIcon className="w-6 h-6 text-gray-500" />
+                <UserGroupIcon className="w-8 h-8 text-white" />
               )}
             </div>
             <div>
-              <h3 className="text-lg font-semibold text-gray-900">
+              <h3 className="text-xl font-black text-white uppercase tracking-wider">
                 {otherUser.name}
               </h3>
-              <p className="text-sm text-gray-500 capitalize">
-                Your {isMentor ? 'mentee' : 'mentor'}
+              <p className="text-sm text-orange-400 capitalize font-bold uppercase tracking-wider">
+                Your {isMentor ? 'Battle Apprentice' : 'Elite Commander'}
               </p>
-              <div className="flex items-center mt-1">
-                <CheckCircleIcon className="w-4 h-4 text-green-500 mr-1" />
-                <span className="text-xs text-green-600">Active since {new Date(mentorship.respondedAt).toLocaleDateString()}</span>
+              <div className="flex items-center mt-2">
+                <CheckCircleIcon className="w-4 h-4 text-green-400 mr-2" />
+                <span className="text-xs text-green-400 font-medium">⚔️ Alliance since {new Date(mentorship.respondedAt).toLocaleDateString()}</span>
               </div>
             </div>
           </div>
         </div>
 
 
-        {/* Action buttons */}
-        <div className="grid grid-cols-3 gap-2 mb-4">
+        {/* Battle Action Buttons */}
+        <div className="grid grid-cols-3 gap-3 mb-6">
           <button
             onClick={() => navigate(`/messages/direct/${otherUser.id}`)}
-            className="flex items-center justify-center px-2 py-2 bg-primary-50 text-primary-700 rounded-lg hover:bg-primary-100 transition-colors"
+            className="flex flex-col items-center justify-center px-3 py-3 bg-gray-800 text-orange-400 rounded-xl hover:bg-gray-700 border border-gray-700 hover:border-orange-500/50 transition-all duration-200"
           >
-            <ChatBubbleLeftRightIcon className="w-4 h-4 mr-1" />
-            <span className="text-xs font-medium">Message</span>
+            <ChatBubbleLeftRightIcon className="w-5 h-5 mb-1" />
+            <span className="text-xs font-black uppercase tracking-wider">Battle Comms</span>
           </button>
           <button
             onClick={() => handleScheduleSession(mentorship)}
-            className="flex items-center justify-center px-2 py-2 bg-green-50 text-green-700 rounded-lg hover:bg-green-100 transition-colors"
+            className="flex flex-col items-center justify-center px-3 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500 transition-all duration-200"
           >
-            <CalendarIcon className="w-4 h-4 mr-1" />
-            <span className="text-xs font-medium">Schedule</span>
+            <CalendarIcon className="w-5 h-5 mb-1" />
+            <span className="text-xs font-black uppercase tracking-wider">Schedule</span>
           </button>
-          <div className="text-center p-2 bg-gray-50 rounded">
-            <PhoneIcon className="w-4 h-4 mx-auto mb-1 text-gray-400" />
-            <span className="text-gray-600 text-xs">0 calls</span>
+          <div className="flex flex-col items-center justify-center p-3 bg-gray-800 rounded-xl border border-gray-700">
+            <PhoneIcon className="w-5 h-5 mb-1 text-gray-400" />
+            <span className="text-gray-400 text-xs font-medium">0 battles</span>
           </div>
         </div>
 
