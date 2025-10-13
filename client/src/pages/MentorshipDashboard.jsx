@@ -153,24 +153,24 @@ const MentorshipDashboard = () => {
 
 
         {/* Battle Action Buttons */}
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-6">
           <button
             onClick={() => navigate(`/messages/direct/${otherUser.id}`)}
-            className="flex flex-col items-center justify-center px-3 py-3 bg-gray-800 text-orange-400 rounded-xl hover:bg-gray-700 border border-gray-700 hover:border-orange-500/50 transition-all duration-200"
+            className="flex flex-col sm:flex-col items-center justify-center px-3 py-3 bg-gray-800 text-orange-400 rounded-xl hover:bg-gray-700 border border-gray-700 hover:border-orange-500/50 transition-all duration-200"
           >
             <ChatBubbleLeftRightIcon className="w-5 h-5 mb-1" />
-            <span className="text-xs font-black uppercase tracking-wider">Battle Comms</span>
+            <span className="text-xs font-black uppercase tracking-wider text-center">Battle Comms</span>
           </button>
           <button
             onClick={() => handleScheduleSession(mentorship)}
-            className="flex flex-col items-center justify-center px-3 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500 transition-all duration-200"
+            className="flex flex-col sm:flex-col items-center justify-center px-3 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500 transition-all duration-200"
           >
             <CalendarIcon className="w-5 h-5 mb-1" />
-            <span className="text-xs font-black uppercase tracking-wider">Schedule</span>
+            <span className="text-xs font-black uppercase tracking-wider text-center">Schedule Battle</span>
           </button>
-          <div className="flex flex-col items-center justify-center p-3 bg-gray-800 rounded-xl border border-gray-700">
+          <div className="flex flex-col sm:flex-col items-center justify-center p-3 bg-gray-800 rounded-xl border border-gray-700">
             <PhoneIcon className="w-5 h-5 mb-1 text-gray-400" />
-            <span className="text-gray-400 text-xs font-medium">0 battles</span>
+            <span className="text-gray-400 text-xs font-medium text-center">0 battles</span>
           </div>
         </div>
 
@@ -260,64 +260,64 @@ const MentorshipDashboard = () => {
           )}
 
           {showActions && isReceived && request.status === 'pending' && (
-            <div className="mt-6 flex items-center space-x-3">
+            <div className="mt-6 flex flex-col sm:flex-row gap-3">
               <button
                 onClick={() => handleResponse('accept')}
                 disabled={responding}
-                className="flex-1 inline-flex justify-center items-center px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-black uppercase tracking-wider hover:shadow-lg hover:shadow-green-500/25 border border-green-500 transition-all duration-200 disabled:opacity-50"
+                className="flex-1 inline-flex justify-center items-center px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-black text-sm uppercase tracking-wider hover:shadow-lg hover:shadow-green-500/25 border border-green-500 transition-all duration-200 disabled:opacity-50"
               >
-                <CheckCircleIcon className="w-5 h-5 mr-2" />
-                Accept Alliance
+                <CheckCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                <span className="whitespace-nowrap">Accept Alliance</span>
               </button>
               <button
                 onClick={() => handleResponse('reject')}
                 disabled={responding}
-                className="flex-1 inline-flex justify-center items-center px-4 py-3 bg-gray-800 text-gray-300 rounded-xl font-black uppercase tracking-wider hover:bg-gray-700 border border-gray-700 hover:border-red-500/50 transition-all duration-200 disabled:opacity-50"
+                className="flex-1 inline-flex justify-center items-center px-4 py-3 bg-gray-800 text-gray-300 rounded-xl font-black text-sm uppercase tracking-wider hover:bg-gray-700 border border-gray-700 hover:border-red-500/50 transition-all duration-200 disabled:opacity-50"
               >
-                <XCircleIcon className="w-5 h-5 mr-2" />
-                Decline
+                <XCircleIcon className="w-4 h-4 sm:w-5 sm:h-5 mr-2" />
+                <span className="whitespace-nowrap">Decline</span>
               </button>
             </div>
           )}
         </div>
 
-        {/* Notes modal for rejection */}
+        {/* Battle Notes Modal for Rejection */}
         {showNotesModal && (
-          <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50">
-            <div className="relative top-20 mx-auto p-5 border w-full max-w-md shadow-lg rounded-md bg-white">
-              <div className="mt-3">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Add a note (optional)
+          <div className="fixed inset-0 bg-black bg-opacity-75 overflow-y-auto h-full w-full z-50 p-4">
+            <div className="relative top-20 mx-auto border w-full max-w-md shadow-2xl rounded-xl bg-gradient-to-br from-gray-900 to-black border-orange-500/30">
+              <div className="p-6">
+                <h3 className="text-lg font-black text-white uppercase tracking-wider mb-4">
+                  ⚔️ Add Battle Note (Optional)
                 </h3>
                 <textarea
                   value={notes}
                   onChange={(e) => setNotes(e.target.value)}
                   rows={3}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="Let them know why you're declining..."
+                  className="w-full px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 font-medium"
+                  placeholder="Let them know why you're declining this alliance..."
                   maxLength={500}
                 />
-                <div className="text-right text-xs text-gray-500 mt-1">
+                <div className="text-right text-xs text-gray-400 mt-2 font-medium">
                   {notes.length}/500
                 </div>
                 
-                <div className="flex items-center justify-end space-x-3 mt-4">
+                <div className="flex flex-col sm:flex-row gap-3 mt-6">
                   <button
                     onClick={() => {
                       setShowNotesModal(false);
                       setNotes('');
                       setPendingAction(null);
                     }}
-                    className="px-4 py-2 border border-gray-300 rounded-md text-sm font-medium text-gray-700 hover:bg-gray-50"
+                    className="flex-1 px-4 py-3 bg-gray-800 border border-gray-700 rounded-xl text-gray-300 font-black text-sm uppercase tracking-wider hover:bg-gray-700 transition-all duration-200"
                   >
                     Cancel
                   </button>
                   <button
                     onClick={() => handleResponse(pendingAction)}
                     disabled={responding}
-                    className="px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50"
+                    className="flex-1 px-4 py-3 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-xl font-black text-sm uppercase tracking-wider hover:shadow-lg hover:shadow-red-500/25 border border-red-500 transition-all duration-200 disabled:opacity-50"
                   >
-                    {responding ? 'Declining...' : 'Decline Request'}
+                    {responding ? 'Declining...' : 'Decline Alliance'}
                   </button>
                 </div>
               </div>
@@ -409,10 +409,10 @@ const MentorshipDashboard = () => {
               <h2 className="text-xl font-black text-white uppercase tracking-wider mb-6">
                 <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">QUICK</span> BATTLE COMMANDS
               </h2>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                 <button className="flex items-center p-4 bg-gray-800 border border-gray-700 rounded-xl hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-200">
-                  <PlusIcon className="w-6 h-6 mr-3 text-orange-500" />
-                  <span className="text-sm font-black text-gray-300 uppercase tracking-wider">
+                  <PlusIcon className="w-6 h-6 mr-3 text-orange-500 flex-shrink-0" />
+                  <span className="text-sm font-black text-gray-300 uppercase tracking-wider text-left">
                     {isMentor ? 'Recruit Warriors' : 'Find Elite Commander'}
                   </span>
                 </button>
@@ -426,12 +426,12 @@ const MentorshipDashboard = () => {
                   }}
                   className="flex items-center p-4 bg-gradient-to-r from-orange-600 to-red-600 border border-orange-500 rounded-xl hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200"
                 >
-                  <CalendarIcon className="w-6 h-6 mr-3 text-white" />
-                  <span className="text-sm font-black text-white uppercase tracking-wider">Schedule Battle</span>
+                  <CalendarIcon className="w-6 h-6 mr-3 text-white flex-shrink-0" />
+                  <span className="text-sm font-black text-white uppercase tracking-wider text-left">Schedule Battle</span>
                 </button>
-                <button className="flex items-center p-4 bg-gray-800 border border-gray-700 rounded-xl hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-200">
-                  <ChatBubbleLeftRightIcon className="w-6 h-6 mr-3 text-orange-500" />
-                  <span className="text-sm font-black text-gray-300 uppercase tracking-wider">Battle Comms</span>
+                <button className="flex items-center p-4 bg-gray-800 border border-gray-700 rounded-xl hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-200 sm:col-span-2 lg:col-span-1">
+                  <ChatBubbleLeftRightIcon className="w-6 h-6 mr-3 text-orange-500 flex-shrink-0" />
+                  <span className="text-sm font-black text-gray-300 uppercase tracking-wider text-left">Battle Comms</span>
                 </button>
               </div>
             </div>
@@ -455,25 +455,27 @@ const MentorshipDashboard = () => {
         {activeTab === 'mentorships' && (
           <div className="space-y-6">
             {activeMentorships.length > 0 ? (
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6">
                 {activeMentorships.map((mentorship) => (
                   <MentorshipCard key={mentorship.id} mentorship={mentorship} />
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <UserGroupIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No Active Mentorships
+              <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl border border-orange-500/30 p-8 sm:p-12 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-orange-500">
+                  <UserGroupIcon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-black text-white uppercase tracking-wider mb-4">
+                  No Active Alliances
                 </h3>
-                <p className="text-gray-600 mb-6">
+                <p className="text-gray-300 mb-8 max-w-md mx-auto">
                   {isMentor 
-                    ? "You don't have any mentees yet. Start by reviewing pending requests or finding mentees to guide."
-                    : "You don't have a mentor yet. Send a request to connect with experienced mentors in your field."
+                    ? "You don't have any battle companions yet. Start by reviewing pending alliance requests or finding warriors to guide."
+                    : "You don't have a battle commander yet. Send a request to connect with experienced warriors in your field."
                   }
                 </p>
-                <button className="btn btn-primary">
-                  {isMentor ? 'Find Mentees' : 'Find a Mentor'}
+                <button className="px-6 py-3 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-black uppercase tracking-wider hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500 transition-all duration-200">
+                  {isMentor ? 'Find Battle Companions' : 'Find a Battle Commander'}
                 </button>
               </div>
             )}
@@ -482,21 +484,21 @@ const MentorshipDashboard = () => {
 
         {activeTab === 'sessions' && (
           <div className="space-y-6">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">Your Sessions</h2>
+            <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-2xl border border-orange-500/30 p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+                <h2 className="text-xl font-black text-white uppercase tracking-wider">Your Battle Sessions</h2>
                 <button
                   onClick={() => {
                     if (activeMentorships.length > 0) {
                       handleScheduleSession(); // Let user choose from dropdown
                     } else {
-                      toast.error('You need an active mentorship to schedule a session');
+                      toast.error('You need an active alliance to schedule a battle session');
                     }
                   }}
-                  className="btn btn-primary"
+                  className="flex items-center justify-center px-4 py-2 bg-gradient-to-r from-orange-600 to-red-600 text-white rounded-xl font-black text-sm uppercase tracking-wider hover:shadow-lg hover:shadow-orange-500/25 border border-orange-500 transition-all duration-200 whitespace-nowrap"
                 >
                   <CalendarIcon className="w-4 h-4 mr-2" />
-                  Schedule New Session
+                  Schedule Battle Session
                 </button>
               </div>
               <SessionsList />
@@ -513,15 +515,17 @@ const MentorshipDashboard = () => {
                 ))}
               </div>
             ) : (
-              <div className="text-center py-12">
-                <ExclamationCircleIcon className="w-12 h-12 mx-auto text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">
-                  No Pending Requests
+              <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl border border-orange-500/30 p-8 sm:p-12 text-center">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-6 border-2 border-orange-500">
+                  <ExclamationCircleIcon className="w-8 h-8 text-white" />
+                </div>
+                <h3 className="text-xl font-black text-white uppercase tracking-wider mb-4">
+                  No Pending Alliance Requests
                 </h3>
-                <p className="text-gray-600">
+                <p className="text-gray-300 max-w-md mx-auto">
                   {isMentor 
-                    ? "You don't have any pending mentorship requests at the moment."
-                    : "You haven't sent any mentorship requests yet."
+                    ? "You don't have any pending alliance requests at the moment. Warriors seeking guidance will appear here."
+                    : "You haven't sent any alliance requests yet. Connect with experienced battle commanders to enhance your skills."
                   }
                 </p>
               </div>
