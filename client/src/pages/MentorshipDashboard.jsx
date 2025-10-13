@@ -214,39 +214,39 @@ const MentorshipDashboard = () => {
 
     return (
       <>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+        <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-2xl border border-orange-500/30 p-6 hover:shadow-orange-500/10 transition-all duration-300">
           <div className="flex items-start justify-between">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center">
+            <div className="flex items-center space-x-4">
+              <div className="w-14 h-14 bg-gradient-to-br from-orange-600 to-red-600 rounded-xl flex items-center justify-center border-2 border-orange-500">
                 {otherUser.avatar ? (
                   <img 
                     src={otherUser.avatar} 
                     alt={otherUser.name}
-                    className="w-10 h-10 rounded-full object-cover"
+                    className="w-14 h-14 rounded-xl object-cover"
                   />
                 ) : (
-                  <UserGroupIcon className="w-5 h-5 text-gray-500" />
+                  <UserGroupIcon className="w-7 h-7 text-white" />
                 )}
               </div>
               <div className="flex-1">
-                <h4 className="text-base font-medium text-gray-900">
+                <h4 className="text-lg font-black text-white uppercase tracking-wider">
                   {otherUser.name}
                 </h4>
-                <p className="text-sm text-gray-500">
-                  {isReceived ? 'Wants you as their mentor' : 'Mentor request sent'}
+                <p className="text-sm text-orange-400 font-bold uppercase tracking-wider">
+                  {isReceived ? 'Seeks Elite Command Training' : 'Alliance Request Sent'}
                 </p>
-                <p className="text-xs text-gray-400 mt-1">
-                  {new Date(request.requestedAt).toLocaleDateString()}
+                <p className="text-xs text-gray-400 mt-1 font-medium">
+                  ⚔️ {new Date(request.requestedAt).toLocaleDateString()}
                 </p>
               </div>
             </div>
 
             <div className="flex items-center space-x-2">
               <span className={clsx(
-                'px-2 py-1 rounded-full text-xs font-medium',
-                request.status === 'pending' ? 'bg-yellow-100 text-yellow-800' :
-                request.status === 'accepted' ? 'bg-green-100 text-green-800' :
-                'bg-red-100 text-red-800'
+                'px-3 py-1 rounded-xl text-xs font-black uppercase tracking-wider border',
+                request.status === 'pending' ? 'bg-gradient-to-r from-yellow-600/20 to-yellow-500/20 text-yellow-400 border-yellow-500/30' :
+                request.status === 'accepted' ? 'bg-gradient-to-r from-green-600/20 to-green-500/20 text-green-400 border-green-500/30' :
+                'bg-gradient-to-r from-red-600/20 to-red-500/20 text-red-400 border-red-500/30'
               )}>
                 {request.status}
               </span>
@@ -254,27 +254,27 @@ const MentorshipDashboard = () => {
           </div>
 
           {request.message && (
-            <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-              <p className="text-sm text-gray-700">"{request.message}"</p>
+            <div className="mt-4 p-4 bg-gray-800 rounded-xl border border-gray-700">
+              <p className="text-sm text-gray-300 font-medium italic">"{request.message}"</p>
             </div>
           )}
 
           {showActions && isReceived && request.status === 'pending' && (
-            <div className="mt-4 flex items-center space-x-3">
+            <div className="mt-6 flex items-center space-x-3">
               <button
                 onClick={() => handleResponse('accept')}
                 disabled={responding}
-                className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50"
+                className="flex-1 inline-flex justify-center items-center px-4 py-3 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-xl font-black uppercase tracking-wider hover:shadow-lg hover:shadow-green-500/25 border border-green-500 transition-all duration-200 disabled:opacity-50"
               >
-                <CheckCircleIcon className="w-4 h-4 mr-2" />
-                Accept
+                <CheckCircleIcon className="w-5 h-5 mr-2" />
+                Accept Alliance
               </button>
               <button
                 onClick={() => handleResponse('reject')}
                 disabled={responding}
-                className="flex-1 inline-flex justify-center items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50"
+                className="flex-1 inline-flex justify-center items-center px-4 py-3 bg-gray-800 text-gray-300 rounded-xl font-black uppercase tracking-wider hover:bg-gray-700 border border-gray-700 hover:border-red-500/50 transition-all duration-200 disabled:opacity-50"
               >
-                <XCircleIcon className="w-4 h-4 mr-2" />
+                <XCircleIcon className="w-5 h-5 mr-2" />
                 Decline
               </button>
             </div>
@@ -329,71 +329,69 @@ const MentorshipDashboard = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Header */}
+        {/* Battle Command Center Header */}
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900">Mentorship Dashboard</h1>
-          <p className="mt-2 text-gray-600">
-            Manage your mentorship relationships and sessions
+          <h1 className="text-4xl font-black text-white uppercase tracking-wider mb-4">
+            <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">BATTLE</span> COMMAND CENTER
+          </h1>
+          <p className="text-gray-300 font-medium text-lg">
+            Command your elite alliances and strategic battle sessions
           </p>
         </div>
 
-        {/* Stats Overview */}
+        {/* Battle Stats Overview */}
         {stats && (
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
             <StatCard
-              title="Active Mentorships"
+              title="Active Alliances"
               value={activeMentorships.length}
               icon={UserGroupIcon}
-              color="blue"
             />
             <StatCard
-              title="Pending Requests"
+              title="Alliance Requests"
               value={pendingRequests.length}
               subtitle={isMentor ? "Received" : "Sent"}
               icon={ClockIcon}
-              color="yellow"
             />
             <StatCard
-              title="Total Sessions"
+              title="Battle Sessions"
               value="0"
               subtitle="This month"
               icon={PhoneIcon}
-              color="green"
             />
             <StatCard
-              title="Average Rating"
+              title="Battle Rating"
               value="N/A"
               icon={StarIcon}
-              color="purple"
             />
           </div>
         )}
 
-        {/* Tab Navigation */}
-        <div className="border-b border-gray-200 mb-6">
+        {/* Battle Command Navigation */}
+        <div className="border-b border-orange-500/30 mb-8">
           <nav className="-mb-px flex space-x-8">
             {[
-              { id: 'overview', name: 'Overview', icon: AcademicCapIcon },
-              { id: 'mentorships', name: 'Active Mentorships', icon: UserGroupIcon },
-              { id: 'sessions', name: 'Sessions', icon: CalendarIcon },
-              { id: 'requests', name: 'Requests', icon: ExclamationCircleIcon }
+              { id: 'overview', name: 'Command Overview', icon: AcademicCapIcon },
+              { id: 'mentorships', name: 'Active Alliances', icon: UserGroupIcon },
+              { id: 'sessions', name: 'Battle Sessions', icon: CalendarIcon },
+              { id: 'requests', name: 'Alliance Requests', icon: ExclamationCircleIcon }
             ].map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
                 className={clsx(
-                  'flex items-center py-2 px-1 border-b-2 font-medium text-sm',
+                  'flex items-center py-3 px-2 border-b-2 font-black text-sm uppercase tracking-wider transition-all duration-200',
                   activeTab === tab.id
-                    ? 'border-primary-500 text-primary-600'
-                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                    ? 'border-orange-500 text-orange-400'
+                    : 'border-transparent text-gray-400 hover:text-gray-300 hover:border-orange-500/50'
                 )}
               >
-                <tab.icon className="w-4 h-4 mr-2" />
+                <tab.icon className="w-5 h-5 mr-2" />
                 {tab.name}
                 {tab.id === 'requests' && pendingRequests.length > 0 && (
-                  <span className="ml-2 bg-red-100 text-red-600 py-0.5 px-2 rounded-full text-xs">
+                  <span className="ml-2 bg-gradient-to-r from-red-600 to-red-700 text-white py-1 px-2 rounded-xl text-xs font-black">
                     {pendingRequests.length}
                   </span>
                 )}
@@ -404,15 +402,17 @@ const MentorshipDashboard = () => {
 
         {/* Tab Content */}
         {activeTab === 'overview' && (
-          <div className="space-y-6">
-            {/* Quick Actions */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h2>
+          <div className="space-y-8">
+            {/* Battle Quick Actions */}
+            <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-2xl border border-orange-500/30 p-6">
+              <h2 className="text-xl font-black text-white uppercase tracking-wider mb-6">
+                <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">QUICK</span> BATTLE COMMANDS
+              </h2>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <button className="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50">
-                  <PlusIcon className="w-5 h-5 mr-3 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-700">
-                    {isMentor ? 'Find New Mentees' : 'Find a Mentor'}
+                <button className="flex items-center p-4 bg-gray-800 border border-gray-700 rounded-xl hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-200">
+                  <PlusIcon className="w-6 h-6 mr-3 text-orange-500" />
+                  <span className="text-sm font-black text-gray-300 uppercase tracking-wider">
+                    {isMentor ? 'Recruit Warriors' : 'Find Elite Commander'}
                   </span>
                 </button>
                 <button 
@@ -420,27 +420,32 @@ const MentorshipDashboard = () => {
                     if (activeMentorships.length > 0) {
                       handleScheduleSession(); // Let user choose from dropdown
                     } else {
-                      toast.error('You need an active mentorship to schedule a session');
+                      toast.error('You need an active alliance to schedule a battle session');
                     }
                   }}
-                  className="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50"
+                  className="flex items-center p-4 bg-gradient-to-r from-orange-600 to-red-600 border border-orange-500 rounded-xl hover:shadow-lg hover:shadow-orange-500/25 transition-all duration-200"
                 >
-                  <CalendarIcon className="w-5 h-5 mr-3 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-700">Schedule Session</span>
+                  <CalendarIcon className="w-6 h-6 mr-3 text-white" />
+                  <span className="text-sm font-black text-white uppercase tracking-wider">Schedule Battle</span>
                 </button>
-                <button className="flex items-center p-4 border border-gray-300 rounded-lg hover:bg-gray-50">
-                  <ChatBubbleLeftRightIcon className="w-5 h-5 mr-3 text-gray-400" />
-                  <span className="text-sm font-medium text-gray-700">View Messages</span>
+                <button className="flex items-center p-4 bg-gray-800 border border-gray-700 rounded-xl hover:bg-gray-700 hover:border-orange-500/50 transition-all duration-200">
+                  <ChatBubbleLeftRightIcon className="w-6 h-6 mr-3 text-orange-500" />
+                  <span className="text-sm font-black text-gray-300 uppercase tracking-wider">Battle Comms</span>
                 </button>
               </div>
             </div>
 
-            {/* Recent Activity */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Activity</h2>
-              <div className="text-center py-8 text-gray-500">
-                <ClockIcon className="w-8 h-8 mx-auto mb-2" />
-                <p>No recent activity</p>
+            {/* Battle Activity Log */}
+            <div className="bg-gradient-to-br from-gray-900 to-black rounded-xl shadow-2xl border border-orange-500/30 p-6">
+              <h2 className="text-xl font-black text-white uppercase tracking-wider mb-6">
+                <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">RECENT</span> BATTLE ACTIVITY
+              </h2>
+              <div className="text-center py-12">
+                <div className="w-16 h-16 bg-gradient-to-br from-orange-600 to-red-600 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-orange-500">
+                  <ClockIcon className="w-8 h-8 text-white" />
+                </div>
+                <p className="text-gray-400 font-medium">No recent battle activity</p>
+                <p className="text-gray-500 text-sm mt-1">Your battle log will appear here</p>
               </div>
             </div>
           </div>
