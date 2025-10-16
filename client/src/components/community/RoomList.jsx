@@ -66,9 +66,9 @@ const RoomList = ({ onSelectRoom, activeRoomId, onCreateRoom }) => {
   const [showOnlyJoined, setShowOnlyJoined] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  // Helper function to check if room is from sample data
+  // Helper function to check if room is from sample data (deprecated)
   const isSampleRoom = (roomId) => {
-    return SAMPLE_ROOMS.some(room => room.id === roomId);
+    return false; // No sample rooms in production
   };
 
   // Load rooms function - use real API with fallback to sample data
@@ -82,21 +82,9 @@ const RoomList = ({ onSelectRoom, activeRoomId, onCreateRoom }) => {
       setRooms(roomsData);
       console.log('✅ Loaded rooms from API:', roomsData.length);
     } catch (apiError) {
-      console.log('⚠️ API not available, using sample data:', apiError.message);
-      // Fallback to sample data if API fails
-      let sampleData = [...SAMPLE_ROOMS];
-      
-      // Apply category filter
-      if (params.category && params.category !== 'all') {
-        sampleData = getRoomsByCategory(params.category);
-      }
-      
-      // Apply search filter
-      if (params.search) {
-        sampleData = searchRooms(params.search);
-      }
-      
-      setRooms(sampleData);
+      console.log('⚠️ API not available:', apiError.message);
+      // No fallback data in production - show empty state
+      setRooms([]);
     } finally {
       setLoading(false);
     }
@@ -432,7 +420,7 @@ const RoomList = ({ onSelectRoom, activeRoomId, onCreateRoom }) => {
                   <p className="text-sm text-gray-300 font-medium">Legendary spaces for warrior development</p>
                 </div>
                 <div className="divide-y divide-gray-800">
-                  {getFeaturedRooms().slice(0, 3).map((room) => (
+                  {rooms.filter(room => room.featured).slice(0, 3).map((room) => (
                     <RoomItem
                       key={`featured-${room.id}`}
                       room={room}
