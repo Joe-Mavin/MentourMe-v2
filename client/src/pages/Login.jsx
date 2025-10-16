@@ -181,15 +181,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Demo credentials */}
-        <div className="mt-6 p-4 bg-gradient-to-br from-gray-800 to-gray-900 rounded-xl border border-gray-700">
-          <h3 className="text-sm font-bold text-orange-500 mb-3 uppercase tracking-wider">⚔️ Demo Battle Access:</h3>
-          <div className="text-xs text-gray-300 space-y-2 font-medium">
-            <p><span className="text-orange-500 font-bold">COMMANDER:</span> admin@mentourme.com / Admin123!</p>
-            <p><span className="text-orange-500 font-bold">MENTOR:</span> john.mentor@example.com / Mentor123!</p>
-            <p><span className="text-orange-500 font-bold">WARRIOR:</span> alice@example.com / User123!</p>
-          </div>
-        </div>
       </div>
     </div>
   );
