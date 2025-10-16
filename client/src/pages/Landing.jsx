@@ -366,7 +366,7 @@ const Landing = () => {
                   <div className="relative mx-auto mb-6">
                     <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full mx-auto border-4 border-orange-500 shadow-2xl shadow-orange-500/25 overflow-hidden bg-gradient-to-br from-orange-600 to-red-600">
                       <img 
-                        src="/images/founders/joe-mavin.jpg" 
+                        src="/images/founders/joe-mavin.png" 
                         alt="Joe Mavin - Founding Commander"
                         className="w-full h-full object-cover"
                         onError={(e) => {
