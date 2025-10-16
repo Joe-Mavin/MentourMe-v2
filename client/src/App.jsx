@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -8,24 +8,33 @@ import LoadingSpinner from './components/common/LoadingSpinner';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 import Layout from './components/layout/Layout';
 
-// Pages
+// Critical pages (loaded immediately)
 import Landing from './pages/Landing';
 import Login from './pages/Login';
 import Register from './pages/Register';
-import Blog from './pages/Blog';
-import BlogPost from './pages/BlogPost';
-import BlogManagementPage from './pages/BlogManagementPage';
-import Dashboard from './pages/Dashboard';
-import Onboarding from './pages/Onboarding';
-import MessagesSimple from './pages/MessagesSimple';
-import Tasks from './pages/Tasks';
-import Community from './pages/Community';
-import Profile from './pages/Profile';
-import AdminDashboard from './pages/AdminDashboard';
-import VideoCall from './pages/VideoCall';
-import MentorshipDashboard from './pages/MentorshipDashboard';
-import NotificationsPage from './pages/NotificationsPage';
 import NotFound from './pages/NotFound';
+
+// Lazy-loaded pages for better performance
+const Blog = React.lazy(() => import('./pages/Blog'));
+const BlogPost = React.lazy(() => import('./pages/BlogPost'));
+const BlogManagementPage = React.lazy(() => import('./pages/BlogManagementPage'));
+const Dashboard = React.lazy(() => import('./pages/Dashboard'));
+const Onboarding = React.lazy(() => import('./pages/Onboarding'));
+const MessagesSimple = React.lazy(() => import('./pages/MessagesSimple'));
+const Tasks = React.lazy(() => import('./pages/Tasks'));
+const Community = React.lazy(() => import('./pages/Community'));
+const Profile = React.lazy(() => import('./pages/Profile'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const VideoCall = React.lazy(() => import('./pages/VideoCall'));
+const MentorshipDashboard = React.lazy(() => import('./pages/MentorshipDashboard'));
+const NotificationsPage = React.lazy(() => import('./pages/NotificationsPage'));
+
+// Helper component for lazy loading with suspense
+const LazyWrapper = ({ children }) => (
+  <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-gray-900"><LoadingSpinner size="lg" /></div>}>
+    {children}
+  </Suspense>
+);
 
 const AppRoutes = () => {
   const { isAuthenticated, loading, user, isOnboardingCompleted } = useAuth();
@@ -65,8 +74,8 @@ const AppRoutes = () => {
             <Register />
         } 
       />
-      <Route path="/blog" element={<Blog />} />
-      <Route path="/blog/:slug" element={<BlogPost />} />
+      <Route path="/blog" element={<LazyWrapper><Blog /></LazyWrapper>} />
+      <Route path="/blog/:slug" element={<LazyWrapper><BlogPost /></LazyWrapper>} />
 
       {/* Protected routes */}
       <Route path="/" element={<ProtectedRoute />}>

@@ -11,10 +11,7 @@ module.exports = defineConfig({
         target: 'http://localhost:5000',
         changeOrigin: true,
         secure: false,
-        rewrite: (path) => {
-          console.log('Proxying:', path);
-          return path;
-        }
+        rewrite: (path) => path
       },
       '/socket.io': {
         target: 'http://localhost:5000',
