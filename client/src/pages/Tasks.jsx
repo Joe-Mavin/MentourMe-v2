@@ -39,10 +39,7 @@ const Tasks = () => {
       if (priorityFilter !== 'all') params.priority = priorityFilter;
       if (searchTerm) params.search = searchTerm;
 
-      console.log('📋 Loading tasks with params:', params);
       const response = await tasksAPI.getAll(params);
-      console.log('✅ Tasks loaded:', response.data.data.tasks);
-      console.log('🔍 Task IDs available:', response.data.data.tasks.map(t => t.id));
       setTasks(response.data.data.tasks);
     } catch (error) {
       toast.error('Failed to load tasks');
@@ -87,22 +84,11 @@ const Tasks = () => {
   const handleDeleteTask = async (taskId) => {
     if (window.confirm('Are you sure you want to delete this task?')) {
       try {
-        console.log('🗑️ Attempting to delete task with ID:', taskId);
-        console.log('👤 Current user:', user);
-        console.log('🎯 API endpoint will be:', `${tasksAPI.delete.toString()}`);
-        
         await tasksAPI.delete(taskId);
         toast.success('Task deleted successfully');
         loadTasks();
         loadStats();
       } catch (error) {
-        console.error('❌ Delete task error details:', {
-          taskId,
-          error: error.response?.data || error.message,
-          status: error.response?.status,
-          statusText: error.response?.statusText,
-          url: error.config?.url
-        });
         
         if (error.response?.status === 404) {
           toast.error('Task not found - it may have already been deleted');

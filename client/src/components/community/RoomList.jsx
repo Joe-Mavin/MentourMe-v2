@@ -3,7 +3,7 @@ import { roomsAPI } from '../../services/api';
 import { useAuth } from '../../context/AuthContext';
 import LoadingSpinner from '../common/LoadingSpinner';
 import CommunityStats from './CommunityStats';
-import { SAMPLE_ROOMS, getRoomsByCategory, searchRooms, getFeaturedRooms } from '../../data/sampleRooms';
+// Removed sampleRooms dependency for production - using API data
 import toast from 'react-hot-toast';
 import {
   PlusIcon,

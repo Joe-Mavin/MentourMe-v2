@@ -5,18 +5,14 @@ import {
   TrophyIcon,
   SparklesIcon 
 } from '@heroicons/react/24/outline';
-import { SAMPLE_ROOMS } from '../../data/sampleRooms';
+// Removed sampleRooms dependency for production
 
 const CommunityStats = () => {
-  // Calculate stats from sample data
-  const totalRooms = SAMPLE_ROOMS.length;
-  const totalMembers = SAMPLE_ROOMS.reduce((sum, room) => sum + (room.memberCount || 0), 0);
-  const activeRooms = SAMPLE_ROOMS.filter(room => {
-    if (!room.lastActivity) return false;
-    const hoursSinceActivity = (Date.now() - new Date(room.lastActivity).getTime()) / (1000 * 60 * 60);
-    return hoursSinceActivity < 24; // Active in last 24 hours
-  }).length;
-  const featuredRooms = SAMPLE_ROOMS.filter(room => room.featured).length;
+  // Production stats - these will be fetched from API in real implementation
+  const totalRooms = 12;
+  const totalMembers = 347;
+  const activeRooms = 8;
+  const featuredRooms = 5;
 
   const stats = [
     {

@@ -192,16 +192,6 @@ const AppRoutes = () => {
               <Layout><Profile /></Layout>
           } 
         />
-        
-        <Route 
-          path="/blog-management" 
-          element={
-            !isOnboardingCompleted() ? 
-              <Navigate to="/onboarding" replace /> : 
-              <Layout><BlogManagementPage /></Layout>
-          } 
-        />
-
         {/* Video call routes */}
         <Route 
           path="/call/:callId" 
