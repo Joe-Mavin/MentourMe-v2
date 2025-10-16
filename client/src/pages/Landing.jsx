@@ -339,14 +339,154 @@ const Landing = () => {
         </div>
       </section>
 
-      {/* Newsletter Section */}
-      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-black">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl sm:rounded-3xl p-6 sm:p-12 border-2 border-gray-800">
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-3 sm:mb-4 uppercase tracking-wide">
-              INTEL FOR <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">WARRIORS</span>
+      {/* Founders Section */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-br from-gray-900 via-black to-gray-900">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 sm:mb-6">
+              <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent">
+                BATTLE
+              </span>
+              <br />
+              <span className="text-white">COMMANDERS</span>
+              ⚔️
             </h2>
-            <p className="text-lg sm:text-xl text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto font-medium">
+            <p className="text-lg sm:text-xl text-gray-300 max-w-3xl mx-auto font-medium leading-relaxed">
+              Meet the elite warriors who forged this legendary platform to transform lives through 
+              <span className="text-orange-500 font-bold"> battle-tested mentorship</span>
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 max-w-4xl mx-auto">
+            {/* Founder 1 - You */}
+            <div className="group">
+              <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border-2 border-orange-500/30 p-6 sm:p-8 hover:border-orange-500 transition-all duration-300 hover:shadow-2xl hover:shadow-orange-500/20 hover:scale-105">
+                <div className="text-center">
+                  {/* Founder Photo */}
+                  <div className="relative mx-auto mb-6">
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 rounded-full mx-auto border-4 border-orange-500 shadow-2xl shadow-orange-500/25 overflow-hidden bg-gradient-to-br from-orange-600 to-red-600">
+                      <img 
+                        src="/images/founders/joe-mavin.jpg" 
+                        alt="Joe Mavin - Founding Commander"
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.target.style.display = 'none';
+                          e.target.nextElementSibling.style.display = 'flex';
+                        }}
+                      />
+                      <div className="w-full h-full flex items-center justify-center" style={{display: 'none'}}>
+                        <span className="text-white font-black text-2xl sm:text-4xl">J</span>
+                      </div>
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 w-8 h-8 sm:w-10 sm:h-10 bg-orange-600 rounded-full flex items-center justify-center border-2 border-black">
+                      <span className="text-white font-black text-xs sm:text-sm">👑</span>
+                    </div>
+                  </div>
+                  
+                  <h3 className="text-xl sm:text-2xl font-black text-white mb-2 uppercase tracking-wider">
+                    Joe Mavin
+                  </h3>
+                  
+                  <div className="flex justify-center mb-4">
+                    <span className="px-3 sm:px-4 py-1 text-xs sm:text-sm font-bold rounded-full uppercase tracking-wider bg-gradient-to-r from-orange-600 to-red-600 text-white border border-orange-500">
+                      🔥 FOUNDING COMMANDER
+                    </span>
+                  </div>
+
+                  <p className="text-sm sm:text-base text-gray-300 leading-relaxed font-medium mb-6">
+                    "Every warrior needs a guide to unlock their true potential. MentourMe is the battlefield where legends are forged through authentic mentorship and unwavering determination."
+                  </p>
+
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div className="bg-gray-800/50 rounded-xl p-3 border border-gray-700">
+                      <div className="text-lg sm:text-xl font-black text-orange-400">∞</div>
+                      <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Vision</div>
+                    </div>
+                    <div className="bg-gray-800/50 rounded-xl p-3 border border-gray-700">
+                      <div className="text-lg sm:text-xl font-black text-green-400">⚡</div>
+                      <div className="text-xs text-gray-400 font-bold uppercase tracking-wider">Impact</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Founder 2 - Placeholder for Future */}
+            <div className="group">
+              <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl border-2 border-gray-600/30 p-6 sm:p-8 hover:border-orange-500/50 transition-all duration-300 hover:shadow-xl hover:shadow-gray-500/10 relative overflow-hidden">
+                <div className="text-center">
+                  {/* Coming Soon Overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-gray-900/80 to-black/80 flex items-center justify-center z-10 rounded-2xl">
+                    <div className="text-center">
+                      <div className="text-4xl sm:text-6xl mb-4">⚔️</div>
+                      <h4 className="text-lg sm:text-xl font-black text-white mb-2 uppercase tracking-wider">
+                        ELITE POSITION
+                      </h4>
+                      <p className="text-sm text-gray-400 font-bold uppercase tracking-wider">
+                        AWAITING LEGENDARY WARRIOR
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Placeholder Content */}
+                  <div className="opacity-30">
+                    <div className="w-24 h-24 sm:w-32 sm:h-32 bg-gradient-to-br from-gray-600 to-gray-800 rounded-full flex items-center justify-center mx-auto mb-6 border-4 border-gray-600">
+                      <span className="text-gray-400 font-black text-2xl sm:text-4xl">?</span>
+                    </div>
+                    
+                    <h3 className="text-xl sm:text-2xl font-black text-gray-500 mb-2 uppercase tracking-wider">
+                      Co-Founder
+                    </h3>
+                    
+                    <div className="flex justify-center mb-4">
+                      <span className="px-3 sm:px-4 py-1 text-xs sm:text-sm font-bold rounded-full uppercase tracking-wider bg-gray-700 text-gray-400 border border-gray-600">
+                        🛡️ BATTLE PARTNER
+                      </span>
+                    </div>
+
+                    <p className="text-sm sm:text-base text-gray-500 leading-relaxed font-medium mb-6">
+                      "The perfect warrior to join this legendary quest and help forge the future of elite mentorship."
+                    </p>
+
+                    <div className="grid grid-cols-2 gap-4 text-center">
+                      <div className="bg-gray-800/30 rounded-xl p-3 border border-gray-700">
+                        <div className="text-lg sm:text-xl font-black text-gray-500">⚡</div>
+                        <div className="text-xs text-gray-500 font-bold uppercase tracking-wider">Power</div>
+                      </div>
+                      <div className="bg-gray-800/30 rounded-xl p-3 border border-gray-700">
+                        <div className="text-lg sm:text-xl font-black text-gray-500">🎯</div>
+                        <div className="text-xs text-gray-500 font-bold uppercase tracking-wider">Focus</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="text-center mt-12 sm:mt-16">
+            <p className="text-base sm:text-lg text-gray-400 font-medium">
+              <span className="text-orange-500 font-bold">Together, we forge legends.</span>
+              <br className="sm:hidden" />
+              <span className="hidden sm:inline"> • </span>
+              Building the ultimate mentorship battlefield for elite warriors.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      {/* Newsletter Signup */}
+      <section className="py-16 sm:py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-orange-900/20 to-red-900/20">
+        <div className="max-w-4xl mx-auto text-center">
+          <div className="mb-8 sm:mb-12">
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black mb-4 sm:mb-6 text-white">
+              JOIN THE 
+              <span className="bg-gradient-to-r from-orange-500 to-red-500 bg-clip-text text-transparent block sm:inline sm:ml-3">
+                WARRIOR INTEL
+              </span>
+              ⚔️
+            </h2>
+            <p className="text-lg sm:text-xl text-gray-300 font-medium leading-relaxed">
               Get battle-tested strategies and exclusive intel delivered to your inbox.
               <br className="hidden sm:block" />
               <span className="text-orange-500 font-bold">No fluff. Just results.</span>
