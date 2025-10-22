@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import Logo from '../components/branding/Logo';
+import api from '../services/api';
 import {
   ArrowRightIcon,
   CheckIcon,
@@ -34,26 +35,18 @@ const Landing = () => {
     e.preventDefault();
     
     try {
-      const response = await fetch('/api/newsletter/subscribe', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email }),
-      });
+      const response = await api.post('/newsletter/subscribe', { email });
 
-      const data = await response.json();
-
-      if (data.success) {
+      if (response.data.success) {
         setIsSubscribed(true);
         setEmail('');
         setTimeout(() => setIsSubscribed(false), 3000);
       } else {
-        alert(data.message || 'Failed to subscribe to newsletter');
+        alert(response.data.message || 'Failed to subscribe to newsletter');
       }
     } catch (error) {
       console.error('Newsletter signup error:', error);
-      alert('Failed to subscribe to newsletter. Please try again.');
+      alert(error.response?.data?.message || 'Failed to subscribe to newsletter. Please try again.');
     }
   };
 
@@ -119,21 +112,13 @@ const Landing = () => {
     const fetchBlogData = async () => {
       try {
         // Get blog posts count
-        const blogResponse = await fetch('/api/blog?limit=1');
-        if (blogResponse.ok) {
-          const blogData = await blogResponse.json();
-          // This would need pagination info to get total count
-        }
+        const blogResponse = await api.get('/blog?limit=1');
+        // This would need pagination info to get total count
 
         // Get top mentors
-        const mentorsResponse = await fetch('/api/blog/top-mentors?limit=5');
-        if (mentorsResponse.ok) {
-          const mentorsData = await mentorsResponse.json();
-          console.log('Top mentors data:', mentorsData);
-          setTopMentors(mentorsData.data.mentors || []);
-        } else {
-          console.error('Failed to fetch top mentors:', mentorsResponse.status);
-        }
+        const mentorsResponse = await api.get('/blog/top-mentors?limit=5');
+        console.log('Top mentors data:', mentorsResponse.data);
+        setTopMentors(mentorsResponse.data.data?.mentors || []);
       } catch (error) {
         console.error('Error fetching blog data:', error);
       }
