@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
 const { User, OnboardingData } = require("../models");
 const { Op } = require("sequelize");
+const emailService = require('../services/emailService');
 
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET, {
@@ -31,6 +32,18 @@ const register = async (req, res) => {
       bio,
       approved: role !== "mentor" // Auto-approve non-mentors
     });
+
+    // Send mentor application email if user is registering as mentor
+    if (role === "mentor") {
+      try {
+        const service = emailService.getInstance();
+        await service.sendMentorApplicationReceivedEmail(email, name);
+        console.log('✅ Mentor application email sent to:', email);
+      } catch (emailError) {
+        console.error('❌ Failed to send mentor application email:', emailError);
+        // Don't fail registration if email fails
+      }
+    }
 
     // Generate token
     const token = generateToken(user.id);

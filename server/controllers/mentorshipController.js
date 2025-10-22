@@ -1,6 +1,7 @@
 const { User, MentorshipRequest, OnboardingData } = require("../models");
 const { Op } = require("sequelize");
 const notificationService = require("../services/notificationService");
+const emailService = require('../services/emailService');
 
 // Create a mentorship request
 const createRequest = async (req, res) => {
@@ -110,6 +111,21 @@ const createRequest = async (req, res) => {
     } catch (notificationError) {
       console.error("Failed to send mentorship request notification:", notificationError);
       // Don't fail the main operation if notification fails
+    }
+
+    // Send email to mentor about new mentorship request
+    try {
+      const service = emailService.getInstance();
+      await service.sendMentorshipRequestEmail(
+        mentor.email,
+        mentor.name,
+        req.user.name,
+        message || ''
+      );
+      console.log('✅ Mentorship request email sent to mentor:', mentor.email);
+    } catch (emailError) {
+      console.error('❌ Failed to send mentorship request email:', emailError);
+      // Don't fail the main operation if email fails
     }
 
     res.status(201).json({
@@ -321,6 +337,22 @@ const respondToRequest = async (req, res) => {
     } catch (notificationError) {
       console.error("Failed to send mentorship response notification:", notificationError);
       // Don't fail the main operation if notification fails
+    }
+
+    // Send email to mentee about mentor's response
+    if (action === "accept") {
+      try {
+        const service = emailService.getInstance();
+        await service.sendMentorshipAcceptedEmail(
+          request.mentee.email,
+          request.mentee.name,
+          request.mentor.name
+        );
+        console.log('✅ Mentorship accepted email sent to mentee:', request.mentee.email);
+      } catch (emailError) {
+        console.error('❌ Failed to send mentorship accepted email:', emailError);
+        // Don't fail the main operation if email fails
+      }
     }
 
     res.json({

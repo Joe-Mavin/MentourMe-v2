@@ -1,6 +1,7 @@
-const { User, OnboardingData, CommunityRoom, RoomMembership, Task, Message } = require("../models");
+const { User, OnboardingData, Task, MentorshipRequest, CommunityRoom, Message } = require("../models");
 const { Op } = require("sequelize");
 const notificationService = require("../services/notificationService");
+const emailService = require('../services/emailService');
 
 const getPendingMentors = async (req, res) => {
   try {
@@ -81,6 +82,20 @@ const approveMentor = async (req, res) => {
     } catch (notificationError) {
       console.error("Failed to send mentor approval notification:", notificationError);
       // Don't fail the main operation if notification fails
+    }
+
+    // Send email to mentor about approval/rejection
+    try {
+      const service = emailService.getInstance();
+      if (approved === true) {
+        await service.sendMentorApprovalEmail(mentor.email, mentor.name);
+        console.log('✅ Mentor approval email sent to:', mentor.email);
+      }
+      // Note: For rejection, you could create a separate rejection email method
+      // For now, we only send approval emails
+    } catch (emailError) {
+      console.error('❌ Failed to send mentor approval/rejection email:', emailError);
+      // Don't fail the main operation if email fails
     }
 
     const action = approved ? "approved" : "rejected";
