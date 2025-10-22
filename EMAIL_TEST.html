@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MentourMe - Brevo Email Configuration Test</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            width: 100%;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #ea580c 0%, #dc2626 100%);
+            padding: 40px 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .content {
+            padding: 40px 30px;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section h2 {
+            font-size: 20px;
+            color: #1f2937;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #ea580c, #dc2626);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(234, 88, 12, 0.3);
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 14px;
+            font-weight: bold;
+            color: #374151;
+            margin-bottom: 8px;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #ea580c;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d1fae5;
+            border: 2px solid #10b981;
+            color: #065f46;
+        }
+
+        .result.error {
+            background: #fee2e2;
+            border: 2px solid #ef4444;
+            color: #991b1b;
+        }
+
+        .result pre {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+            overflow-x: auto;
+            font-size: 12px;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            margin-left: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .info-box {
+            background: #f0f9ff;
+            border-left: 4px solid #3b82f6;
+            padding: 15px;
+            border-radius: 0 8px 8px 0;
+            margin-bottom: 20px;
+        }
+
+        .info-box p {
+            font-size: 14px;
+            color: #1e40af;
+            line-height: 1.6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>⚔️ MentourMe Email Test</h1>
+            <p>Brevo Configuration Verification</p>
+        </div>
+
+        <div class="content">
+            <!-- Backend URL Configuration -->
+            <div class="section">
+                <h2>🔧 Configuration</h2>
+                <div class="input-group">
+                    <label for="backendUrl">Backend URL (Your Render URL)</label>
+                    <input 
+                        type="text" 
+                        id="backendUrl" 
+                        placeholder="https://your-backend.onrender.com"
+                        value="https://mentourme-v2.onrender.com"
+                    >
+                </div>
+            </div>
+
+            <!-- Step 1: Verify Connection -->
+            <div class="section">
+                <h2>📡 Step 1: Verify Connection</h2>
+                <div class="info-box">
+                    <p>This will check if your Brevo credentials are correctly configured without sending any emails.</p>
+                </div>
+                <button class="button" id="verifyBtn" onclick="verifyConnection()">
+                    Verify Brevo Configuration
+                </button>
+                <div class="result" id="verifyResult"></div>
+            </div>
+
+            <!-- Step 2: Send Test Email -->
+            <div class="section">
+                <h2>📧 Step 2: Send Test Email</h2>
+                <div class="info-box">
+                    <p>After verification succeeds, send a test email to confirm everything works end-to-end.</p>
+                </div>
+                <div class="input-group">
+                    <label for="testEmail">Your Email Address</label>
+                    <input 
+                        type="email" 
+                        id="testEmail" 
+                        placeholder="your-email@example.com"
+                        required
+                    >
+                </div>
+                <button class="button" id="sendBtn" onclick="sendTestEmail()">
+                    Send Test Email
+                </button>
+                <div class="result" id="sendResult"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        async function verifyConnection() {
+            const btn = document.getElementById('verifyBtn');
+            const result = document.getElementById('verifyResult');
+            const backendUrl = document.getElementById('backendUrl').value.trim();
+
+            if (!backendUrl) {
+                showResult(result, 'error', 'Please enter your backend URL');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = 'Verifying... <span class="loading"></span>';
+            result.style.display = 'none';
+
+            try {
+                const response = await fetch(`${backendUrl}/api/email-test/verify`);
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult(result, 'success', 
+                        '✅ Brevo Configuration Verified!\n\n' +
+                        'Your email service is properly configured and connected.\n\n' +
+                        JSON.stringify(data.config, null, 2)
+                    );
+                } else {
+                    showResult(result, 'error', 
+                        '❌ Configuration Failed\n\n' +
+                        data.message + '\n\n' +
+                        (data.error || '') + '\n\n' +
+                        'Config Status:\n' +
+                        JSON.stringify(data.config, null, 2)
+                    );
+                }
+            } catch (error) {
+                showResult(result, 'error', 
+                    '❌ Connection Error\n\n' +
+                    'Could not connect to backend. Please check:\n' +
+                    '1. Backend URL is correct\n' +
+                    '2. Backend is running\n' +
+                    '3. CORS is properly configured\n\n' +
+                    'Error: ' + error.message
+                );
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Verify Brevo Configuration';
+            }
+        }
+
+        async function sendTestEmail() {
+            const btn = document.getElementById('sendBtn');
+            const result = document.getElementById('sendResult');
+            const backendUrl = document.getElementById('backendUrl').value.trim();
+            const email = document.getElementById('testEmail').value.trim();
+
+            if (!backendUrl) {
+                showResult(result, 'error', 'Please enter your backend URL');
+                return;
+            }
+
+            if (!email) {
+                showResult(result, 'error', 'Please enter your email address');
+                return;
+            }
+
+            btn.disabled = true;
+            btn.innerHTML = 'Sending... <span class="loading"></span>';
+            result.style.display = 'none';
+
+            try {
+                const response = await fetch(`${backendUrl}/api/email-test/send`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    showResult(result, 'success', 
+                        '✅ Test Email Sent Successfully!\n\n' +
+                        `Email sent to: ${data.recipient}\n` +
+                        `Message ID: ${data.messageId}\n\n` +
+                        'Check your inbox (and spam folder) for the test email.'
+                    );
+                } else {
+                    showResult(result, 'error', 
+                        '❌ Failed to Send Email\n\n' +
+                        data.message + '\n\n' +
+                        (data.error || '')
+                    );
+                }
+            } catch (error) {
+                showResult(result, 'error', 
+                    '❌ Request Failed\n\n' +
+                    'Could not send test email. Error: ' + error.message
+                );
+            } finally {
+                btn.disabled = false;
+                btn.innerHTML = 'Send Test Email';
+            }
+        }
+
+        function showResult(element, type, message) {
+            element.className = `result ${type}`;
+            element.innerHTML = `<pre>${message}</pre>`;
+            element.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
