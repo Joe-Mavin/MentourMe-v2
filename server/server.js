@@ -30,6 +30,7 @@ const setupRoutes = require("./routes/setupRoutes");
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const blogRoutes = require('./routes/blogRoutes');
 const sessionRoutes = require('./routes/sessionRoutes');
+const emailTestRoutes = require('./routes/emailTest');
 
 const app = express();
 const server = http.createServer(app);
@@ -142,6 +143,8 @@ app.use("/api/blog", blogRoutes);
 console.log('🔧 Registering session routes at /api/sessions');
 app.use("/api/sessions", sessionRoutes);
 console.log('✅ Session routes registered successfully');
+app.use("/api/email-test", emailTestRoutes);
+console.log('✅ Email test routes registered at /api/email-test');
 
 // WebRTC signaling endpoints
 app.get("/api/webrtc/calls/active", (req, res) => {
