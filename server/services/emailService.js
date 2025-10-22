@@ -7,8 +7,8 @@ try {
   console.log('✅ Nodemailer loaded successfully');
   console.log('📦 Module info:', {
     type: typeof nodemailer,
-    hasCreateTransporter: typeof nodemailer?.createTransporter,
-    isFunction: typeof nodemailer?.createTransporter === 'function'
+    hasCreateTransport: typeof nodemailer?.createTransport,
+    isFunction: typeof nodemailer?.createTransport === 'function'
   });
 } catch (error) {
   nodemailerError = error;
@@ -25,8 +25,8 @@ class EmailService {
       return;
     }
     
-    if (typeof nodemailer.createTransporter !== 'function') {
-      console.error('❌ nodemailer.createTransporter is not a function. Module type:', typeof nodemailer);
+    if (typeof nodemailer.createTransport !== 'function') {
+      console.error('❌ nodemailer.createTransport is not a function. Module type:', typeof nodemailer);
       console.error('Available properties:', Object.keys(nodemailer));
       return;
     }
@@ -39,7 +39,7 @@ class EmailService {
       console.log('🔧 Creating email transporter...');
       
       // Configure with Brevo (formerly Sendinblue) SMTP settings
-      this.transporter = nodemailer.createTransporter({
+      this.transporter = nodemailer.createTransport({
       host: 'smtp-relay.brevo.com',
       port: 587,
       secure: false, // Use TLS
