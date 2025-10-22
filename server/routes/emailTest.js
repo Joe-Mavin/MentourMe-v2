@@ -129,8 +129,10 @@ router.post('/send', async (req, res) => {
     }
 
     // Send a simple test email
+    // Use environment variable for sender email, fallback to Brevo verified sender
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
     const mailOptions = {
-      from: '"MentourMe Test" <noreply@mentourme.testmail.app>',
+      from: `"MentourMe Team" <${senderEmail}>`,
       to: email,
       subject: '🧪 MentourMe Email Configuration Test',
       html: `

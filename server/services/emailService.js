@@ -94,8 +94,9 @@ class EmailService {
       return { messageId: 'disabled' };
     }
 
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
     const mailOptions = {
-      from: '"MentourMe Team" <noreply@mentourme.testmail.app>',
+      from: `"MentourMe Team" <${senderEmail}>`,
       to: userEmail,
       subject: '🎉 Welcome to MentourMe - Your Mentorship Journey Begins!',
       html: this.getWelcomeEmailTemplate(userName)
@@ -112,8 +113,9 @@ class EmailService {
   }
 
   async sendMentorMatchEmail(userEmail, userName, mentorName, mentorExpertise) {
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
     const mailOptions = {
-      from: '"MentourMe Team" <noreply@mentourme.testmail.app>',
+      from: `"MentourMe Team" <${senderEmail}>`,
       to: userEmail,
       subject: '🤝 You\'ve Been Matched with a Mentor!',
       html: this.getMentorMatchEmailTemplate(userName, mentorName, mentorExpertise)
@@ -130,8 +132,9 @@ class EmailService {
   }
 
   async sendSessionReminderEmail(userEmail, userName, sessionDate, mentorName) {
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
     const mailOptions = {
-      from: '"MentourMe Team" <noreply@mentourme.testmail.app>',
+      from: `"MentourMe Team" <${senderEmail}>`,
       to: userEmail,
       subject: '⏰ Upcoming Mentorship Session Reminder',
       html: this.getSessionReminderTemplate(userName, sessionDate, mentorName)
@@ -153,8 +156,9 @@ class EmailService {
       return { messageId: 'disabled' };
     }
 
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
     const mailOptions = {
-      from: '"MentourMe Team" <noreply@mentourme.testmail.app>',
+      from: `"MentourMe Team" <${senderEmail}>`,
       to: userEmail,
       subject: '📧 Welcome to MentourMe Insights Newsletter',
       html: this.getNewsletterSignupTemplate()
@@ -173,8 +177,9 @@ class EmailService {
   async sendPasswordResetEmail(userEmail, resetToken) {
     const resetUrl = `${process.env.CLIENT_URL}/reset-password?token=${resetToken}`;
     
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
     const mailOptions = {
-      from: '"MentourMe Team" <noreply@mentourme.testmail.app>',
+      from: `"MentourMe Team" <${senderEmail}>`,
       to: userEmail,
       subject: '🔐 Reset Your MentourMe Password',
       html: this.getPasswordResetTemplate(resetUrl)
