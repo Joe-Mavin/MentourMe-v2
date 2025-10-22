@@ -195,6 +195,155 @@ class EmailService {
     }
   }
 
+  async sendMentorApplicationReceivedEmail(userEmail, userName) {
+    if (!this.isEnabled || !this.transporter) {
+      console.log('📧 Email service disabled - skipping mentor application email');
+      return { messageId: 'disabled' };
+    }
+
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
+    const mailOptions = {
+      from: `"MentourMe Team" <${senderEmail}>`,
+      to: userEmail,
+      subject: '🛡️ Mentor Application Received - Under Elite Review',
+      html: this.getMentorApplicationReceivedTemplate(userName)
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log('✅ Mentor application received email sent:', result.messageId);
+      return result;
+    } catch (error) {
+      console.error('❌ Failed to send mentor application email:', error);
+      throw error;
+    }
+  }
+
+  async sendMentorApprovalEmail(userEmail, userName) {
+    if (!this.isEnabled || !this.transporter) {
+      console.log('📧 Email service disabled - skipping mentor approval email');
+      return { messageId: 'disabled' };
+    }
+
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
+    const clientUrl = process.env.CLIENT_URL || 'https://mentourme-v3.pages.dev';
+    const mailOptions = {
+      from: `"MentourMe Team" <${senderEmail}>`,
+      to: userEmail,
+      subject: '🎉 You\'re Now an Elite Mentor - Application Approved!',
+      html: this.getMentorApprovalTemplate(userName, clientUrl)
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log('✅ Mentor approval email sent:', result.messageId);
+      return result;
+    } catch (error) {
+      console.error('❌ Failed to send mentor approval email:', error);
+      throw error;
+    }
+  }
+
+  async sendMentorshipRequestEmail(mentorEmail, mentorName, menteeName, menteeMessage) {
+    if (!this.isEnabled || !this.transporter) {
+      console.log('📧 Email service disabled - skipping mentorship request email');
+      return { messageId: 'disabled' };
+    }
+
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
+    const clientUrl = process.env.CLIENT_URL || 'https://mentourme-v3.pages.dev';
+    const mailOptions = {
+      from: `"MentourMe Team" <${senderEmail}>`,
+      to: mentorEmail,
+      subject: '🤝 New Warrior Seeks Your Mentorship!',
+      html: this.getMentorshipRequestTemplate(mentorName, menteeName, menteeMessage, clientUrl)
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log('✅ Mentorship request email sent:', result.messageId);
+      return result;
+    } catch (error) {
+      console.error('❌ Failed to send mentorship request email:', error);
+      throw error;
+    }
+  }
+
+  async sendMentorshipAcceptedEmail(menteeEmail, menteeName, mentorName) {
+    if (!this.isEnabled || !this.transporter) {
+      console.log('📧 Email service disabled - skipping mentorship accepted email');
+      return { messageId: 'disabled' };
+    }
+
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
+    const clientUrl = process.env.CLIENT_URL || 'https://mentourme-v3.pages.dev';
+    const mailOptions = {
+      from: `"MentourMe Team" <${senderEmail}>`,
+      to: menteeEmail,
+      subject: '🎉 Your Mentor Has Accepted - Battle Journey Begins!',
+      html: this.getMentorshipAcceptedTemplate(menteeName, mentorName, clientUrl)
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log('✅ Mentorship accepted email sent:', result.messageId);
+      return result;
+    } catch (error) {
+      console.error('❌ Failed to send mentorship accepted email:', error);
+      throw error;
+    }
+  }
+
+  async sendTaskAssignedEmail(menteeEmail, menteeName, taskTitle, mentorName, dueDate) {
+    if (!this.isEnabled || !this.transporter) {
+      console.log('📧 Email service disabled - skipping task assigned email');
+      return { messageId: 'disabled' };
+    }
+
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
+    const clientUrl = process.env.CLIENT_URL || 'https://mentourme-v3.pages.dev';
+    const mailOptions = {
+      from: `"MentourMe Team" <${senderEmail}>`,
+      to: menteeEmail,
+      subject: '⚔️ New Battle Mission Assigned!',
+      html: this.getTaskAssignedTemplate(menteeName, taskTitle, mentorName, dueDate, clientUrl)
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log('✅ Task assigned email sent:', result.messageId);
+      return result;
+    } catch (error) {
+      console.error('❌ Failed to send task assigned email:', error);
+      throw error;
+    }
+  }
+
+  async sendSessionScheduledEmail(userEmail, userName, sessionDate, otherPersonName, isHost) {
+    if (!this.isEnabled || !this.transporter) {
+      console.log('📧 Email service disabled - skipping session scheduled email');
+      return { messageId: 'disabled' };
+    }
+
+    const senderEmail = process.env.SENDER_EMAIL || 'mavinodundo@gmail.com';
+    const clientUrl = process.env.CLIENT_URL || 'https://mentourme-v3.pages.dev';
+    const mailOptions = {
+      from: `"MentourMe Team" <${senderEmail}>`,
+      to: userEmail,
+      subject: '📅 Mentorship Session Scheduled!',
+      html: this.getSessionScheduledTemplate(userName, sessionDate, otherPersonName, isHost, clientUrl)
+    };
+
+    try {
+      const result = await this.transporter.sendMail(mailOptions);
+      console.log('✅ Session scheduled email sent:', result.messageId);
+      return result;
+    } catch (error) {
+      console.error('❌ Failed to send session scheduled email:', error);
+      throw error;
+    }
+  }
+
   getWelcomeEmailTemplate(userName) {
     return `
     <!DOCTYPE html>
@@ -464,6 +613,363 @@ class EmailService {
               This link will expire in 1 hour. If you didn't request this reset, please ignore this email.
             </p>
           </div>
+        </div>
+      </div>
+    </body>
+    </html>
+    `;
+  }
+
+  getMentorApplicationReceivedTemplate(userName) {
+    const clientUrl = process.env.CLIENT_URL || 'https://mentourme-v3.pages.dev';
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #1f2937, #111827); }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; }
+        .header { background: linear-gradient(135deg, #ea580c, #dc2626); padding: 40px 30px; text-align: center; color: white; }
+        .content { padding: 40px 30px; color: #374151; }
+        .badge { background: #fef3c7; color: #92400e; padding: 10px 20px; border-radius: 8px; display: inline-block; font-weight: bold; margin: 20px 0; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, #ea580c, #dc2626); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🛡️ Mentor Application Received!</h1>
+          <p>Welcome to the Elite Review Process</p>
+        </div>
+        <div class="content">
+          <p style="font-size: 18px;">Greetings, <strong>${userName}</strong>!</p>
+          
+          <div class="badge">⚔️ APPLICATION UNDER REVIEW</div>
+          
+          <p style="font-size: 16px; line-height: 1.6;">
+            Thank you for your interest in joining MentourMe as an <strong>Elite Mentor</strong>! Your application has been received and is currently under review by our command team.
+          </p>
+          
+          <h3>🔍 What Happens Next:</h3>
+          <ul style="line-height: 1.8;">
+            <li>📝 Our team will carefully review your experience and expertise</li>
+            <li>✓ We'll verify your qualifications and background</li>
+            <li>📧 You'll receive an email notification once the review is complete</li>
+            <li>⏱️ This process typically takes 2-3 business days</li>
+          </ul>
+          
+          <p style="font-size: 16px; line-height: 1.6; background: #f3f4f6; padding: 20px; border-left: 4px solid #ea580c; border-radius: 0 8px 8px 0;">
+            <strong>💡 Pro Tip:</strong> While you wait, explore the platform and familiarize yourself with our warrior-themed mentorship approach!
+          </p>
+          
+          <a href="${clientUrl}/dashboard" class="cta-button">
+            Explore Platform →
+          </a>
+          
+          <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+            Questions? Contact us at support@mentourme.com
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+    `;
+  }
+
+  getMentorApprovalTemplate(userName, clientUrl) {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #1f2937, #111827); }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; }
+        .header { background: linear-gradient(135deg, #10b981, #059669); padding: 40px 30px; text-align: center; color: white; }
+        .content { padding: 40px 30px; color: #374151; }
+        .success-badge { background: #d1fae5; color: #065f46; padding: 15px 25px; border-radius: 8px; display: inline-block; font-weight: bold; margin: 20px 0; font-size: 18px; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, #ea580c, #dc2626); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+        .feature-box { background: #fef3c7; padding: 20px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #f59e0b; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1 style="font-size: 32px; margin-bottom: 10px;">🎉 CONGRATULATIONS!</h1>
+          <p style="font-size: 18px;">You're Now an Elite Mentor</p>
+        </div>
+        <div class="content">
+          <p style="font-size: 18px;">Welcome to the ranks, <strong>${userName}</strong>!</p>
+          
+          <div class="success-badge">✅ MENTOR STATUS: APPROVED</div>
+          
+          <p style="font-size: 16px; line-height: 1.6;">
+            Your mentor application has been <strong>APPROVED</strong>! You are now officially part of our elite mentor community, ready to guide warriors on their journey to greatness.
+          </p>
+          
+          <div class="feature-box">
+            <h3 style="margin-top: 0; color: #92400e;">⚔️ Your Mentor Powers:</h3>
+            <ul style="line-height: 1.8; color: #78350f;">
+              <li>👥 Connect with mentees seeking your expertise</li>
+              <li>📝 Assign battle missions (tasks) to your mentees</li>
+              <li>📅 Schedule and conduct mentorship sessions</li>
+              <li>🏆 Track and verify mentee progress</li>
+              <li>💬 Engage in direct messaging and guidance</li>
+            </ul>
+          </div>
+          
+          <h3>🚀 Get Started Now:</h3>
+          <ol style="line-height: 1.8;">
+            <li>Complete your mentor profile</li>
+            <li>Set your availability and areas of expertise</li>
+            <li>Start receiving mentorship requests</li>
+            <li>Guide warriors to victory!</li>
+          </ol>
+          
+          <a href="${clientUrl}/dashboard" class="cta-button">
+            Access Mentor Dashboard →
+          </a>
+          
+          <p style="background: #eff6ff; padding: 20px; border-radius: 8px; margin-top: 30px; border-left: 4px solid #3b82f6;">
+            <strong>💡 Mentor Tip:</strong> The most effective mentors set clear expectations, provide consistent support, and celebrate their mentees' victories along the way.
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+    `;
+  }
+
+  getMentorshipRequestTemplate(mentorName, menteeName, menteeMessage, clientUrl) {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #1f2937, #111827); }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; }
+        .header { background: linear-gradient(135deg, #3b82f6, #2563eb); padding: 40px 30px; text-align: center; color: white; }
+        .content { padding: 40px 30px; color: #374151; }
+        .request-box { background: #eff6ff; padding: 25px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 10px 10px 10px 0; }
+        .secondary-button { display: inline-block; background: #6b7280; color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 10px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🤝 New Mentorship Request!</h1>
+          <p>A warrior seeks your guidance</p>
+        </div>
+        <div class="content">
+          <p style="font-size: 18px;">Greetings, <strong>${mentorName}</strong>!</p>
+          
+          <p style="font-size: 16px; line-height: 1.6;">
+            <strong>${menteeName}</strong> has requested your mentorship. They believe your experience and expertise can help them achieve their goals.
+          </p>
+          
+          <div class="request-box">
+            <h3 style="margin-top: 0; color: #1e40af;">💬 Message from ${menteeName}:</h3>
+            <p style="font-style: italic; color: #1e3a8a; line-height: 1.6;">
+              "${menteeMessage || 'I would like to learn from your experience and expertise. I believe your guidance can help me grow in my journey.'}"
+            </p>
+          </div>
+          
+          <p style="font-size: 16px; line-height: 1.6;">
+            Review their profile and decide if you'd like to accept this mentorship opportunity. Remember, great mentorship creates lasting impact!
+          </p>
+          
+          <div style="margin-top: 30px;">
+            <a href="${clientUrl}/mentorship-requests" class="cta-button">
+              ✅ View Request
+            </a>
+            <a href="${clientUrl}/dashboard" class="secondary-button">
+              Go to Dashboard
+            </a>
+          </div>
+          
+          <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+            You can accept or decline this request from your dashboard.
+          </p>
+        </div>
+      </div>
+    </body>
+    </html>
+    `;
+  }
+
+  getMentorshipAcceptedTemplate(menteeName, mentorName, clientUrl) {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #1f2937, #111827); }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; }
+        .header { background: linear-gradient(135deg, #10b981, #059669); padding: 40px 30px; text-align: center; color: white; }
+        .content { padding: 40px 30px; color: #374151; }
+        .success-box { background: #d1fae5; padding: 25px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #10b981; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, #ea580c, #dc2626); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+        .tip-box { background: #fef3c7; padding: 20px; border-radius: 8px; margin-top: 25px; border-left: 4px solid #f59e0b; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>🎉 Great News!</h1>
+          <p>Your mentorship journey begins!</p>
+        </div>
+        <div class="content">
+          <p style="font-size: 18px;">Congratulations, <strong>${menteeName}</strong>!</p>
+          
+          <div class="success-box">
+            <h2 style="margin-top: 0; color: #065f46;">✅ Mentorship Request Accepted!</h2>
+            <p style="color: #047857; font-size: 16px; line-height: 1.6;">
+              <strong>${mentorName}</strong> has accepted your mentorship request. Your battle journey with an elite mentor is now officially underway!
+            </p>
+          </div>
+          
+          <h3>🚀 Next Steps:</h3>
+          <ol style="line-height: 1.8;">
+            <li>Send a message to introduce yourself</li>
+            <li>Share your goals and what you hope to achieve</li>
+            <li>Schedule your first mentorship session</li>
+            <li>Stay committed and engaged throughout your journey</li>
+          </ol>
+          
+          <a href="${clientUrl}/messages" class="cta-button">
+            Start Conversation →
+          </a>
+          
+          <div class="tip-box">
+            <h4 style="margin-top: 0; color: #92400e;">💡 Pro Tips for Success:</h4>
+            <ul style="color: #78350f; line-height: 1.6;">
+              <li>Be proactive in communication</li>
+              <li>Come prepared to sessions with questions</li>
+              <li>Complete assigned battle missions on time</li>
+              <li>Be open to feedback and willing to learn</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+    `;
+  }
+
+  getTaskAssignedTemplate(menteeName, taskTitle, mentorName, dueDate, clientUrl) {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #1f2937, #111827); }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; }
+        .header { background: linear-gradient(135deg, #ea580c, #dc2626); padding: 40px 30px; text-align: center; color: white; }
+        .content { padding: 40px 30px; color: #374151; }
+        .task-box { background: #fef3c7; padding: 25px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ea580c; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, #ea580c, #dc2626); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+        .deadline { background: #fee2e2; color: #991b1b; padding: 10px 15px; border-radius: 6px; display: inline-block; font-weight: bold; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>⚔️ New Battle Mission!</h1>
+          <p>Your mentor has assigned you a quest</p>
+        </div>
+        <div class="content">
+          <p style="font-size: 18px;">Warrior <strong>${menteeName}</strong>,</p>
+          
+          <div class="task-box">
+            <h2 style="margin-top: 0; color: #92400e;">🎯 Mission: ${taskTitle}</h2>
+            <p style="color: #78350f; margin: 10px 0;">
+              <strong>Assigned by:</strong> ${mentorName}
+            </p>
+            <p style="color: #78350f; margin: 10px 0;">
+              <div class="deadline">⏰ Deadline: ${dueDate}</div>
+            </p>
+          </div>
+          
+          <p style="font-size: 16px; line-height: 1.6;">
+            Your mentor <strong>${mentorName}</strong> has assigned you a new battle mission. This task is designed to help you grow and develop new skills on your journey.
+          </p>
+          
+          <p style="background: #eff6ff; padding: 20px; border-radius: 8px; border-left: 4px solid #3b82f6; line-height: 1.6;">
+            <strong>💡 Remember:</strong> Complete this mission before the deadline. If you encounter challenges, don't hesitate to reach out to your mentor for guidance!
+          </p>
+          
+          <a href="${clientUrl}/tasks" class="cta-button">
+            View Mission Details →
+          </a>
+        </div>
+      </div>
+    </body>
+    </html>
+    `;
+  }
+
+  getSessionScheduledTemplate(userName, sessionDate, otherPersonName, isHost, clientUrl) {
+    return `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <style>
+        body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: linear-gradient(135deg, #1f2937, #111827); }
+        .container { max-width: 600px; margin: 0 auto; background: #fff; }
+        .header { background: linear-gradient(135deg, #3b82f6, #2563eb); padding: 40px 30px; text-align: center; color: white; }
+        .content { padding: 40px 30px; color: #374151; }
+        .session-box { background: #eff6ff; padding: 25px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #3b82f6; }
+        .cta-button { display: inline-block; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <div class="header">
+          <h1>📅 Session Scheduled!</h1>
+          <p>Mentorship session confirmed</p>
+        </div>
+        <div class="content">
+          <p style="font-size: 18px;">Hi <strong>${userName}</strong>,</p>
+          
+          <div class="session-box">
+            <h2 style="margin-top: 0; color: #1e40af;">✅ Session Confirmed</h2>
+            <p style="color: #1e3a8a; line-height: 1.6;">
+              <strong>With:</strong> ${otherPersonName}<br>
+              <strong>Date & Time:</strong> ${sessionDate}
+            </p>
+          </div>
+          
+          <p style="font-size: 16px; line-height: 1.6;">
+            ${isHost ? 'You have scheduled a mentorship session' : 'A mentorship session has been scheduled'} with <strong>${otherPersonName}</strong>. Make sure to prepare any topics or questions you'd like to discuss.
+          </p>
+          
+          <h3>✅ Preparation Tips:</h3>
+          <ul style="line-height: 1.8;">
+            <li>Review any battle missions or progress</li>
+            <li>Prepare questions or discussion topics</li>
+            <li>Test your video connection ahead of time</li>
+            <li>Have pen and paper ready for notes</li>
+          </ul>
+          
+          <a href="${clientUrl}/sessions" class="cta-button">
+            View Session Details →
+          </a>
+          
+          <p style="color: #6b7280; font-size: 14px; margin-top: 30px;">
+            You'll receive a reminder before the session starts.
+          </p>
         </div>
       </div>
     </body>
