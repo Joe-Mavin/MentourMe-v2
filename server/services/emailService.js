@@ -1,14 +1,43 @@
-const nodemailer = require('nodemailer');
+// Import nodemailer with error handling
+let nodemailer;
+let nodemailerError = null;
+
+try {
+  nodemailer = require('nodemailer');
+  console.log('✅ Nodemailer loaded successfully');
+  console.log('📦 Module info:', {
+    type: typeof nodemailer,
+    hasCreateTransporter: typeof nodemailer?.createTransporter,
+    isFunction: typeof nodemailer?.createTransporter === 'function'
+  });
+} catch (error) {
+  nodemailerError = error;
+  console.error('❌ Failed to load nodemailer:', error.message);
+}
 
 class EmailService {
   constructor() {
     this.transporter = null;
-    this.isEnabled = true;
+    this.isEnabled = false;
+    
+    if (!nodemailer) {
+      console.error('❌ Nodemailer not available:', nodemailerError?.message || 'Module not loaded');
+      return;
+    }
+    
+    if (typeof nodemailer.createTransporter !== 'function') {
+      console.error('❌ nodemailer.createTransporter is not a function. Module type:', typeof nodemailer);
+      console.error('Available properties:', Object.keys(nodemailer));
+      return;
+    }
+    
     this.initializeTransporter();
   }
 
   initializeTransporter() {
     try {
+      console.log('🔧 Creating email transporter...');
+      
       // Configure with Brevo (formerly Sendinblue) SMTP settings
       this.transporter = nodemailer.createTransporter({
       host: 'smtp-relay.brevo.com',
@@ -23,17 +52,25 @@ class EmailService {
       }
     });
 
+      console.log('✅ Transporter created successfully');
+      
       // Verify connection
       this.transporter.verify((error, success) => {
         if (error) {
-          console.error('❌ Email service connection failed:', error);
+          console.error('❌ SMTP connection failed:', error.message);
           this.isEnabled = false;
         } else {
-          console.log('✅ Email service connected successfully');
+          console.log('✅ SMTP connection verified - Email service ready!');
+          this.isEnabled = true;
         }
       });
+      
+      // Set enabled immediately (will be disabled if verify fails)
+      this.isEnabled = true;
+      
     } catch (error) {
-      console.error('❌ Failed to initialize email service:', error);
+      console.error('❌ Failed to create transporter:', error.message);
+      console.error('Stack:', error.stack);
       this.isEnabled = false;
       this.transporter = null;
     }
