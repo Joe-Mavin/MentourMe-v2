@@ -1,27 +1,16 @@
-let nodemailer;
-try {
-  nodemailer = require('nodemailer');
-} catch (error) {
-  console.log('⚠️ Nodemailer not available, email features will be disabled');
-}
+const nodemailer = require('nodemailer');
 
 class EmailService {
   constructor() {
     this.transporter = null;
-    this.isEnabled = !!nodemailer;
-    if (this.isEnabled) {
-      this.initializeTransporter();
-    }
+    this.isEnabled = true;
+    this.initializeTransporter();
   }
 
   initializeTransporter() {
-    if (!nodemailer) {
-      console.log('⚠️ Email service disabled - nodemailer not available');
-      return;
-    }
-
-    // Configure with Brevo (formerly Sendinblue) SMTP settings
-    this.transporter = nodemailer.createTransporter({
+    try {
+      // Configure with Brevo (formerly Sendinblue) SMTP settings
+      this.transporter = nodemailer.createTransporter({
       host: 'smtp-relay.brevo.com',
       port: 587,
       secure: false, // Use TLS
@@ -34,14 +23,20 @@ class EmailService {
       }
     });
 
-    // Verify connection
-    this.transporter.verify((error, success) => {
-      if (error) {
-        console.error('❌ Email service connection failed:', error);
-      } else {
-        console.log('✅ Email service connected successfully');
-      }
-    });
+      // Verify connection
+      this.transporter.verify((error, success) => {
+        if (error) {
+          console.error('❌ Email service connection failed:', error);
+          this.isEnabled = false;
+        } else {
+          console.log('✅ Email service connected successfully');
+        }
+      });
+    } catch (error) {
+      console.error('❌ Failed to initialize email service:', error);
+      this.isEnabled = false;
+      this.transporter = null;
+    }
   }
 
   async sendWelcomeEmail(userEmail, userName) {
