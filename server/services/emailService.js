@@ -39,18 +39,30 @@ class EmailService {
       console.log('🔧 Creating email transporter...');
       
       // Configure with Brevo (formerly Sendinblue) SMTP settings
+      // Try port 465 with SSL first (more reliable on cloud platforms)
+      const smtpPort = parseInt(process.env.BREVO_SMTP_PORT) || 465;
+      const isSecure = smtpPort === 465;
+      
+      console.log(`🔧 Attempting SMTP connection to smtp-relay.brevo.com:${smtpPort} (SSL: ${isSecure})`);
+      
       this.transporter = nodemailer.createTransport({
-      host: 'smtp-relay.brevo.com',
-      port: 587,
-      secure: false, // Use TLS
-      auth: {
-        user: process.env.BREVO_SMTP_USER || process.env.BREVO_EMAIL,
-        pass: process.env.BREVO_SMTP_PASSWORD || process.env.BREVO_API_KEY
-      },
-      tls: {
-        rejectUnauthorized: false
-      }
-    });
+        host: 'smtp-relay.brevo.com',
+        port: smtpPort,
+        secure: isSecure, // true for 465, false for 587/2525
+        auth: {
+          user: process.env.BREVO_SMTP_USER || process.env.BREVO_EMAIL,
+          pass: process.env.BREVO_SMTP_PASSWORD || process.env.BREVO_API_KEY
+        },
+        connectionTimeout: 10000, // 10 seconds
+        greetingTimeout: 10000,
+        socketTimeout: 10000,
+        tls: {
+          rejectUnauthorized: false,
+          minVersion: 'TLSv1.2'
+        },
+        debug: false, // Set to true for detailed SMTP logs
+        logger: false
+      });
 
       console.log('✅ Transporter created successfully');
       
