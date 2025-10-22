@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quick Email Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { color: #ea580c; }
+        button {
+            background: #ea580c;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover { background: #dc2626; }
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            white-space: pre-wrap;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .success { background: #d1fae5; color: #065f46; }
+        .error { background: #fee2e2; color: #991b1b; }
+        input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        .step {
+            background: #f0f9ff;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #3b82f6;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚔️ MentourMe Email Test</h1>
+        
+        <div class="step">
+            <strong>Step 1:</strong> Make sure your Render backend is deployed with the latest changes
+        </div>
+
+        <div class="step">
+            <strong>Step 2:</strong> Test the connection below
+        </div>
+
+        <h3>🔧 Backend URL:</h3>
+        <input type="text" id="url" value="https://mentourme-v2.onrender.com" placeholder="Your backend URL">
+
+        <h3>📡 Quick Tests:</h3>
+        <button onclick="testHealth()">1. Test Backend Health</button>
+        <button onclick="testEmailVerify()">2. Verify Email Config</button>
+        <br>
+        <input type="email" id="email" placeholder="your-email@example.com" style="margin-top: 20px;">
+        <button onclick="testSendEmail()">3. Send Test Email</button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        const resultDiv = document.getElementById('result');
+
+        function getUrl() {
+            return document.getElementById('url').value.trim();
+        }
+
+        async function testHealth() {
+            showResult('Testing backend health...', '');
+            try {
+                const response = await fetch(`${getUrl()}/health`);
+                const text = await response.text();
+                showResult(`✅ Backend is running!\n\nResponse: ${text}`, 'success');
+            } catch (error) {
+                showResult(`❌ Backend not reachable\n\nError: ${error.message}\n\nPossible issues:\n1. Backend URL is wrong\n2. Backend is not deployed\n3. Backend is still starting up (wait 1-2 minutes)`, 'error');
+            }
+        }
+
+        async function testEmailVerify() {
+            showResult('Verifying email configuration...', '');
+            try {
+                const response = await fetch(`${getUrl()}/api/email-test/verify`);
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult(`✅ Email Configuration Valid!\n\n${JSON.stringify(data, null, 2)}`, 'success');
+                } else {
+                    showResult(`❌ Email Configuration Failed\n\n${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Could not verify email config\n\nError: ${error.message}\n\nThis endpoint might not be deployed yet.\nCheck Render logs to see if the route is registered.`, 'error');
+            }
+        }
+
+        async function testSendEmail() {
+            const email = document.getElementById('email').value.trim();
+            if (!email) {
+                showResult('❌ Please enter your email address', 'error');
+                return;
+            }
+
+            showResult('Sending test email...', '');
+            try {
+                const response = await fetch(`${getUrl()}/api/email-test/send`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ email })
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    showResult(`✅ Test Email Sent!\n\n${JSON.stringify(data, null, 2)}\n\nCheck your inbox (and spam folder)!`, 'success');
+                } else {
+                    showResult(`❌ Failed to Send Email\n\n${JSON.stringify(data, null, 2)}`, 'error');
+                }
+            } catch (error) {
+                showResult(`❌ Could not send email\n\nError: ${error.message}`, 'error');
+            }
+        }
+
+        function showResult(message, type) {
+            resultDiv.className = `result ${type}`;
+            resultDiv.textContent = message;
+        }
+    </script>
+</body>
+</html>

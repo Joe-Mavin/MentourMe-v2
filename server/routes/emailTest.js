@@ -2,6 +2,20 @@ const express = require('express');
 const router = express.Router();
 const emailService = require('../services/emailService');
 
+// Allow CORS for email test endpoints (for testing purposes)
+router.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  
+  // Handle preflight
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
+
 /**
  * Test endpoint to verify Brevo email configuration
  * GET /api/email-test/verify
