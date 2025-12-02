@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User, Message, CommunityRoom, RoomMembership } = require("../models");
+const userRepo = require("../repositories/userRepository");
 
 class SocketService {
   constructor(io) {
@@ -18,16 +18,14 @@ class SocketService {
         }
 
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        const user = await User.findByPk(decoded.userId, {
-          attributes: { exclude: ["password"] }
-        });
+        const user = await userRepo.findById(decoded.userId);
 
         if (!user || !user.isActive) {
           return next(new Error("Invalid or inactive user"));
         }
 
         socket.userId = user.id;
-        socket.user = user;
+        socket.user = userRepo.sanitize(user);
         next();
       } catch (error) {
         next(new Error("Authentication failed"));
@@ -54,12 +52,10 @@ class SocketService {
     // Join user's personal room for direct messages
     socket.join(`user_${userId}`);
 
-    // Join user's rooms
+    // Join user's rooms (disabled for now during Firestore pivot)
     this.joinUserRooms(socket, userId);
 
-    // Set up event handlers
-    this.setupMessageHandlers(socket);
-    this.setupRoomHandlers(socket);
+    // Set up event handlers (messaging/rooms disabled in Firestore pivot)
     this.setupVideoCallHandlers(socket);
     this.setupTypingHandlers(socket);
 
@@ -74,281 +70,20 @@ class SocketService {
 
   async joinUserRooms(socket, userId) {
     try {
-      const memberships = await RoomMembership.findAll({
-        where: { userId, isActive: true },
-        include: [{
-          model: CommunityRoom,
-          as: "room",
-          where: { isActive: true }
-        }]
-      });
-
-      memberships.forEach(membership => {
-        socket.join(`room_${membership.roomId}`);
-      });
+      // No-op: Room membership is not active during Firestore migration
+      return;
     } catch (error) {
       console.error("Error joining user rooms:", error);
     }
   }
 
   setupMessageHandlers(socket) {
-    const userId = socket.userId;
-
-    // Handle real-time message sending
-    socket.on("send_message", async (data) => {
-      try {
-        const { receiverId, roomId, content, type = "text", replyToId, fileUrl, fileName, fileSize } = data;
-
-        // Validate message target
-        if (!receiverId && !roomId) {
-          socket.emit("message_error", { error: "Either receiverId or roomId is required" });
-          return;
-        }
-
-        // If sending to a room, check membership
-        if (roomId) {
-          const membership = await RoomMembership.findOne({
-            where: { userId, roomId, isActive: true }
-          });
-
-          if (!membership) {
-            socket.emit("message_error", { error: "You are not a member of this room" });
-            return;
-          }
-        }
-
-        // Create message in database
-        const message = await Message.create({
-          senderId: userId,
-          receiverId,
-          roomId,
-          content,
-          type,
-          replyToId,
-          fileUrl,
-          fileName,
-          fileSize
-        });
-
-        // Get complete message with sender info
-        const completeMessage = await Message.findByPk(message.id, {
-          include: [
-            {
-              model: User,
-              as: "sender",
-              attributes: ["id", "name", "avatar", "role"]
-            },
-            {
-              model: Message,
-              as: "parentMessage",
-              required: false,
-              include: [{
-                model: User,
-                as: "sender",
-                attributes: ["id", "name"]
-              }]
-            }
-          ]
-        });
-
-        if (roomId) {
-          // Send to all room members
-          this.io.to(`room_${roomId}`).emit("new_room_message", completeMessage);
-          
-          // Update room's last activity
-          await CommunityRoom.update(
-            { lastActivity: new Date() },
-            { where: { id: roomId } }
-          );
-        } else if (receiverId) {
-          // Send to receiver
-          this.io.to(`user_${receiverId}`).emit("new_direct_message", completeMessage);
-          // Send back to sender for confirmation
-          socket.emit("message_sent", completeMessage);
-          
-          // Auto-mark as delivered if receiver is online
-          if (this.isUserOnline(receiverId)) {
-            setTimeout(async () => {
-              try {
-                await Message.update(
-                  { isDelivered: true, deliveredAt: new Date() },
-                  { where: { id: completeMessage.id } }
-                );
-                
-                // Notify sender of delivery
-                this.io.to(`user_${userId}`).emit("message_delivered", {
-                  messageId: completeMessage.id,
-                  deliveredAt: new Date()
-                });
-              } catch (error) {
-                console.error("Auto-delivery update failed:", error);
-              }
-            }, 100); // Small delay to ensure message is received
-          }
-        }
-
-      } catch (error) {
-        console.error("Send message error:", error);
-        socket.emit("message_error", { error: "Failed to send message" });
-      }
-    });
-
-    socket.on("send_direct_message", async (data) => {
-      try {
-        const { receiverId, content, type = "text" } = data;
-
-        // Create message in database
-        const message = await Message.create({
-          senderId: userId,
-          receiverId,
-          content,
-          type
-        });
-
-        // Get complete message with sender info
-        const completeMessage = await Message.findByPk(message.id, {
-          include: [{
-            model: User,
-            as: "sender",
-            attributes: ["id", "name", "avatar", "role"]
-          }]
-        });
-
-        // Send to receiver
-        this.io.to(`user_${receiverId}`).emit("new_direct_message", completeMessage);
-        
-        // Send back to sender for confirmation
-        socket.emit("message_sent", completeMessage);
-
-      } catch (error) {
-        console.error("Send direct message error:", error);
-        socket.emit("message_error", { error: "Failed to send message" });
-      }
-    });
-
-    socket.on("send_room_message", async (data) => {
-      try {
-        const { roomId, content, type = "text" } = data;
-
-        // Verify user is member of the room
-        const membership = await RoomMembership.findOne({
-          where: { userId, roomId, isActive: true }
-        });
-
-        if (!membership) {
-          socket.emit("message_error", { error: "Not a member of this room" });
-          return;
-        }
-
-        // Create message in database
-        const message = await Message.create({
-          senderId: userId,
-          roomId,
-          content,
-          type
-        });
-
-        // Get complete message with sender info
-        const completeMessage = await Message.findByPk(message.id, {
-          include: [{
-            model: User,
-            as: "sender",
-            attributes: ["id", "name", "avatar", "role"]
-          }]
-        });
-
-        // Send to all room members
-        this.io.to(`room_${roomId}`).emit("new_room_message", completeMessage);
-
-        // Update room's last activity
-        await CommunityRoom.update(
-          { lastActivity: new Date() },
-          { where: { id: roomId } }
-        );
-
-      } catch (error) {
-        console.error("Send room message error:", error);
-        socket.emit("message_error", { error: "Failed to send message" });
-      }
-    });
-
-    socket.on("mark_messages_read", async (data) => {
-      try {
-        const { otherUserId, roomId } = data;
-
-        if (otherUserId) {
-          // Mark direct messages as read
-          await Message.update(
-            { isRead: true, readAt: new Date() },
-            {
-              where: {
-                senderId: otherUserId,
-                receiverId: userId,
-                isRead: false
-              }
-            }
-          );
-
-          // Notify other user that messages were read
-          this.io.to(`user_${otherUserId}`).emit("messages_read", { readBy: userId });
-        }
-
-        if (roomId) {
-          // Update last read timestamp for room
-          await RoomMembership.update(
-            { lastReadAt: new Date() },
-            { where: { userId, roomId } }
-          );
-        }
-
-      } catch (error) {
-        console.error("Mark messages read error:", error);
-      }
-    });
+    // Messaging handlers are disabled during the Firestore pivot
+    // This prevents accidental imports or usage of SQL models.
   }
 
   setupRoomHandlers(socket) {
-    const userId = socket.userId;
-
-    socket.on("join_room", async (data) => {
-      try {
-        const { roomId } = data;
-
-        // Verify membership
-        const membership = await RoomMembership.findOne({
-          where: { userId, roomId, isActive: true }
-        });
-
-        if (membership) {
-          socket.join(`room_${roomId}`);
-          socket.emit("room_joined", { roomId });
-          
-          // Notify other room members
-          socket.to(`room_${roomId}`).emit("user_joined_room", {
-            user: socket.user,
-            roomId
-          });
-        } else {
-          socket.emit("room_error", { error: "Not a member of this room" });
-        }
-
-      } catch (error) {
-        console.error("Join room error:", error);
-        socket.emit("room_error", { error: "Failed to join room" });
-      }
-    });
-
-    socket.on("leave_room", (data) => {
-      const { roomId } = data;
-      socket.leave(`room_${roomId}`);
-      socket.emit("room_left", { roomId });
-      
-      // Notify other room members
-      socket.to(`room_${roomId}`).emit("user_left_room", {
-        user: socket.user,
-        roomId
-      });
-    });
+    // Room membership handlers are disabled during the Firestore pivot
   }
 
   setupVideoCallHandlers(socket) {

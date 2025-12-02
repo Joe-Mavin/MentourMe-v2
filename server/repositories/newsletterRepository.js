@@ -1,7 +1,4 @@
 const { getFirestore } = require('../config/firestore');
-const { Newsletter } = require('../models');
-
-const BACKEND = process.env.NEWSLETTER_BACKEND || process.env.DATA_BACKEND || 'sql'; // 'sql' | 'firestore'
 
 // Normalize a record to common shape
 function normalize(record) {
@@ -15,35 +12,7 @@ function normalize(record) {
   };
 }
 
-// SQL implementation
-const sqlRepo = {
-  async findByEmail(email) {
-    const row = await Newsletter.findOne({ where: { email } });
-    return row ? normalize(row.get({ plain: true })) : null;
-  },
-  async create(email) {
-    const row = await Newsletter.create({
-      email,
-      isActive: true,
-      subscribedAt: new Date(),
-    });
-    return normalize(row.get({ plain: true }));
-  },
-  async reactivate(email) {
-    const row = await Newsletter.findOne({ where: { email } });
-    if (!row) return null;
-    await row.update({ isActive: true, unsubscribedAt: null });
-    return normalize(row.get({ plain: true }));
-  },
-  async deactivate(email) {
-    const row = await Newsletter.findOne({ where: { email } });
-    if (!row) return null;
-    await row.update({ isActive: false, unsubscribedAt: new Date() });
-    return normalize(row.get({ plain: true }));
-  },
-};
-
-// Firestore implementation
+// Firestore implementation (Firestorm-only)
 const fsRepo = {
   col() {
     const db = getFirestore();
@@ -82,6 +51,4 @@ const fsRepo = {
   },
 };
 
-const repo = BACKEND === 'firestore' ? fsRepo : sqlRepo;
-
-module.exports = repo;
+module.exports = fsRepo;

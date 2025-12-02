@@ -1,16 +1,8 @@
 const { getFirestore } = require('../config/firestore');
-const { Notification } = require('../models');
-const { Op } = require('sequelize');
 const { randomUUID } = require('crypto');
-
-const BACKEND = process.env.NOTIFICATIONS_BACKEND || process.env.DATA_BACKEND || 'sql'; // 'sql' | 'firestore'
 
 function normalize(row) {
   if (!row) return null;
-  // Sequelize instance
-  if (typeof row.get === 'function') {
-    row = row.get({ plain: true });
-  }
   return {
     id: row.id,
     userId: row.userId,
@@ -28,73 +20,7 @@ function normalize(row) {
   };
 }
 
-// SQL repo
-const sqlRepo = {
-  async create(data) {
-    const row = await Notification.create(data);
-    return normalize(row);
-  },
-  async bulkCreate(list) {
-    const rows = await Notification.bulkCreate(list);
-    return rows.map(normalize);
-  },
-  async findAndCountByUser({ userId, isRead, type, page = 1, limit = 20 }) {
-    const whereClause = { userId };
-    if (typeof isRead === 'boolean') whereClause.isRead = isRead;
-    if (type) whereClause.type = type;
-    whereClause[Op.or] = [
-      { expiresAt: null },
-      { expiresAt: { [Op.gt]: new Date() } },
-    ];
-    const offset = (page - 1) * limit;
-    const result = await Notification.findAndCountAll({
-      where: whereClause,
-      order: [['createdAt', 'DESC']],
-      limit,
-      offset,
-    });
-    return { rows: result.rows.map(normalize), count: result.count };
-  },
-  async findByIdForUser(id, userId) {
-    const row = await Notification.findOne({ where: { id, userId } });
-    return normalize(row);
-  },
-  async markAsRead(id, userId) {
-    const row = await Notification.findOne({ where: { id, userId } });
-    if (!row) return null;
-    await row.update({ isRead: true, readAt: new Date() });
-    return normalize(row);
-  },
-  async markAllAsRead(userId) {
-    const [affected] = await Notification.update(
-      { isRead: true, readAt: new Date() },
-      { where: { userId, isRead: false } }
-    );
-    return affected;
-  },
-  async deleteById(id, userId) {
-    const row = await Notification.findOne({ where: { id, userId } });
-    if (!row) return false;
-    await row.destroy();
-    return true;
-  },
-  async countUnread(userId) {
-    const whereClause = {
-      userId,
-      isRead: false,
-      [Op.or]: [{ expiresAt: null }, { expiresAt: { [Op.gt]: new Date() } }],
-    };
-    return Notification.count({ where: whereClause });
-  },
-  async cleanupExpired() {
-    return Notification.destroy({
-      where: { expiresAt: { [Op.lt]: new Date() } },
-    });
-  },
-};
-
-// Firestore repo
-const fsRepo = {
+const repo = {
   col() {
     return getFirestore().collection('notifications');
   },
@@ -207,6 +133,4 @@ const fsRepo = {
     return count;
   },
 };
-
-const repo = BACKEND === 'firestore' ? fsRepo : sqlRepo;
 module.exports = repo;
