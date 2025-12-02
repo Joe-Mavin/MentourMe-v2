@@ -1,5 +1,5 @@
 const emailService = require('../services/emailService');
-const { Newsletter } = require('../models');
+const newsletterRepo = require('../repositories/newsletterRepository');
 
 const subscribeToNewsletter = async (req, res) => {
   try {
@@ -12,8 +12,8 @@ const subscribeToNewsletter = async (req, res) => {
       });
     }
 
-    // Check if email already exists
-    const existingSubscription = await Newsletter.findOne({ where: { email } });
+    // Check if email already exists (via repository: SQL or Firestore)
+    const existingSubscription = await newsletterRepo.findByEmail(email);
     
     if (existingSubscription) {
       if (existingSubscription.isActive) {
@@ -23,15 +23,11 @@ const subscribeToNewsletter = async (req, res) => {
         });
       } else {
         // Reactivate subscription
-        await existingSubscription.update({ isActive: true });
+        await newsletterRepo.reactivate(email);
       }
     } else {
       // Create new subscription
-      await Newsletter.create({
-        email,
-        isActive: true,
-        subscribedAt: new Date()
-      });
+      await newsletterRepo.create(email);
     }
 
     // Send welcome email
@@ -67,7 +63,7 @@ const unsubscribeFromNewsletter = async (req, res) => {
       });
     }
 
-    const subscription = await Newsletter.findOne({ where: { email } });
+    const subscription = await newsletterRepo.findByEmail(email);
     
     if (!subscription) {
       return res.status(404).json({
@@ -76,7 +72,7 @@ const unsubscribeFromNewsletter = async (req, res) => {
       });
     }
 
-    await subscription.update({ isActive: false });
+    await newsletterRepo.deactivate(email);
 
     res.json({
       success: true,

@@ -217,112 +217,80 @@ async function startServer() {
     await sequelize.authenticate();
     console.log("✅ Database connection established successfully");
 
-    // Sync database with proper dependency order
-    const syncOptions = process.env.NODE_ENV === "development" 
-      ? { alter: true } 
-      : { force: false };
-    
-    // Import individual models for ordered sync
-    const { 
-      User, 
-      OnboardingData, 
-      Newsletter,
-      BlogPost, 
-      MentorRanking,
-      CommunityRoom, 
-      Message, 
-      Task, 
-      RoomMembership,
-      MentorshipRequest,
-      MentorshipSession,
-      BlogComment,
-      BlogLike,
-      Notification
-    } = require('./models');
-    
-    // Sync models in dependency order (parent tables first)
-    console.log('🔄 Syncing database tables in dependency order...');
-    
-    // 1. Base tables with no dependencies
-    await User.sync(syncOptions);
-    console.log('✅ Users table synced');
-    
-    await Newsletter.sync(syncOptions);
-    console.log('✅ Newsletter table synced');
-    
-    // 2. Tables that depend on User
-    await OnboardingData.sync(syncOptions);
-    console.log('✅ OnboardingData table synced');
-    
-    await MentorRanking.sync(syncOptions);
-    console.log('✅ MentorRanking table synced');
-    
-    await BlogPost.sync(syncOptions);
-    console.log('✅ BlogPost table synced');
-    
-    await CommunityRoom.sync(syncOptions);
-    console.log('✅ CommunityRoom table synced');
-    
-    await MentorshipRequest.sync(syncOptions);
-    console.log('✅ MentorshipRequest table synced');
-    
-    // 3. Tables that depend on multiple tables
-    await Message.sync(syncOptions);
-    console.log('✅ Message table synced');
-    
-    await Task.sync(syncOptions);
-    console.log('✅ Task table synced');
-    
-    await RoomMembership.sync(syncOptions);
-    console.log('✅ RoomMembership table synced');
-    
-    await MentorshipSession.sync(syncOptions);
-    console.log('✅ MentorshipSession table synced');
-    
-    await BlogComment.sync(syncOptions);
-    console.log('✅ BlogComment table synced');
-    
-    await BlogLike.sync(syncOptions);
-    console.log('✅ BlogLike table synced');
-    
-    await Notification.sync(syncOptions);
-    console.log('✅ Notification table synced');
+    // Determine if we should run create-only sync (never alter/force in Cloud Run/production)
+    const shouldSync = (process.env.NODE_ENV !== 'production') && (process.env.DB_SYNC !== 'off');
+
+    if (shouldSync) {
+      // Import individual models for ordered sync
+      const { 
+        User, 
+        OnboardingData, 
+        Newsletter,
+        BlogPost, 
+        MentorRanking,
+        CommunityRoom, 
+        Message, 
+        Task, 
+        RoomMembership,
+        MentorshipRequest,
+        MentorshipSession,
+        BlogComment,
+        BlogLike,
+        Notification
+      } = require('./models');
+      
+      // Sync models in dependency order (parent tables first)
+      console.log('🔄 Syncing database tables (create-only) in dependency order...');
+      
+      // 1. Base tables with no dependencies
+      await User.sync();
+      console.log('✅ Users table synced');
+      
+      await Newsletter.sync();
+      console.log('✅ Newsletter table synced');
+      
+      // 2. Tables that depend on User
+      await OnboardingData.sync();
+      console.log('✅ OnboardingData table synced');
+      
+      await MentorRanking.sync();
+      console.log('✅ MentorRanking table synced');
+      
+      await BlogPost.sync();
+      console.log('✅ BlogPost table synced');
+      
+      await CommunityRoom.sync();
+      console.log('✅ CommunityRoom table synced');
+      
+      await MentorshipRequest.sync();
+      console.log('✅ MentorshipRequest table synced');
+      
+      // 3. Tables that depend on multiple tables
+      await Message.sync();
+      console.log('✅ Message table synced');
+      
+      await Task.sync();
+      console.log('✅ Task table synced');
+      
+      await RoomMembership.sync();
+      console.log('✅ RoomMembership table synced');
+      
+      await MentorshipSession.sync();
+      console.log('✅ MentorshipSession table synced');
+      
+      await BlogComment.sync();
+      console.log('✅ BlogComment table synced');
+      
+      await BlogLike.sync();
+      console.log('✅ BlogLike table synced');
+      
+      await Notification.sync();
+      console.log('✅ Notification table synced');
   
-    // Manually update the notifications table ENUM if needed
-    try {
-      await sequelize.query(`
-        ALTER TABLE notifications 
-        MODIFY COLUMN type ENUM(
-          'mentor_approved',
-          'mentor_rejected', 
-          'task_assigned',
-          'task_completed',
-          'task_verified',
-          'task_rejected',
-          'new_message',
-          'room_invitation',
-          'room_joined',
-          'room_member_added',
-          'mentorship_assigned',
-          'call_incoming',
-          'call_accepted',
-          'call_rejected',
-          'call_ended',
-          'call_missed',
-          'session_scheduled',
-          'session_confirmed',
-          'session_cancelled',
-          'session_completed',
-          'session_reminder',
-          'system_announcement',
-          'profile_update_required'
-        ) NOT NULL
-      `);
-      console.log('✅ Notifications ENUM column updated successfully');
-    } catch (enumError) {
-      console.log('⚠️ ENUM update error (may be expected):', enumError.message);
+      console.log("✅ Database synchronized successfully (create-only)");
+    } else {
+      console.log('⏭️  Skipping database sync (production or DB_SYNC=off).');
     }
-    console.log("✅ Database synchronized successfully - FIXING MESSAGE RESPONSE");
 
     // Start server
     server.listen(PORT, '0.0.0.0', () => {
