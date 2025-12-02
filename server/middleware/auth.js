@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { User } = require("../models");
+const userRepo = require("../repositories/userRepository");
 
 const authenticateToken = async (req, res, next) => {
   try {
@@ -20,9 +20,7 @@ const authenticateToken = async (req, res, next) => {
     }
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const user = await User.findByPk(decoded.userId, {
-      attributes: { exclude: ["password"] }
-    });
+    const user = await userRepo.findById(decoded.userId);
 
     if (!user || !user.isActive) {
       return res.status(401).json({ 
@@ -31,7 +29,7 @@ const authenticateToken = async (req, res, next) => {
       });
     }
 
-    req.user = user;
+    req.user = userRepo.sanitize(user);
     next();
   } catch (error) {
     if (error.name === "TokenExpiredError") {
@@ -93,12 +91,10 @@ const optionalAuth = async (req, res, next) => {
 
     if (token) {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findByPk(decoded.userId, {
-        attributes: { exclude: ["password"] }
-      });
+      const user = await userRepo.findById(decoded.userId);
 
       if (user && user.isActive) {
-        req.user = user;
+        req.user = userRepo.sanitize(user);
       }
     }
 

@@ -6,31 +6,19 @@ const cors = require("cors");
 const helmet = require("helmet");
 const path = require("path");
 
-// Import models and services
-const { sequelize } = require("./models");
+// Import services (no SQL)
 const SocketService = require("./services/socketService");
 const WebRTCService = require("./services/webrtcService");
 const notificationService = require("./services/notificationService");
 
-// Import routes
+// Import routes (only Firestore-ready modules)
 const authRoutes = require("./routes/authRoutes");
 const onboardingRoutes = require("./routes/onboardingRoutes");
-const messageRoutes = require("./routes/messageRoutes");
-const taskRoutes = require("./routes/taskRoutes");
-const roomRoutes = require("./routes/roomRoutes");
 const userRoutes = require("./routes/userRoutes");
-const adminRoutes = require("./routes/adminRoutes");
-const uploadRoutes = require("./routes/uploadRoutes");
-const recommendationRoutes = require("./routes/recommendationRoutes");
-const mentorshipRoutes = require("./routes/mentorshipRoutes");
 const notificationRoutes = require("./routes/notifications");
+const newsletterRoutes = require('./routes/newsletterRoutes');
 const videoCallRoutes = require("./routes/videoCallRoutes");
 const webrtcRoutes = require("./routes/webrtcRoutes");
-const setupRoutes = require("./routes/setupRoutes");
-const newsletterRoutes = require('./routes/newsletterRoutes');
-const blogRoutes = require('./routes/blogRoutes');
-const sessionRoutes = require('./routes/sessionRoutes');
-const emailTestRoutes = require('./routes/emailTest');
 
 const app = express();
 const server = http.createServer(app);
@@ -126,25 +114,11 @@ app.use((req, res, next) => {
 // API routes
 app.use("/api/auth", authRoutes);
 app.use("/api/onboarding", onboardingRoutes);
-app.use("/api/messages", messageRoutes);
-app.use("/api/tasks", taskRoutes);
-app.use("/api/rooms", roomRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/admin", adminRoutes);
-app.use("/api/upload", uploadRoutes);
-app.use("/api/recommendations", recommendationRoutes);
-app.use("/api/mentorship", mentorshipRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/video-calls", videoCallRoutes);
 app.use("/api/webrtc", webrtcRoutes);
-app.use("/api/setup", setupRoutes);
-app.use("/api/newsletter", newsletterRoutes);
-app.use("/api/blog", blogRoutes);
-console.log('🔧 Registering session routes at /api/sessions');
-app.use("/api/sessions", sessionRoutes);
-console.log('✅ Session routes registered successfully');
-app.use("/api/email-test", emailTestRoutes);
-console.log('✅ Email test routes registered at /api/email-test');
 
 // WebRTC signaling endpoints
 app.get("/api/webrtc/calls/active", (req, res) => {
@@ -208,109 +182,18 @@ app.use("*", (req, res) => {
   });
 });
 
-// Database connection and server startup
+// Server startup (no SQL required)
 const PORT = process.env.PORT || 5000;
-
-async function startServer() {
-  try {
-    // Test database connection
-    await sequelize.authenticate();
-    console.log("✅ Database connection established successfully");
-
-    // Determine if we should run create-only sync (never alter/force in Cloud Run/production)
-    const shouldSync = (process.env.NODE_ENV !== 'production') && (process.env.DB_SYNC !== 'off');
-
-    if (shouldSync) {
-      // Import individual models for ordered sync
-      const { 
-        User, 
-        OnboardingData, 
-        Newsletter,
-        BlogPost, 
-        MentorRanking,
-        CommunityRoom, 
-        Message, 
-        Task, 
-        RoomMembership,
-        MentorshipRequest,
-        MentorshipSession,
-        BlogComment,
-        BlogLike,
-        Notification
-      } = require('./models');
-      
-      // Sync models in dependency order (parent tables first)
-      console.log('🔄 Syncing database tables (create-only) in dependency order...');
-      
-      // 1. Base tables with no dependencies
-      await User.sync();
-      console.log('✅ Users table synced');
-      
-      await Newsletter.sync();
-      console.log('✅ Newsletter table synced');
-      
-      // 2. Tables that depend on User
-      await OnboardingData.sync();
-      console.log('✅ OnboardingData table synced');
-      
-      await MentorRanking.sync();
-      console.log('✅ MentorRanking table synced');
-      
-      await BlogPost.sync();
-      console.log('✅ BlogPost table synced');
-      
-      await CommunityRoom.sync();
-      console.log('✅ CommunityRoom table synced');
-      
-      await MentorshipRequest.sync();
-      console.log('✅ MentorshipRequest table synced');
-      
-      // 3. Tables that depend on multiple tables
-      await Message.sync();
-      console.log('✅ Message table synced');
-      
-      await Task.sync();
-      console.log('✅ Task table synced');
-      
-      await RoomMembership.sync();
-      console.log('✅ RoomMembership table synced');
-      
-      await MentorshipSession.sync();
-      console.log('✅ MentorshipSession table synced');
-      
-      await BlogComment.sync();
-      console.log('✅ BlogComment table synced');
-      
-      await BlogLike.sync();
-      console.log('✅ BlogLike table synced');
-      
-      await Notification.sync();
-      console.log('✅ Notification table synced');
-  
-      console.log("✅ Database synchronized successfully (create-only)");
-    } else {
-      console.log('⏭️  Skipping database sync (production or DB_SYNC=off).');
-    }
-
-    // Start server
-    server.listen(PORT, '0.0.0.0', () => {
-      console.log(`🚀 Server running on port ${PORT}`);
-      console.log(`📱 Environment: ${process.env.NODE_ENV || "development"}`);
-      console.log(`🌐 Client URL: ${process.env.CLIENT_URL || "http://localhost:3000"}`);
-      console.log(`📊 Socket.IO enabled for real-time features`);
-      console.log(`🎥 WebRTC service initialized for video calls`);
-      console.log(`✅ Server is ready to accept connections`);
-      
-      // Signal that the server is ready
-      if (process.send) {
-        process.send('ready');
-      }
-    });
-
-  } catch (error) {
-    console.error("❌ Failed to start server:", error);
-    process.exit(1);
-  }
+function startServer() {
+  server.listen(PORT, '0.0.0.0', () => {
+    console.log(`🚀 Server running on port ${PORT}`);
+    console.log(`📱 Environment: ${process.env.NODE_ENV || "development"}`);
+    console.log(`🌐 Client URL: ${process.env.CLIENT_URL || "http://localhost:3000"}`);
+    console.log(`📊 Socket.IO enabled for real-time features`);
+    console.log(`🎥 WebRTC service initialized for video calls`);
+    console.log(`✅ Server is ready to accept connections`);
+    if (process.send) process.send('ready');
+  });
 }
 
 // Graceful shutdown
@@ -321,9 +204,6 @@ process.on("SIGTERM", async () => {
     console.log("✅ HTTP server closed");
   });
   
-  await sequelize.close();
-  console.log("✅ Database connection closed");
-  
   process.exit(0);
 });
 
@@ -333,9 +213,6 @@ process.on("SIGINT", async () => {
   server.close(() => {
     console.log("✅ HTTP server closed");
   });
-  
-  await sequelize.close();
-  console.log("✅ Database connection closed");
   
   process.exit(0);
 });

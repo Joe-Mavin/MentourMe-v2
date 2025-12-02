@@ -1,6 +1,6 @@
 const jwt = require("jsonwebtoken");
-const { User, OnboardingData } = require("../models");
-const { Op } = require("sequelize");
+const userRepo = require('../repositories/userRepository');
+const onboardingRepo = require('../repositories/onboardingRepository');
 const emailService = require('../services/emailService');
 
 const generateToken = (userId) => {
@@ -14,7 +14,7 @@ const register = async (req, res) => {
     const { name, email, password, role = "user", phone, bio } = req.body;
 
     // Check if user already exists
-    const existingUser = await User.findOne({ where: { email } });
+    const existingUser = await userRepo.findByEmail(email);
     if (existingUser) {
       return res.status(400).json({
         success: false,
@@ -23,15 +23,7 @@ const register = async (req, res) => {
     }
 
     // Create user
-    const user = await User.create({
-      name,
-      email,
-      password,
-      role,
-      phone,
-      bio,
-      approved: role !== "mentor" // Auto-approve non-mentors
-    });
+    const user = await userRepo.create({ name, email, password, role, phone, bio });
 
     // Send mentor application email if user is registering as mentor
     if (role === "mentor") {
@@ -52,7 +44,7 @@ const register = async (req, res) => {
       success: true,
       message: "User registered successfully",
       data: {
-        user: user.toJSON(),
+        user: userRepo.sanitize(user),
         token,
       },
     });
@@ -70,10 +62,8 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
 
-    // Find user with password (simplified to avoid association issues)
-    const user = await User.findOne({ 
-      where: { email, isActive: true }
-    });
+    // Find user with password
+    const user = await userRepo.findByEmail(email);
 
     if (!user) {
       return res.status(401).json({
@@ -83,7 +73,7 @@ const login = async (req, res) => {
     }
 
     // Check password
-    const isPasswordValid = await user.comparePassword(password);
+    const isPasswordValid = await userRepo.comparePassword(user, password);
     if (!isPasswordValid) {
       return res.status(401).json({
         success: false,
@@ -92,16 +82,17 @@ const login = async (req, res) => {
     }
 
     // Update last login
-    await user.update({ lastLogin: new Date() });
+    await userRepo.updateById(user.id, { lastLogin: new Date().toISOString() });
 
     // Generate token
     const token = generateToken(user.id);
 
+    const safeUser = userRepo.sanitize(await userRepo.findById(user.id));
     res.json({
       success: true,
       message: "Login successful",
       data: {
-        user: user.toJSON(),
+        user: safeUser,
         token,
       },
     });
@@ -117,13 +108,7 @@ const login = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    const user = await User.findByPk(req.user.id, {
-      include: [{
-        model: OnboardingData,
-        as: "onboardingData",
-        required: false
-      }]
-    });
+    const user = await userRepo.findById(req.user.id);
 
     if (!user) {
       return res.status(404).json({
@@ -150,7 +135,7 @@ const updateProfile = async (req, res) => {
     const { name, phone, avatar, bio } = req.body;
     const userId = req.user.id;
 
-    const user = await User.findByPk(userId);
+    const user = await userRepo.findById(userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -159,17 +144,18 @@ const updateProfile = async (req, res) => {
     }
 
     // Update user
-    await user.update({
-      ...(name && { name }),
-      ...(phone && { phone }),
-      ...(avatar && { avatar }),
+    await userRepo.updateById(userId, {
+      ...(name !== undefined && { name }),
+      ...(phone !== undefined && { phone }),
+      ...(avatar !== undefined && { avatar }),
       ...(bio !== undefined && { bio }),
     });
 
+    const updated = userRepo.sanitize(await userRepo.findById(userId));
     res.json({
       success: true,
       message: "Profile updated successfully",
-      data: { user: user.toJSON() },
+      data: { user: updated },
     });
   } catch (error) {
     console.error("Update profile error:", error);
@@ -186,7 +172,7 @@ const changePassword = async (req, res) => {
     const { currentPassword, newPassword } = req.body;
     const userId = req.user.id;
 
-    const user = await User.findByPk(userId);
+    const user = await userRepo.findById(userId);
     if (!user) {
       return res.status(404).json({
         success: false,
@@ -195,7 +181,7 @@ const changePassword = async (req, res) => {
     }
 
     // Verify current password
-    const isCurrentPasswordValid = await user.comparePassword(currentPassword);
+    const isCurrentPasswordValid = await userRepo.comparePassword(user, currentPassword);
     if (!isCurrentPasswordValid) {
       return res.status(400).json({
         success: false,
@@ -204,7 +190,7 @@ const changePassword = async (req, res) => {
     }
 
     // Update password
-    await user.update({ password: newPassword });
+    await userRepo.updateById(userId, { password: newPassword });
 
     res.json({
       success: true,

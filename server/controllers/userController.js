@@ -1,5 +1,4 @@
-const { User } = require("../models");
-const { Op } = require("sequelize");
+const userRepo = require("../repositories/userRepository");
 
 const searchUsers = async (req, res) => {
   try {
@@ -8,38 +7,6 @@ const searchUsers = async (req, res) => {
     
     console.log(`🔍 USER SEARCH: q="${q}", role="${role}", limit=${limit}, page=${page}`);
 
-    let whereClause = {
-      [Op.and]: [
-        { isActive: true }
-      ]
-    };
-
-    // Add search query if provided
-    if (q && q.trim().length >= 2) {
-      whereClause[Op.and].push({
-        [Op.or]: [
-          { name: { [Op.like]: `%${q.trim()}%` } },
-          { email: { [Op.like]: `%${q.trim()}%` } }
-        ]
-      });
-    }
-
-    // Filter by role if specified (map mentee to user for compatibility)
-    if (role) {
-      const roleMapping = {
-        'mentee': 'user',
-        'user': 'user', 
-        'mentor': 'mentor',
-        'admin': 'admin'
-      };
-      
-      const mappedRole = roleMapping[role];
-      if (mappedRole) {
-        whereClause[Op.and].push({ role: mappedRole });
-      }
-    }
-
-    // If no query and no role, return error
     if (!q && !role) {
       return res.status(400).json({
         success: false,
@@ -47,28 +14,19 @@ const searchUsers = async (req, res) => {
       });
     }
 
-    console.log(`🔍 WHERE CLAUSE:`, JSON.stringify(whereClause, null, 2));
-    
-    const users = await User.findAndCountAll({
-      where: whereClause,
-      attributes: ['id', 'name', 'email', 'avatar', 'role', 'createdAt'],
-      order: [['name', 'ASC']],
-      limit: parseInt(limit),
-      offset,
-      distinct: true
-    });
+    const { rows, count } = await userRepo.findAndCountAll({ q, role, limit: parseInt(limit), page: parseInt(page) });
 
-    console.log(`✅ FOUND ${users.count} users matching search criteria`);
+    console.log(`✅ FOUND ${count} users matching search criteria`);
 
     res.json({
       success: true,
       data: {
-        users: users.rows,
+        users: rows.map(userRepo.sanitize),
         pagination: {
-          total: users.count,
+          total: count,
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(users.count / limit)
+          totalPages: Math.ceil(count / limit)
         }
       }
     });
@@ -87,9 +45,7 @@ const getUserProfile = async (req, res) => {
     const { userId } = req.params;
     const requestingUserId = req.user.id;
 
-    const user = await User.findByPk(userId, {
-      attributes: ['id', 'name', 'email', 'avatar', 'role', 'phone', 'approved', 'isActive', 'createdAt']
-    });
+    const user = await userRepo.findById(userId);
 
     if (!user || !user.isActive) {
       return res.status(404).json({
@@ -100,7 +56,7 @@ const getUserProfile = async (req, res) => {
 
     // Hide email for other users unless admin
     if (requestingUserId !== parseInt(userId) && req.user.role !== 'admin') {
-      delete user.dataValues.email;
+      if (user) delete user.email;
     }
 
     res.json({
@@ -131,7 +87,7 @@ const updateUserProfile = async (req, res) => {
       });
     }
 
-    const user = await User.findByPk(userId);
+    const user = await userRepo.findById(userId);
     if (!user || !user.isActive) {
       return res.status(404).json({
         success: false,
@@ -145,11 +101,8 @@ const updateUserProfile = async (req, res) => {
     if (phone !== undefined) updateData.phone = phone;
     if (avatar !== undefined) updateData.avatar = avatar;
 
-    await user.update(updateData);
-
-    const updatedUser = await User.findByPk(userId, {
-      attributes: ['id', 'name', 'email', 'avatar', 'role', 'phone', 'approved', 'isActive', 'createdAt']
-    });
+    await userRepo.updateById(userId, updateData);
+    const updatedUser = await userRepo.findById(userId);
 
     res.json({
       success: true,

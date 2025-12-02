@@ -33,10 +33,9 @@ router.post("/login", authLimiter, validateLogin, login);
 // ✅ TEMP: Create test mentor for authentication testing
 router.post("/create-test-mentor", async (req, res) => {
   try {
-    const { User } = require('../models');
-    
+    const userRepo = require('../repositories/userRepository');
     // Check if test mentor already exists
-    const existingUser = await User.findOne({ where: { email: 'mentor@test.com' } });
+    const existingUser = await userRepo.findByEmail('mentor@test.com');
     if (existingUser) {
       return res.json({
         success: true,
@@ -46,14 +45,13 @@ router.post("/create-test-mentor", async (req, res) => {
     }
     
     // Create test mentor
-    const user = await User.create({
+    const user = await userRepo.create({
       name: 'Test Mentor',
       email: 'mentor@test.com',
-      password: 'password123', // Will be hashed by the model
-      role: 'mentor',
-      approved: true,
-      isActive: true
+      password: 'password123',
+      role: 'mentor'
     });
+    await userRepo.updateById(user.id, { approved: true, isActive: true });
     
     console.log('✅ Created test mentor:', user.email);
     
@@ -78,16 +76,11 @@ router.post("/create-test-mentor", async (req, res) => {
 // ✅ TEMP: Test profile with onboarding data
 router.get("/test-profile/:userId", async (req, res) => {
   try {
-    const { User, OnboardingData } = require('../models');
+    const userRepo = require('../repositories/userRepository');
+    const onboardingRepo = require('../repositories/onboardingRepository');
     const { userId } = req.params;
-    
-    const user = await User.findByPk(userId, {
-      include: [{
-        model: OnboardingData,
-        as: "onboardingData",
-        required: false
-      }]
-    });
+    const user = await userRepo.findById(userId);
+    const onboarding = await onboardingRepo.findByUserId(userId);
     
     if (!user) {
       return res.status(404).json({
@@ -100,8 +93,8 @@ router.get("/test-profile/:userId", async (req, res) => {
       success: true,
       data: { 
         user,
-        hasOnboardingData: !!user.onboardingData,
-        onboardingCompleted: !!user.onboardingData?.completedAt
+        hasOnboardingData: !!onboarding,
+        onboardingCompleted: !!onboarding?.completedAt
       }
     });
   } catch (error) {
