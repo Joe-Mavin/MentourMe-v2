@@ -401,10 +401,6 @@ class SocketService {
     this.io.to(`user_${userId}`).emit(event, data);
   }
 
-  emitCallAccepted(userId, data) {
-    this.io.to(`user_${userId}`).emit('call_accepted', data);
-  }
-
   emitToRoom(roomId, event, data) {
     console.log(` Emitting ${event} to room ${roomId}:`, data);
     this.io.to(roomId).emit(event, data);

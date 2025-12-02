@@ -4,6 +4,11 @@ const fsRepo = {
   col() {
     return getFirestore().collection('mentorship_requests');
   },
+  async findById(id) {
+    const d = await this.col().doc(String(id)).get();
+    if (!d.exists) return null;
+    return { id: d.id, ...d.data() };
+  },
   async findAcceptedBetweenUsers(userAId, userBId) {
     // Try mentor=userA, mentee=userB
     const q1 = await this.col()
