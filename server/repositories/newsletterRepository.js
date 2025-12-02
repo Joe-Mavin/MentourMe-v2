@@ -1,7 +1,7 @@
 const { getFirestore } = require('../config/firestore');
 const { Newsletter } = require('../models');
 
-const BACKEND = process.env.DATA_BACKEND || 'sql'; // 'sql' | 'firestore'
+const BACKEND = process.env.NEWSLETTER_BACKEND || process.env.DATA_BACKEND || 'sql'; // 'sql' | 'firestore'
 
 // Normalize a record to common shape
 function normalize(record) {
