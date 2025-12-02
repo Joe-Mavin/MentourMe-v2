@@ -1,5 +1,4 @@
-const { Notification, User } = require("../models");
-const { Op } = require("sequelize");
+const notificationRepo = require("../repositories/notificationRepository");
 
 // Get notifications for the current user
 const getNotifications = async (req, res) => {
@@ -8,40 +7,23 @@ const getNotifications = async (req, res) => {
     const { page = 1, limit = 20, isRead, type } = req.query;
     const offset = (page - 1) * limit;
 
-    let whereClause = { userId };
-    
-    // Filter by read status
-    if (isRead !== undefined) {
-      whereClause.isRead = isRead === "true";
-    }
-    
-    // Filter by type
-    if (type) {
-      whereClause.type = type;
-    }
-
-    // Filter out expired notifications
-    whereClause[Op.or] = [
-      { expiresAt: null },
-      { expiresAt: { [Op.gt]: new Date() } }
-    ];
-
-    const notifications = await Notification.findAndCountAll({
-      where: whereClause,
-      order: [["createdAt", "DESC"]],
-      limit: parseInt(limit),
-      offset
+    const { rows, count } = await notificationRepo.findAndCountByUser({
+      userId,
+      isRead: isRead !== undefined ? isRead === "true" : undefined,
+      type,
+      page: parseInt(page),
+      limit: parseInt(limit)
     });
 
     res.json({
       success: true,
       data: {
-        notifications: notifications.rows,
+        notifications: rows,
         pagination: {
-          total: notifications.count,
+          total: count,
           page: parseInt(page),
           limit: parseInt(limit),
-          totalPages: Math.ceil(notifications.count / limit)
+          totalPages: Math.ceil(count / limit)
         }
       }
     });
@@ -61,10 +43,7 @@ const markAsRead = async (req, res) => {
     const { notificationId } = req.params;
     const userId = req.user.id;
 
-    const notification = await Notification.findOne({
-      where: { id: notificationId, userId }
-    });
-
+    const notification = await notificationRepo.findByIdForUser(notificationId, userId);
     if (!notification) {
       return res.status(404).json({
         success: false,
@@ -72,10 +51,7 @@ const markAsRead = async (req, res) => {
       });
     }
 
-    await notification.update({
-      isRead: true,
-      readAt: new Date()
-    });
+    await notificationRepo.markAsRead(notificationId, userId);
 
     res.json({
       success: true,
@@ -97,10 +73,7 @@ const markAllAsRead = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    await Notification.update(
-      { isRead: true, readAt: new Date() },
-      { where: { userId, isRead: false } }
-    );
+    await notificationRepo.markAllAsRead(userId);
 
     res.json({
       success: true,
@@ -122,18 +95,13 @@ const deleteNotification = async (req, res) => {
     const { notificationId } = req.params;
     const userId = req.user.id;
 
-    const notification = await Notification.findOne({
-      where: { id: notificationId, userId }
-    });
-
-    if (!notification) {
+    const ok = await notificationRepo.deleteById(notificationId, userId);
+    if (!ok) {
       return res.status(404).json({
         success: false,
         message: "Notification not found"
       });
     }
-
-    await notification.destroy();
 
     res.json({
       success: true,
@@ -154,16 +122,7 @@ const getNotificationCount = async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const count = await Notification.count({
-      where: {
-        userId,
-        isRead: false,
-        [Op.or]: [
-          { expiresAt: null },
-          { expiresAt: { [Op.gt]: new Date() } }
-        ]
-      }
-    });
+    const count = await notificationRepo.countUnread(userId);
 
     res.json({
       success: true,
@@ -182,7 +141,7 @@ const getNotificationCount = async (req, res) => {
 // Create notification (internal use)
 const createNotification = async (notificationData) => {
   try {
-    const notification = await Notification.create(notificationData);
+    const notification = await notificationRepo.create(notificationData);
     return notification;
   } catch (error) {
     console.error("Create notification error:", error);

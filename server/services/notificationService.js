@@ -1,4 +1,4 @@
-const { Notification } = require("../models");
+const notificationRepo = require("../repositories/notificationRepository");
 
 class NotificationService {
   constructor() {
@@ -12,7 +12,7 @@ class NotificationService {
   // Create a notification
   async createNotification(notificationData) {
     try {
-      const notification = await Notification.create(notificationData);
+      const notification = await notificationRepo.create(notificationData);
       
       // Send real-time notification via socket
       if (this.socketService && this.socketService.emitToUser) {
@@ -29,7 +29,7 @@ class NotificationService {
   // Bulk create notifications
   async createBulkNotifications(notificationsData) {
     try {
-      const notifications = await Notification.bulkCreate(notificationsData);
+      const notifications = await notificationRepo.bulkCreate(notificationsData);
       
       // Send real-time notifications via socket
       if (this.socketService && this.socketService.emitToUser) {
@@ -315,13 +315,7 @@ class NotificationService {
   // Cleanup expired notifications
   async cleanupExpiredNotifications() {
     try {
-      const result = await Notification.destroy({
-        where: {
-          expiresAt: {
-            [require("sequelize").Op.lt]: new Date()
-          }
-        }
-      });
+      const result = await notificationRepo.cleanupExpired();
       
       console.log(`Cleaned up ${result} expired notifications`);
       return result;
