@@ -19,6 +19,7 @@ const notificationRoutes = require("./routes/notifications");
 const newsletterRoutes = require('./routes/newsletterRoutes');
 const videoCallRoutes = require("./routes/videoCallRoutes");
 const webrtcRoutes = require("./routes/webrtcRoutes");
+const mentorshipRoutes = require("./routes/mentorshipRoutes");
 const sessionRoutes = require("./routes/sessionRoutes");
 
 const app = express();
@@ -121,6 +122,7 @@ app.use("/api/newsletter", newsletterRoutes);
 app.use("/api/video-calls", videoCallRoutes);
 app.use("/api/webrtc", webrtcRoutes);
 app.use("/api/sessions", sessionRoutes);
+app.use("/api/mentorship", mentorshipRoutes);
 
 // WebRTC signaling endpoints
 app.get("/api/webrtc/calls/active", (req, res) => {
