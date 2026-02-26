@@ -32,7 +32,18 @@ const VideoStream = ({
     if (videoRef.current && stream) {
       videoRef.current.srcObject = stream;
       setIsVideoLoading(false);
+    } else if (videoRef.current && !stream) {
+      // CRITICAL: Clear video srcObject to release camera/microphone
+      videoRef.current.srcObject = null;
+      setIsVideoLoading(false);
     }
+
+    // Cleanup function to run when component unmounts or stream changes
+    return () => {
+      if (videoRef.current) {
+        videoRef.current.srcObject = null;
+      }
+    };
   }, [stream]);
 
   // Audio level detection for visual feedback

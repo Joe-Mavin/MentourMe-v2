@@ -100,6 +100,77 @@ const VideoCall = () => {
     };
   }, [callState]);
 
+  // Emergency cleanup on component unmount (navigation without End Call)
+  useEffect(() => {
+    return () => {
+      console.log('🧹 VideoCall unmounting - emergency cleanup');
+
+      // Stop all local media tracks
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach(track => {
+          console.log(`🛑 Emergency stopping ${track.kind} track`);
+          track.stop();
+        });
+        localStreamRef.current = null;
+      }
+
+      // Stop all remote stream tracks
+      remoteStreams.forEach((stream, participantId) => {
+        if (stream) {
+          stream.getTracks().forEach(track => {
+            console.log(`🛑 Emergency stopping remote ${track.kind} track for ${participantId}`);
+            track.stop();
+          });
+        }
+      });
+
+      // Clear all video elements
+      const videos = document.querySelectorAll('video');
+      videos.forEach(video => {
+        if (video.srcObject) {
+          video.srcObject = null;
+        }
+      });
+
+      // Call service cleanup
+      simpleWebRTC.cleanup();
+
+      // Clear timers
+      if (durationInterval.current) {
+        clearInterval(durationInterval.current);
+        durationInterval.current = null;
+      }
+      if (callStartTime.current) {
+        callStartTime.current = null;
+      }
+    };
+  }, []); // Empty dependency array - only on unmount
+
+  // Navigation guard for browser back/forward buttons
+  useEffect(() => {
+    const handleBeforeUnload = (event) => {
+      console.log('🚪 User navigating away - emergency cleanup');
+      // Direct cleanup instead of calling endCall to avoid dependency issues
+      cleanupCall();
+      // Prevent default navigation to allow cleanup
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    const handlePopState = () => {
+      console.log('🔙 Browser navigation detected - emergency cleanup');
+      cleanupCall();
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    window.addEventListener('popstate', handlePopState);
+
+    return () => {
+      window.removeEventListener('beforeunload', handleBeforeUnload);
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []); // No dependencies to avoid issues
+
   const initializeCall = async () => {
     try {
       console.log('🚀 Initializing simple video call:', callId);
@@ -503,14 +574,15 @@ const VideoCall = () => {
 
   const endCall = async () => {
     try {
+      console.log('📞 Ending call with full cleanup...');
       setCallState('ending');
-      
-      // Notify server about call end
+
+      // 1. Notify server about call end
       if (socketService.getConnectionStatus() && callId && callId !== 'new') {
         socketService.endCall(callId);
       }
-      
-      // Send notification to other participants
+
+      // 2. Send notification to other participants
       participants.forEach(participant => {
         if (participant.id !== user?.id) {
           socketService.emit('call_participant_left', {
@@ -520,35 +592,99 @@ const VideoCall = () => {
           });
         }
       });
-      
+
+      // 3. Clear React state immediately to trigger UI updates
+      setLocalStream(null);
+      setRemoteStreams(new Map());
+      setParticipants([]);
+
+      // 4. Stop all media tracks explicitly
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach(track => {
+          console.log(`🛑 Stopping ${track.kind} track`);
+          track.stop();
+        });
+        localStreamRef.current = null;
+      }
+
+      // 5. Stop remote stream tracks
+      remoteStreams.forEach((stream, participantId) => {
+        if (stream) {
+          stream.getTracks().forEach(track => {
+            console.log(`🛑 Stopping remote ${track.kind} track for ${participantId}`);
+            track.stop();
+          });
+        }
+      });
+
+      // 6. Call service cleanup
+      simpleWebRTC.cleanup();
+
+      // 7. Clear timers
+      if (durationInterval.current) {
+        clearInterval(durationInterval.current);
+        durationInterval.current = null;
+      }
+      if (callStartTime.current) {
+        callStartTime.current = null;
+      }
+
       toast.success('Call ended');
-    } catch (error) {
-      console.error('Error ending call:', error);
-      toast.error('Error ending call');
-    } finally {
-      // Always cleanup and navigate
-      await cleanupCall();
       setCallState('ended');
-      
-      // Navigate after a short delay to show the ended state
+
+      // 8. Navigate after cleanup
       setTimeout(() => {
         navigate('/dashboard');
       }, 1500);
+
+    } catch (error) {
+      console.error('❌ Error ending call:', error);
+      toast.error('Error ending call');
+      // Force cleanup even on error
+      cleanupCall();
     }
   };
 
   const cleanupCall = async () => {
     try {
-      console.log('🧹 Cleaning up call...');
-      
-      // Use simple WebRTC to clean up everything
-      simpleWebRTC.cleanup();
-      
-      // Clear local state
+      console.log('🧹 Cleaning up call comprehensively...');
+
+      // 1. Stop all local media tracks explicitly
+      if (localStreamRef.current) {
+        localStreamRef.current.getTracks().forEach(track => {
+          console.log(`🛑 Stopping local ${track.kind} track`);
+          track.stop();
+        });
+        localStreamRef.current = null;
+      }
+
+      // 2. Stop all remote stream tracks
+      remoteStreams.forEach((stream, participantId) => {
+        if (stream) {
+          stream.getTracks().forEach(track => {
+            console.log(`🛑 Stopping remote ${track.kind} track for ${participantId}`);
+            track.stop();
+          });
+        }
+      });
+
+      // 3. Clear all video elements to release camera/microphone
+      const videos = document.querySelectorAll('video');
+      videos.forEach(video => {
+        if (video.srcObject) {
+          console.log('🧹 Clearing video srcObject');
+          video.srcObject = null;
+        }
+      });
+
+      // 4. Clear React state
       setLocalStream(null);
       setRemoteStreams(new Map());
       setParticipants([]);
       localStreamRef.current = null;
+
+      // 5. Call service cleanup
+      simpleWebRTC.cleanup();
 
       console.log('✅ Call cleanup completed');
     } catch (error) {
